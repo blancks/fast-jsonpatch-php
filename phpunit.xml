@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="FastJsonPatchTest" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+    <CommandLine>
+      <PhpTestInterpreterSettings>
+        <option name="interpreterName" value="PHP 8.2.2" />
+      </PhpTestInterpreterSettings>
+    </CommandLine>
+    <TestRunner class="FastJsonPatchTest" file="$PROJECT_DIR$/test/FastJsonPatchTest.php" scope="Class" />
+    <method v="2" />
+  </configuration>
+</component>

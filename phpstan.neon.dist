@@ -1,0 +1,11 @@
+parameters:
+    level: max
+    excludePaths:
+        - test
+    paths:
+        - src
+    reportUnmatchedIgnoredErrors: false
+    ignoreErrors:
+        - '#recursiveKeySort#'
+        - '#array_splice#'
+        - '#Cannot access offset string on array#'

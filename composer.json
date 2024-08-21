@@ -1,0 +1,33 @@
+{
+    "name": "blancks/fast-jsonpatch-php",
+    "description": "PHP implementation of JSON Patch that runs fast with optimized memory usage",
+    "keywords": ["php","json", "json patch"],
+    "homepage": "https://github.com/blancks/fast-jsonpatch-php",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Salvatore Rotondo",
+            "email": "s.rotondo90@gmail.com"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/blancks/fast-jsonpatch-php/issues"
+    },
+    "autoload": {
+        "psr-4": {
+            "blancks\\JsonPatch\\": "src"
+        }
+    },
+    "require": {
+        "php": ">=8.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11",
+        "phpstan/phpstan": "^1.11"
+    },
+    "scripts": {
+        "test": "phpunit --no-configuration --test-suffix FastJsonPatchTest.php tests/ --colors=always",
+        "static-analyse": "phpstan analyse --configuration phpstan.neon.dist"
+    }
+}
