@@ -1,6 +1,6 @@
 {
     "name": "blancks/fast-jsonpatch-php",
-    "description": "PHP implementation of JSON Patch that runs fast with optimized memory usage",
+    "description": "Class designed to efficiently handle JSON Patch operations in accordance with the RFC 6902 specification",
     "keywords": ["php","json", "json patch"],
     "homepage": "https://github.com/blancks/fast-jsonpatch-php",
     "type": "library",
