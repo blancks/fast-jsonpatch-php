@@ -1,6 +1,8 @@
 PHP Fast JSON Patch
 =====================
 
+![Test](https://github.com/blancks/fast-jsonpatch-php/workflows/Test/badge.svg)
+
 FastJsonPatch is designed to handle JSON Patch operations in accordance with the [RFC 6902](http://tools.ietf.org/html/rfc6902) specification.
 
 JSON Patch is a format for expressing a sequence of operations to be applied to a JSON document. This class provides methods to parse, validate, and apply these operations, allowing you to modify JSON objects or arrays programmatically.
