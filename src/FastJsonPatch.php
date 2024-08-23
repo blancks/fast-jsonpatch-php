@@ -287,11 +287,8 @@ final class FastJsonPatch
         $pathLength = count($path);
         $isObject = is_object($document);
 
-        if (
-            $pathLength > 0 &&
-            (($isObject && !property_exists($document, $node)) || (!$isObject && !array_key_exists($node, $document)))
-        ) {
-            throw new UnknownPathException(sprintf('Unknown document path "/%s"', implode('/', $originalpath)));
+        if ($pathLength > 0) {
+            self::assertPropertyExists($document, $node, $originalpath);
         }
 
         if ($pathLength === 0) {
@@ -375,12 +372,7 @@ final class FastJsonPatch
         $originalpath ??= $path;
         $node = array_shift($path);
         $isObject = is_object($document);
-
-        if (($isObject && !property_exists($document, $node)) || (!$isObject && !array_key_exists($node, $document))) {
-            throw new UnknownPathException(
-                sprintf('Unknown document path "/%s"', implode('/', $originalpath))
-            );
-        }
+        self::assertPropertyExists($document, $node, $originalpath);
 
         if (count($path) === 0) {
             $isAssociative = !$isObject && !array_is_list($document);
@@ -424,12 +416,7 @@ final class FastJsonPatch
         $originalpath ??= $path;
         $node = array_shift($path);
         $isObject = is_object($document);
-
-        if (($isObject && !property_exists($document, $node)) || (!$isObject && !array_key_exists($node, $document))) {
-            throw new UnknownPathException(
-                sprintf('Unknown document path "/%s"', implode('/', $originalpath))
-            );
-        }
+        self::assertPropertyExists($document, $node, $originalpath);
 
         if ($isObject) {
             return count($path) === 0
@@ -525,6 +512,24 @@ final class FastJsonPatch
     {
         if ($pointer !== '' && !str_starts_with($pointer, '/')) {
             throw new MalformedPathException(sprintf('path "%s" does not start with a slash', $pointer));
+        }
+    }
+
+    /**
+     * Ensures that the given $node property/index exists in the $document
+     *
+     * @param array<int|string, mixed>|\stdClass $document
+     * @param string $node
+     * @param string[] $originalpath
+     * @return void
+     * @throws UnknownPathException
+     */
+    private static function assertPropertyExists(array|\stdClass $document, string $node, array $originalpath): void
+    {
+        $isObject = is_object($document);
+
+        if ((($isObject && !property_exists($document, $node)) || (!$isObject && !array_key_exists($node, $document)))) {
+            throw new UnknownPathException(sprintf('Unknown document path "/%s"', implode('/', $originalpath)));
         }
     }
 
