@@ -2,4 +2,8 @@
 
 namespace blancks\JsonPatch\exceptions;
 
-interface FastJsonPatchException extends \Throwable {}
+interface FastJsonPatchException extends \Throwable
+{
+    public function getContextPointer(): ?string;
+    public function getContextDocument(): ?string;
+}

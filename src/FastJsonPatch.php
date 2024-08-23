@@ -252,12 +252,11 @@ final class FastJsonPatch
         $item = self::documentReader($document, $path);
 
         if (!self::isJsonEquals($item, $value)) {
+            $valuejson = self::documentToString($value);
             throw new FailedTestException(
-                sprintf(
-                    'Test operation failed asserting that %s equals %s',
-                    json_encode($item),
-                    json_encode($value)
-                )
+                sprintf('Test operation failed asserting that %s equals %s', self::documentToString($item), $valuejson),
+                self::pathToString($path),
+                $valuejson
             );
         }
     }
@@ -297,11 +296,9 @@ final class FastJsonPatch
 
             if ($appendToArray && ($isObject || $isAssociative)) {
                 throw new AppendToObjectException(
-                    sprintf(
-                        'Appending value ("-" symbol) against an object is not allowed at path /%s for item %s',
-                        implode('/', $originalpath),
-                        json_encode($document)
-                    )
+                    'Appending value ("-" symbol) against an object is not allowed',
+                    self::pathToString($originalpath),
+                    self::documentToString($document)
                 );
             }
 
@@ -321,12 +318,9 @@ final class FastJsonPatch
 
             if (!is_numeric($node)) {
                 throw new UnknownPathException(
-                    sprintf(
-                        'Can\'t add object property "%s" to value "%s" at "/%s"',
-                        $node,
-                        json_encode($value),
-                        implode('/', $originalpath)
-                    )
+                    sprintf('Invalid array index "%s"', $node),
+                    self::pathToString($originalpath),
+                    self::documentToString($document)
                 );
             }
 
@@ -334,12 +328,9 @@ final class FastJsonPatch
 
             if ((string) $nodeInt !== $node || $nodeInt < 0 || $nodeInt > $documentLength) {
                 throw new ArrayBoundaryException(
-                    sprintf(
-                        'Exceeding array boundaries with index %d at path /%s for item %s',
-                        $nodeInt,
-                        implode('/', $originalpath),
-                        json_encode($document)
-                    )
+                    sprintf('Exceeding array boundaries trying to add index "%s"', $node),
+                    self::pathToString($originalpath),
+                    self::documentToString($document)
                 );
             }
 
@@ -444,18 +435,22 @@ final class FastJsonPatch
      */
     private static function validateDecodedPatch(array $patch): void
     {
-        foreach ($patch as $p) {
+        foreach ($patch as $i => $p) {
             $p = (array) $p;
 
             if (!isset($p['op'])) {
                 throw new InvalidPatchOperationException(
-                    sprintf('"op" is missing in patch %s', json_encode($p))
+                    sprintf('"op" is missing in patch with index %d', $i),
+                    "/{$i}",
+                    self::documentToString($p)
                 );
             }
 
             if (!isset($p['path'])) {
                 throw new InvalidPatchPathException(
-                    sprintf('"path" is missing in patch %s', json_encode($p))
+                    sprintf('"path" is missing in patch with index %d', $i),
+                    "/{$i}",
+                    self::documentToString($p)
                 );
             }
 
@@ -466,13 +461,21 @@ final class FastJsonPatch
                 case 'replace':
                 case 'test':
                     if (!array_key_exists('value', $p)) {
-                        throw new InvalidPatchValueException(sprintf('"value" is missing in patch %s', json_encode($p)));
+                        throw new InvalidPatchValueException(
+                            sprintf('"value" is missing in patch with index %d', $i),
+                            "/{$i}",
+                            self::documentToString($p)
+                        );
                     }
                     break;
                 case 'copy':
                 case 'move':
                     if (!isset($p['from'])) {
-                        throw new InvalidPatchFromException(sprintf('"from" is missing in patch %s', json_encode($p)));
+                        throw new InvalidPatchFromException(
+                            sprintf('"from" is missing in patch with index %d', $i),
+                            "/{$i}",
+                            self::documentToString($p)
+                        );
                     }
 
                     self::assertValidJsonPointer($p['from']);
@@ -481,7 +484,9 @@ final class FastJsonPatch
                     break;  // only needs "op" and "path" as mandatory properties
                 default:
                     throw new UnknownPatchOperationException(
-                        sprintf('Unknown operation "%s" in patch %s', $p['op'], json_encode($p))
+                        sprintf('Unknown operation "%s" in patch with index %d', $p['op'], $i),
+                        "/{$i}",
+                        self::documentToString($p)
                     );
             }
         }
@@ -504,6 +509,29 @@ final class FastJsonPatch
     }
 
     /**
+     * Converts a JSON Pointer back to its string state
+     *
+     * @param string[] $path
+     * @return string
+     */
+    private static function pathToString(array $path): string
+    {
+        return count($path) === 0 ? '' : '/' . implode('/', $path);
+    }
+
+    /**
+     * Converts a decoded document back to its json string
+     *
+     * @param mixed $document
+     * @return ?string
+     */
+    private static function documentToString(mixed $document): ?string
+    {
+        $json = json_encode($document);
+        return $json !== false ? $json : null;
+    }
+
+    /**
      * Ensures that $pointer is a valid JSON Pointer
      *
      * @param string $pointer
@@ -512,7 +540,7 @@ final class FastJsonPatch
     private static function assertValidJsonPointer(string $pointer): void
     {
         if ($pointer !== '' && !str_starts_with($pointer, '/')) {
-            throw new MalformedPathException(sprintf('path "%s" does not start with a slash', $pointer));
+            throw new MalformedPathException(sprintf('path "%s" does not start with a slash', $pointer), $pointer);
         }
     }
 
@@ -530,7 +558,7 @@ final class FastJsonPatch
         $isObject = is_object($document);
 
         if ((($isObject && !property_exists($document, $node)) || (!$isObject && !array_key_exists($node, $document)))) {
-            throw new UnknownPathException(sprintf('Unknown document path "/%s"', implode('/', $originalpath)));
+            throw new UnknownPathException(sprintf('Unknown document path "/%s"', self::pathToString($originalpath)));
         }
     }
 
