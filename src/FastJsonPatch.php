@@ -11,6 +11,7 @@ use blancks\JsonPatch\exceptions\{
     InvalidPatchOperationException,
     InvalidPatchPathException,
     InvalidPatchValueException,
+    MalformedDocumentException,
     MalformedPathException,
     UnknownPathException,
     UnknownPatchOperationException
@@ -35,7 +36,11 @@ final class FastJsonPatch
      */
     public static function apply(string $json, string $patch, int $depth = 512, int $flags = 0): string
     {
-        return json_encode(self::applyDecode($json, $patch, false, $depth), JSON_THROW_ON_ERROR | $flags);
+        return self::documentToString(
+            self::applyDecode($json, $patch, false, $depth),
+            JSON_THROW_ON_ERROR | $flags,
+            $depth
+        );
     }
 
     /**
@@ -46,7 +51,7 @@ final class FastJsonPatch
      * @param bool $associative same parameter used by json_decode function
      * @param int $depth same parameter used by json_decode function
      * @param int $flags same parameter used by json_decode function. JSON_THROW_ON_ERROR is added by default
-     * @return mixed
+     * @return array<int|string, mixed>|\stdClass
      * @throws \JsonException
      * @throws FastJsonPatchException
      */
@@ -56,16 +61,21 @@ final class FastJsonPatch
         bool $associative = false,
         int $depth = 512,
         int $flags = 0
-    ): mixed {
-        if ($depth < 1) {
-            throw new \InvalidArgumentException('depth parameter must be greater than 0');
+    ): \stdClass|array {
+        $document = self::stringToDocument($json, $associative, $depth, $flags);
+
+        if (!is_array($document) && !($document instanceof \stdClass)) {
+            throw new MalformedDocumentException(
+                'Invalid JSON document, must be an array or stdClass object.',
+                '',
+                $json
+            );
         }
 
-        $document = json_decode($json, $associative, $depth, JSON_THROW_ON_ERROR | $flags);
-        $patch = json_decode($patch, $associative, $depth, JSON_THROW_ON_ERROR | $flags);
+        $patch = self::stringToDocument($patch, $associative, $depth, $flags);
 
         if (!is_array($patch)) {
-            throw new \InvalidArgumentException('invalid patches json, must resolve to an array of patch');
+            throw new \InvalidArgumentException('Invalid patch json, must resolve to an array of patches');
         }
 
         self::applyByReference($document, $patch);
@@ -85,6 +95,7 @@ final class FastJsonPatch
      * @param array<int|string, mixed>|\stdClass $document decoded json document passed by reference
      * @param array<int, \stdClass> $patch decoded list of patches that must be applied to $document
      * @throws FastJsonPatchException
+     * @throws \JsonException
      */
     public static function applyByReference(array|\stdClass &$document, array $patch): void
     {
@@ -147,6 +158,7 @@ final class FastJsonPatch
      * @throws InvalidPatchFromException
      * @throws UnknownPatchOperationException
      * @throws MalformedPathException
+     * @throws \JsonException
      */
     public static function validatePatch(string $patch): void
     {
@@ -168,6 +180,7 @@ final class FastJsonPatch
      * @param string[] $path
      * @param mixed $value
      * @return void
+     * @throws \JsonException
      */
     private static function opAdd(array|\stdClass &$document, array $path, mixed $value): void
     {
@@ -198,6 +211,7 @@ final class FastJsonPatch
      * @param string[] $path
      * @param mixed $value
      * @return void
+     * @throws \JsonException
      */
     private static function opReplace(array|\stdClass &$document, array $path, mixed $value): void
     {
@@ -214,6 +228,7 @@ final class FastJsonPatch
      * @param string[] $from
      * @param string[] $path
      * @return void
+     * @throws \JsonException
      */
     private static function opMove(array|\stdClass &$document, array $from, array $path): void
     {
@@ -230,6 +245,7 @@ final class FastJsonPatch
      * @param string[] $from
      * @param string[] $path
      * @return void
+     * @throws \JsonException
      */
     private static function opCopy(array|\stdClass &$document, array $from, array $path): void
     {
@@ -246,6 +262,7 @@ final class FastJsonPatch
      * @param string[] $path
      * @param mixed $value
      * @return void
+     * @throws \JsonException
      */
     private static function opTest(array|\stdClass &$document, array $path, mixed $value): void
     {
@@ -269,6 +286,7 @@ final class FastJsonPatch
      * @param mixed $value
      * @param string[]|null $originalpath
      * @return void
+     * @throws \JsonException
      */
     private static function documentWriter(
         array|\stdClass &$document,
@@ -432,6 +450,7 @@ final class FastJsonPatch
      * @throws InvalidPatchFromException
      * @throws UnknownPatchOperationException
      * @throws MalformedPathException
+     * @throws \JsonException
      */
     private static function validateDecodedPatch(array $patch): void
     {
@@ -520,15 +539,44 @@ final class FastJsonPatch
     }
 
     /**
+     * Decodes the JSON string
+     *
+     * @param string $json
+     * @param bool $associative
+     * @param int $depth
+     * @param int $flags
+     * @return mixed
+     * @throws \JsonException
+     */
+    private static function stringToDocument(
+        string $json,
+        bool $associative = false,
+        int $depth = 512,
+        int $flags = 0
+    ): mixed {
+        if ($depth < 1) {
+            throw new \InvalidArgumentException('depth parameter must be greater than 0');
+        }
+
+        return json_decode($json, $associative, $depth, JSON_THROW_ON_ERROR | $flags);
+    }
+
+    /**
      * Converts a decoded document back to its json string
      *
      * @param mixed $document
-     * @return ?string
+     * @param int $depth
+     * @param int $flags
+     * @return string
+     * @throws \JsonException
      */
-    private static function documentToString(mixed $document): ?string
+    private static function documentToString(mixed $document, int $flags = 0, int $depth = 512): string
     {
-        $json = json_encode($document);
-        return $json !== false ? $json : null;
+        if ($depth < 1) {
+            throw new \InvalidArgumentException('depth parameter must be greater than 0');
+        }
+
+        return json_encode($document, JSON_THROW_ON_ERROR | $flags, $depth);
     }
 
     /**
@@ -569,6 +617,7 @@ final class FastJsonPatch
      * @param mixed $a
      * @param mixed $b
      * @return bool true if $a and $b are JSON equal, false otherwise
+     * @throws \JsonException
      */
     private static function isJsonEquals(mixed $a, mixed $b): bool
     {
@@ -581,7 +630,7 @@ final class FastJsonPatch
             self::recursiveKeySort($b);
         }
 
-        return json_encode($a) === json_encode($b);
+        return self::documentToString($a) === self::documentToString($b);
     }
 
     /**
