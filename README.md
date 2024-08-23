@@ -67,7 +67,7 @@ echo FastJsonPatch::apply($json, $patch);
 - `apply(string $json, string $patch): string` Applies the $patch operations to the provided $json document and returns the updated json document string.
 
 
-- `applyDecoded(string $json, string $patch): mixed` Same as **apply** but returns instead the decoded document instead of a json string
+- `applyDecoded(string $json, string $patch): mixed` Same as **apply** but returns the decoded document instead of a json string
 
 
 - `applyByReference(array|\stdClass &$document, array $patch): void` References your in-memory representation of the document and applies the patch in place.
