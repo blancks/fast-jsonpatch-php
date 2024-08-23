@@ -2,11 +2,12 @@ PHP Fast JSON Patch
 =====================
 
 ![Test](https://github.com/blancks/fast-jsonpatch-php/workflows/Test/badge.svg)
+[![PHP Version Require](http://poser.pugx.org/blancks/fast-jsonpatch-php/require/php)](https://packagist.org/packages/blancks/fast-jsonpatch-php)
+[![Latest Stable Version](http://poser.pugx.org/blancks/fast-jsonpatch-php/v)](https://packagist.org/packages/blancks/fast-jsonpatch-php)
 
 FastJsonPatch is designed to handle JSON Patch operations in accordance with the [RFC 6902](http://tools.ietf.org/html/rfc6902) specification.
 
 JSON Patch is a format for expressing a sequence of operations to be applied to a JSON document. This class provides methods to parse, validate, and apply these operations, allowing you to modify JSON objects or arrays programmatically.
-
 
 ## Installation via Composer
 
@@ -80,11 +81,6 @@ echo FastJsonPatch::apply($json, $patch);
 
 
 - `validatePatch(string $patch): void` Checks if the provided $patch is structurally valid
-
-## Dependencies
-
-- PHP >= 8.1
-- JSON extension enabled in PHP
 
 ## Running tests
 
