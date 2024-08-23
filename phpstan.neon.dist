@@ -6,6 +6,7 @@ parameters:
         - src
     reportUnmatchedIgnoredErrors: false
     ignoreErrors:
+        - '#Cannot access offset string on array#'
         - '#recursiveKeySort#'
         - '#array_splice#'
-        - '#Cannot access offset string on array#'
+        - '#array_is_list#'

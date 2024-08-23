@@ -82,7 +82,7 @@ final class FastJsonPatch
      * this difference should not be a problem for you, unless of some specific application behavior
      * that you should already be aware of.
      *
-     * @param array<int, mixed>|\stdClass $document decoded json document passed by reference
+     * @param array<int|string, mixed>|\stdClass $document decoded json document passed by reference
      * @param array<int, \stdClass> $patch decoded list of patches that must be applied to $document
      * @throws FastJsonPatchException
      */
@@ -124,7 +124,7 @@ final class FastJsonPatch
     /**
      * Parses a $jsonpointer path against $json and returns the value
      *
-     * @param array<int, mixed>|\stdClass $document
+     * @param array<int|string, mixed>|\stdClass $document
      * @param string $pointer JSON Pointer
      * @return mixed
      * @throws FastJsonPatchException
@@ -164,7 +164,7 @@ final class FastJsonPatch
      *  * If the target location specifies an object member that does exist, that member's value is replaced.
      *
      * @link https://datatracker.ietf.org/doc/html/rfc6902/#section-4.1
-     * @param array<int, mixed>|\stdClass $document
+     * @param array<int|string, mixed>|\stdClass $document
      * @param string[] $path
      * @param mixed $value
      * @return void
@@ -179,7 +179,7 @@ final class FastJsonPatch
      * Removes the value at the target location. The target location MUST exist for the operation to be successful.
      *
      * @link https://datatracker.ietf.org/doc/html/rfc6902/#section-4.2
-     * @param array<int, mixed>|\stdClass $document
+     * @param array<int|string, mixed>|\stdClass $document
      * @param string[] $path
      * @return void
      */
@@ -194,7 +194,7 @@ final class FastJsonPatch
      * The target location MUST exist for the operation to be successful.
      *
      * @link https://datatracker.ietf.org/doc/html/rfc6902/#section-4.3
-     * @param array<int, mixed>|\stdClass $document
+     * @param array<int|string, mixed>|\stdClass $document
      * @param string[] $path
      * @param mixed $value
      * @return void
@@ -210,7 +210,7 @@ final class FastJsonPatch
      * Removes the value at a specified location and adds it to the target location.
      *
      * @link https://datatracker.ietf.org/doc/html/rfc6902/#section-4.4
-     * @param array<int, mixed>|\stdClass $document
+     * @param array<int|string, mixed>|\stdClass $document
      * @param string[] $from
      * @param string[] $path
      * @return void
@@ -226,7 +226,7 @@ final class FastJsonPatch
      * Copies the value at a specified location to the target location.
      *
      * @link https://datatracker.ietf.org/doc/html/rfc6902/#section-4.5
-     * @param array<int, mixed>|\stdClass $document
+     * @param array<int|string, mixed>|\stdClass $document
      * @param string[] $from
      * @param string[] $path
      * @return void
@@ -242,7 +242,7 @@ final class FastJsonPatch
      * Tests that a value at the target location is equal to a specified value
      *
      * @link https://datatracker.ietf.org/doc/html/rfc6902/#section-4.6
-     * @param array<int, mixed>|\stdClass $document
+     * @param array<int|string, mixed>|\stdClass $document
      * @param string[] $path
      * @param mixed $value
      * @return void
@@ -265,7 +265,7 @@ final class FastJsonPatch
     /**
      * Adds $value at the $path location in the $document
      *
-     * @param array<int, mixed>|\stdClass $document
+     * @param array<int|string, mixed>|\stdClass $document
      * @param string[] $path
      * @param mixed $value
      * @param string[]|null $originalpath
@@ -358,7 +358,7 @@ final class FastJsonPatch
     /**
      * Removes the value at the provided $path in the $document
      *
-     * @param array<int, mixed>|\stdClass $document
+     * @param array<int|string, mixed>|\stdClass $document
      * @param string[] $path
      * @param string[]|null $originalpath
      * @return mixed the value removed from the document
@@ -402,7 +402,7 @@ final class FastJsonPatch
     /**
      * Finds and returns the value at the provided $path in the $document
      *
-     * @param array<int, mixed>|\stdClass $document
+     * @param array<int|string, mixed>|\stdClass $document
      * @param string[] $path
      * @param string[]|null $originalpath
      * @return mixed
@@ -505,6 +505,7 @@ final class FastJsonPatch
 
     /**
      * Ensures that $pointer is a valid JSON Pointer
+     *
      * @param string $pointer
      * @return void
      */
