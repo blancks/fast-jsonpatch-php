@@ -1,7 +1,9 @@
 PHP Fast JSON Patch
 =====================
 
-![Test](https://github.com/blancks/fast-jsonpatch-php/workflows/Test/badge.svg) [![PHP Version Require](http://poser.pugx.org/blancks/fast-jsonpatch-php/require/php)](https://packagist.org/packages/blancks/fast-jsonpatch-php) [![Latest Stable Version](http://poser.pugx.org/blancks/fast-jsonpatch-php/v)](https://packagist.org/packages/blancks/fast-jsonpatch-php)
+![Test](https://github.com/blancks/fast-jsonpatch-php/workflows/Test/badge.svg)
+[![PHP Version Require](https://poser.pugx.org/blancks/fast-jsonpatch-php/require/php)](https://packagist.org/packages/blancks/fast-jsonpatch-php)
+[![Latest Stable Version](https://poser.pugx.org/blancks/fast-jsonpatch-php/v)](https://packagist.org/packages/blancks/fast-jsonpatch-php)
 
 FastJsonPatch is designed to handle JSON Patch operations in accordance with the [RFC 6902](http://tools.ietf.org/html/rfc6902) specification.
 
