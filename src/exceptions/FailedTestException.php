@@ -2,7 +2,7 @@
 
 namespace blancks\JsonPatch\exceptions;
 
-class FailedTestException extends \DomainException implements FastJsonPatchException
+class FailedTestException extends \UnexpectedValueException implements FastJsonPatchException
 {
     use FastJsonPatchExceptionTrait;
 

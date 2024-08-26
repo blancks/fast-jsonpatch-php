@@ -2,7 +2,7 @@
 
 namespace blancks\JsonPatch\exceptions;
 
-class MalformedDocumentException extends \LogicException implements FastJsonPatchException
+class MalformedDocumentException extends \UnexpectedValueException implements FastJsonPatchException
 {
     use FastJsonPatchExceptionTrait;
 

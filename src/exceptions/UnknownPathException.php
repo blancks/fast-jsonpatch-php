@@ -2,7 +2,7 @@
 
 namespace blancks\JsonPatch\exceptions;
 
-class UnknownPathException extends \DomainException implements FastJsonPatchException
+class UnknownPathException extends \LogicException implements FastJsonPatchException
 {
     use FastJsonPatchExceptionTrait;
 
