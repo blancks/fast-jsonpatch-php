@@ -6,7 +6,6 @@ use blancks\JsonPatch\exceptions\ArrayBoundaryException;
 use blancks\JsonPatch\FastJsonPatch;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(FastJsonPatch::class)]
