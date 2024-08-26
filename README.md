@@ -53,6 +53,7 @@ composer require blancks/fast-jsonpatch-php
 <?php require_once 'vendor/autoload.php';
 
 use blancks\JsonPatch\FastJsonPatch;
+use blancks\JsonPatch\FastJsonPatch\exceptions\FastJsonPatchException;
 
 $json = '{"name": "John", "age": 30}';
 $patch = '[
@@ -60,8 +61,18 @@ $patch = '[
     {"op": "add", "path": "/email", "value": "jane@example.com"}
 ]';
 
-echo FastJsonPatch::apply($json, $patch); 
-// Output: {"name": "Jane", "age": 30, "email": "jane@example.com"}
+try {
+
+   echo FastJsonPatch::apply($json, $patch); 
+   // Output: {"name": "Jane", "age": 30, "email": "jane@example.com"}
+   
+} catch(FastJsonPatchException $e) {
+
+   // FastJsonPatchException comes with two additional methods to fetch context data:
+   // $e->getContextPointer() may return the context JSON pointer for given error
+   // $e->getContextDocument() may return the portion of the document relevant for the error 
+   
+}
 ```
 
 ## Methods Overview
