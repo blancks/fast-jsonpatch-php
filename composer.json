@@ -27,7 +27,7 @@
         "phpstan/phpstan": "^1.11"
     },
     "scripts": {
-        "test": "phpunit --no-configuration --test-suffix FastJsonPatchTest.php tests/ --colors=always",
+        "test": "phpunit",
         "static-analyse": "phpstan analyse --configuration phpstan.neon.dist"
     }
 }

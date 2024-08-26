@@ -14,6 +14,17 @@ use blancks\JsonPatch\FastJsonPatch;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
+#[\PHPUnit\Framework\Attributes\CoversClass(FastJsonPatch::class)]
+#[\PHPUnit\Framework\Attributes\UsesClass(AppendToObjectException::class)]
+#[\PHPUnit\Framework\Attributes\UsesClass(ArrayBoundaryException::class)]
+#[\PHPUnit\Framework\Attributes\UsesClass(FailedTestException::class)]
+#[\PHPUnit\Framework\Attributes\UsesClass(InvalidPatchFromException::class)]
+#[\PHPUnit\Framework\Attributes\UsesClass(InvalidPatchOperationException::class)]
+#[\PHPUnit\Framework\Attributes\UsesClass(InvalidPatchPathException::class)]
+#[\PHPUnit\Framework\Attributes\UsesClass(InvalidPatchValueException::class)]
+#[\PHPUnit\Framework\Attributes\UsesClass(MalformedPathException::class)]
+#[\PHPUnit\Framework\Attributes\UsesClass(UnknownPatchOperationException::class)]
+#[\PHPUnit\Framework\Attributes\UsesClass(UnknownPathException::class)]
 final class FastJsonPatchTest extends TestCase
 {
     public function testPatchWithMissingOpParameterShouldFail(): void
