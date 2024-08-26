@@ -19,6 +19,39 @@ final class UnknownPathExceptionTest extends TestCase
         echo FastJsonPatch::apply($json, $patches);
     }
 
+    #[DataProvider('unknownPathsContextProvider')]
+    public function testUnknownPathExceptionContextData(
+        string $json,
+        string $patches,
+        string $expectedPointer,
+        string $expectedDocument
+    ): void {
+        try {
+            FastJsonPatch::apply($json, $patches);
+        } catch (UnknownPathException $e) {
+            $this->assertSame($expectedPointer, $e->getContextPointer());
+            $this->assertSame($expectedDocument, $e->getContextDocument());
+        }
+    }
+
+    public static function unknownPathsContextProvider(): array
+    {
+        return [
+            'Invalid array index operation' => [
+                '["foo", "sil"]',
+                '[{"op": "add", "path": "/bar", "value": 42}]',
+                '/bar',
+                '["foo","sil"]'
+            ],
+            'Invalid object property operation' => [
+                '{"foo": 1, "baz": [1,2,3,4]}',
+                '[{"op": "add", "path": "/baz/bar/0", "value": "bar"}]',
+                '/baz/bar/0',
+                '[1,2,3,4]'
+            ]
+        ];
+    }
+
     public static function unknownPathsProvider(): array
     {
         return [

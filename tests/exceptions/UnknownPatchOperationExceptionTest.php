@@ -16,4 +16,14 @@ final class UnknownPatchOperationExceptionTest extends TestCase
         $this->expectException(UnknownPatchOperationException::class);
         FastJsonPatch::apply('{"foo":"bar"}', '[{"op":"read", "path": "/foo"}]');
     }
+
+    public function testUnknownPatchOperationExceptionContextData(): void
+    {
+        try {
+            FastJsonPatch::apply('{"foo":"bar"}', '[{"op":"read", "path": "/foo"}]');
+        } catch (UnknownPatchOperationException $e) {
+            $this->assertSame('/0', $e->getContextPointer());
+            $this->assertSame('{"op":"read","path":"\/foo"}', $e->getContextDocument());
+        }
+    }
 }

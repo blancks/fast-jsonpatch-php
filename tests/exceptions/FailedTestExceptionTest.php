@@ -19,6 +19,16 @@ final class FailedTestExceptionTest extends TestCase
         echo FastJsonPatch::apply($json, $patches);
     }
 
+    public function testFailedTestExceptionContextData(): void
+    {
+        try {
+            FastJsonPatch::apply('{"foo": {"bar": [1, 2, 5, 4]}}', '[{"op": "test", "path": "/foo", "value": [1, 2]}]');
+        } catch (FailedTestException $e) {
+            $this->assertSame('/foo', $e->getContextPointer());
+            $this->assertSame('{"bar":[1,2,5,4]}', $e->getContextDocument());
+        }
+    }
+
     public static function failedTestsProvider(): array
     {
         return [

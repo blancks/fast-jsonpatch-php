@@ -16,4 +16,14 @@ final class InvalidPatchPathExceptionTest extends TestCase
         $this->expectException(InvalidPatchPathException::class);
         FastJsonPatch::apply('{}', '[{"op":"add", "value": "bar"}]');
     }
+
+    public function testInvalidPatchPathExceptionContextData(): void
+    {
+        try {
+            FastJsonPatch::apply('{}', '[{"op":"add", "value": "bar"}]');
+        } catch (InvalidPatchPathException $e) {
+            $this->assertSame('/0', $e->getContextPointer());
+            $this->assertSame('{"op":"add","value":"bar"}', $e->getContextDocument());
+        }
+    }
 }

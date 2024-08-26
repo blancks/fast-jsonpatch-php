@@ -262,11 +262,11 @@ final class FastJsonPatch
         $item = self::documentReader($document, $path);
 
         if (!self::isJsonEquals($item, $value)) {
-            $valuejson = self::documentToString($value);
+            $itemjson = self::documentToString($item);
             throw new FailedTestException(
-                sprintf('Test operation failed asserting that %s equals %s', self::documentToString($item), $valuejson),
+                sprintf('Test operation failed asserting that %s equals %s', $itemjson, self::documentToString($value)),
                 self::pathToString($path),
-                $valuejson
+                $itemjson
             );
         }
     }
@@ -603,7 +603,11 @@ final class FastJsonPatch
         $isObject = is_object($document);
 
         if ((($isObject && !property_exists($document, $node)) || (!$isObject && !array_key_exists($node, $document)))) {
-            throw new UnknownPathException(sprintf('Unknown document path "/%s"', self::pathToString($originalpath)));
+            throw new UnknownPathException(
+                sprintf('Unknown document path "/%s"', self::pathToString($originalpath)),
+                self::pathToString($originalpath),
+                self::documentToString($document)
+            );
         }
     }
 

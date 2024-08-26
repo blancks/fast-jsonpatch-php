@@ -19,6 +19,16 @@ final class ArrayBoundaryExceptionTest extends TestCase
         echo FastJsonPatch::apply($json, $patches);
     }
 
+    public function testArrayBoundaryExceptionContextData(): void
+    {
+        try {
+            FastJsonPatch::apply('{"bar": [1, 2]}', '[{"op": "add", "path": "/bar/8", "value": "5"}]');
+        } catch (ArrayBoundaryException $e) {
+            $this->assertSame('/bar/8', $e->getContextPointer());
+            $this->assertSame('[1,2]', $e->getContextDocument());
+        }
+    }
+
     public static function outOfBoundsProvider(): array
     {
         return [

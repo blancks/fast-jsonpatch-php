@@ -16,4 +16,14 @@ final class AppendToObjectExceptionTest extends TestCase
         $this->expectException(AppendToObjectException::class);
         FastJsonPatch::apply('{"foo":"bar"}', '[{"op":"add", "path": "/-", "value":"biz"}]');
     }
+
+    public function testAppendToObjectExceptionContextData(): void
+    {
+        try {
+            FastJsonPatch::apply('{"foo":{"bar":"doh"}}', '[{"op":"add", "path": "/foo/-", "value":"biz"}]');
+        } catch (AppendToObjectException $e) {
+            $this->assertSame('/foo/-', $e->getContextPointer());
+            $this->assertSame('{"bar":"doh"}', $e->getContextDocument());
+        }
+    }
 }

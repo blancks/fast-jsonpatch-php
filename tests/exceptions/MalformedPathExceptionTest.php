@@ -16,4 +16,13 @@ final class MalformedPathExceptionTest extends TestCase
         $this->expectException(MalformedPathException::class);
         FastJsonPatch::apply('{}', '[{"op":"add", "path": "foo", "value": "bar"}]');
     }
+
+    public function testMalformedPathExceptionContextData(): void
+    {
+        try {
+            FastJsonPatch::apply('{}', '[{"op":"add", "path": "foo", "value": "bar"}]');
+        } catch (MalformedPathException $e) {
+            $this->assertSame('foo', $e->getContextPointer());
+        }
+    }
 }
