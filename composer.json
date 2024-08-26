@@ -16,7 +16,8 @@
     },
     "autoload": {
         "psr-4": {
-            "blancks\\JsonPatch\\": "src"
+            "blancks\\JsonPatch\\": "src",
+            "blancks\\JsonPatchTest\\": "tests"
         }
     },
     "require": {

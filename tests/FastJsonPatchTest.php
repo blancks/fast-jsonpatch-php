@@ -1,68 +1,15 @@
 <?php declare(strict_types=1);
 
-use blancks\JsonPatch\exceptions\AppendToObjectException;
-use blancks\JsonPatch\exceptions\ArrayBoundaryException;
-use blancks\JsonPatch\exceptions\FailedTestException;
-use blancks\JsonPatch\exceptions\InvalidPatchFromException;
-use blancks\JsonPatch\exceptions\InvalidPatchOperationException;
-use blancks\JsonPatch\exceptions\InvalidPatchPathException;
-use blancks\JsonPatch\exceptions\InvalidPatchValueException;
-use blancks\JsonPatch\exceptions\MalformedPathException;
-use blancks\JsonPatch\exceptions\UnknownPatchOperationException;
-use blancks\JsonPatch\exceptions\UnknownPathException;
+namespace blancks\JsonPatchTest;
+
 use blancks\JsonPatch\FastJsonPatch;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
-#[\PHPUnit\Framework\Attributes\CoversClass(FastJsonPatch::class)]
-#[\PHPUnit\Framework\Attributes\UsesClass(AppendToObjectException::class)]
-#[\PHPUnit\Framework\Attributes\UsesClass(ArrayBoundaryException::class)]
-#[\PHPUnit\Framework\Attributes\UsesClass(FailedTestException::class)]
-#[\PHPUnit\Framework\Attributes\UsesClass(InvalidPatchFromException::class)]
-#[\PHPUnit\Framework\Attributes\UsesClass(InvalidPatchOperationException::class)]
-#[\PHPUnit\Framework\Attributes\UsesClass(InvalidPatchPathException::class)]
-#[\PHPUnit\Framework\Attributes\UsesClass(InvalidPatchValueException::class)]
-#[\PHPUnit\Framework\Attributes\UsesClass(MalformedPathException::class)]
-#[\PHPUnit\Framework\Attributes\UsesClass(UnknownPatchOperationException::class)]
-#[\PHPUnit\Framework\Attributes\UsesClass(UnknownPathException::class)]
+#[CoversClass(FastJsonPatch::class)]
 final class FastJsonPatchTest extends TestCase
 {
-    public function testPatchWithMissingOpParameterShouldFail(): void
-    {
-        $this->expectException(InvalidPatchOperationException::class);
-        FastJsonPatch::apply('{}', '[{"path": "/foo", "value": "bar"}]');
-    }
-
-    public function testPatchWithUnknownOpShouldFail(): void
-    {
-        $this->expectException(UnknownPatchOperationException::class);
-        FastJsonPatch::apply('{"foo":"bar"}', '[{"op":"read", "path": "/foo"}]');
-    }
-
-    public function testPatchWithMissingPathParameterShouldFail(): void
-    {
-        $this->expectException(InvalidPatchPathException::class);
-        FastJsonPatch::apply('{}', '[{"op":"add", "value": "bar"}]');
-    }
-
-    public function testPatchWithMalformedPathParameterShouldFail(): void
-    {
-        $this->expectException(MalformedPathException::class);
-        FastJsonPatch::apply('{}', '[{"op":"add", "path": "foo", "value": "bar"}]');
-    }
-
-    public function testPatchWithMissingValueParameterShouldFail(): void
-    {
-        $this->expectException(InvalidPatchValueException::class);
-        FastJsonPatch::apply('{}', '[{"op":"add", "path": "/foo"}]');
-    }
-
-    public function testPatchWithMissingFromParameterShouldFail(): void
-    {
-        $this->expectException(InvalidPatchFromException::class);
-        FastJsonPatch::apply('{"bar":1}', '[{"op": "copy", "path": "/foo"}]');
-    }
-
     #[DataProvider('validOperationsProvider')]
     public function testValidJsonPatches(string $json, string $patches, string $expected): void
     {
@@ -70,33 +17,6 @@ final class FastJsonPatchTest extends TestCase
             json_encode(json_decode($expected, false, 512, JSON_THROW_ON_ERROR)),  // normalizes expected json
             FastJsonPatch::apply($json, $patches)
         );
-    }
-
-    #[DataProvider('outOfBoundsProvider')]
-    public function testAddingOutOfArrayBoundariesShouldFail(string $json, string $patches): void
-    {
-        $this->expectException(ArrayBoundaryException::class);
-        echo FastJsonPatch::apply($json, $patches);
-    }
-
-    #[DataProvider('unknownPathsProvider')]
-    public function testOperationsOnUnknownPathShouldFail(string $json, string $patches): void
-    {
-        $this->expectException(UnknownPathException::class);
-        echo FastJsonPatch::apply($json, $patches);
-    }
-
-    #[DataProvider('failedTestsProvider')]
-    public function testOperationsWithFailureCases(string $json, string $patches): void
-    {
-        $this->expectException(FailedTestException::class);
-        echo FastJsonPatch::apply($json, $patches);
-    }
-
-    public function testAppendingValueToAnObjectShouldFail(): void
-    {
-        $this->expectException(AppendToObjectException::class);
-        FastJsonPatch::apply('{"foo":"bar"}', '[{"op":"add", "path": "/-", "value":"biz"}]');
     }
 
     public static function validOperationsProvider(): array
@@ -461,92 +381,6 @@ final class FastJsonPatchTest extends TestCase
                     " ": 7,
                     "m~n": 8
                 }'
-            ],
-        ];
-    }
-
-    public static function outOfBoundsProvider(): array
-    {
-        return [
-            'Add to array index with bad number should fail' => [
-                '["foo", "sil"]',
-                '[{"op": "add", "path": "/1e0", "value": "bar"}]'
-            ],
-            'Add item out of upper array bounds should fail' => [
-                '{"bar": [1, 2]}',
-                '[{"op": "add", "path": "/bar/8", "value": "5"}]'
-            ],
-            'Add item out of lower array bounds should fail' => [
-                '{"bar": [1, 2]}',
-                '[{"op": "add", "path": "/bar/-1", "value": "5"}]'
-            ],
-        ];
-    }
-
-    public static function unknownPathsProvider(): array
-    {
-        return [
-            'Add Object operation on array target should fail' => [
-                '["foo", "sil"]',
-                '[{"op": "add", "path": "/bar", "value": 42}]'
-            ],
-            'Add to a bad array index should fail' => [
-                '["foo", "sil"]',
-                '[{"op": "add", "path": "/bar", "value": "bar"}]'
-            ],
-            'Copy with bad array index should fail' => [
-                '{"baz": [1,2,3], "bar": 1}',
-                '[{"op": "copy", "from": "/baz/1e0", "path": "/boo"}]'
-            ],
-            'Move with bad array index should fail' => [
-                '{"foo": 1, "baz": [1,2,3,4]}',
-                '[{"op": "move", "from": "/baz/1e0", "path": "/foo"}]'
-            ],
-            'Remove with bad array index should fail' => [
-                '[1, 2, 3, 4]',
-                '[{"op": "remove", "path": "/1e0"}]'
-            ],
-            'Remove existing property with bad array index should fail' => [
-                '{"foo": 1, "baz": [{"qux": "hello"}]}',
-                '[{"op": "remove", "path": "/baz/1e0/qux"}]'
-            ],
-            'Replace with bad array index should fail' => [
-                '[""]',
-                '[{"op": "replace", "path": "/1e0", "value": false}]'
-            ],
-            'Test against undefined path should fail' => [
-                '["foo", "bar"]',
-                '[{"op": "test", "path": "/1e0", "value": "bar"}]'
-            ],
-        ];
-    }
-
-    public static function failedTestsProvider(): array
-    {
-        return [
-            'Test null case against non-null value should fail' => [
-                '{"foo": "non-null"}',
-                '[{"op": "test", "path": "/foo", "value": null}]'
-            ],
-            'Test string case against null value should fail' => [
-                '{"foo": null}',
-                '[{"op": "test", "path": "/foo", "value": "non-null"}]'
-            ],
-            'Test boolean false case against null value should fail' => [
-                '{"foo": null}',
-                '[{"op": "test", "path": "/foo", "value": false}]'
-            ],
-            'Test null case against boolean false value should fail' => [
-                '{"foo": false}',
-                '[{"op": "test", "path": "/foo", "value": null}]'
-            ],
-            'Test invalid array should fail' => [
-                '{"foo": {"bar": [1, 2, 5, 4]}}',
-                '[{"op": "test", "path": "/foo", "value": [1, 2]}]'
-            ],
-            'Test same value with different type should fail' => [
-                '{"foo": "1"}',
-                '[{"op": "test", "path": "/foo", "value": 1}]'
             ],
         ];
     }
