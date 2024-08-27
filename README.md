@@ -42,8 +42,8 @@ composer require blancks/fast-jsonpatch-php
 
 
 5. **Performance:**
-    - The class is optimized for performance, time complexity is O(N*P) where N is the number of operations of the patch and where P is the nesting level that a single operation targets.
-    - Best use case is for scenarios where JSON document can be fully loaded into memory and you need fast patch processing, like websockets server/client.
+    - The class is optimized for performance, time complexity is O(N*P) where N is the number of operations of the patch and where P is the nesting level of patch operations.
+    - Best use case is for scenarios where JSON document can be fully loaded into memory, and you need fast patch processing like websockets server/client.
 
 
 6. **Tests:**
