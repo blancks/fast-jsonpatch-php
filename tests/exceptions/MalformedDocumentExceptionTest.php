@@ -45,6 +45,6 @@ final class MalformedDocumentExceptionTest extends TestCase
         $method->setAccessible(true);
 
         $this->expectException(MalformedDocumentException::class);
-        $method->invoke($FastJsonPatch, [utf8_decode('§')]); // invalid UTF-8
+        $method->invoke($FastJsonPatch, [utf8_decode('§')]);  // invalid UTF-8
     }
 }
