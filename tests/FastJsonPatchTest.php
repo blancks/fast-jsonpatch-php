@@ -2,14 +2,43 @@
 
 namespace blancks\JsonPatchTest;
 
+use blancks\JsonPatch\exceptions\InvalidPatchPathException;
 use blancks\JsonPatch\FastJsonPatch;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(FastJsonPatch::class)]
+#[UsesClass(InvalidPatchPathException::class)]
 final class FastJsonPatchTest extends TestCase
 {
+    public function testValidatePatch(): void
+    {
+        $this->expectNotToPerformAssertions();
+        FastJsonPatch::validatePatch('[{"op": "add", "path": "/foo", "value": "Hello World"}]');
+    }
+
+    public function testValidatePatchShouldFail(): void
+    {
+        // @codeCoverageIgnore
+        $this->expectException(InvalidPatchPathException::class);
+        FastJsonPatch::validatePatch('[{"op": "add", "value": "Hello World"}]');
+    }
+
+    public function testParsePath(): void
+    {
+        $json = '[{"foo":[{"bar":"hello world"}]}]';
+        $this->assertSame('hello world', FastJsonPatch::parsePath($json, '/0/foo/0/bar'));
+    }
+
+    public function testRemoveFromAssociativeObject(): void
+    {
+        $json = '{"foo": false}';
+        $patch = '[{"op": "remove", "path": "/foo"}]';
+        $this->assertSame([], FastJsonPatch::applyDecode($json, $patch, true));
+    }
+
     #[DataProvider('validOperationsProvider')]
     public function testValidJsonPatches(string $json, string $patches, string $expected): void
     {
