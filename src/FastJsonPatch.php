@@ -67,7 +67,7 @@ final class FastJsonPatch
         if (!is_array($document) && !($document instanceof \stdClass)) {
             throw new MalformedDocumentException(
                 'Invalid JSON document, must be an array or stdClass object.',
-                '',
+                null,
                 $json
             );
         }
