@@ -25,6 +25,13 @@ use blancks\JsonPatch\exceptions\{
  */
 final class FastJsonPatch
 {
+    private const OP_ADD = 'add';
+    private const OP_REPLACE = 'replace';
+    private const OP_TEST = 'test';
+    private const OP_COPY = 'copy';
+    private const OP_MOVE = 'move';
+    private const OP_REMOVE = 'remove';
+
     /**
      * Applies $patch to the $json string provided and returns the updated json string
      *
@@ -99,21 +106,31 @@ final class FastJsonPatch
     public static function applyByReference(array|\stdClass &$document, array $patch): void
     {
         self::validateDecodedPatch($patch);
-        $optionalNodes = ['from', 'path', 'value'];
 
         foreach ($patch as $p) {
             $p = (array) $p;
-            $parameters = [];
+            $path = self::pathSplitter($p['path']);
 
-            foreach ($optionalNodes as $key) {
-                if (array_key_exists($key, $p)) {
-                    $parameters[$key] = $key === 'path' || $key === 'from'
-                        ? self::pathSplitter($p[$key])
-                        : $p[$key];
-                }
+            switch ($p['op']) {
+                case self::OP_ADD:
+                    self::opAdd($document, $path, $p['value']);
+                    break;
+                case self::OP_REPLACE:
+                    self::opReplace($document, $path, $p['value']);
+                    break;
+                case self::OP_TEST:
+                    self::opTest($document, $path, $p['value']);
+                    break;
+                case self::OP_COPY:
+                    self::opCopy($document, self::pathSplitter($p['from']), $path);
+                    break;
+                case self::OP_MOVE:
+                    self::opMove($document, self::pathSplitter($p['from']), $path);
+                    break;
+                case self::OP_REMOVE:
+                    self::opRemove($document, $path);
+                    break;
             }
-
-            self::{'op' . ucfirst($p['op'])}($document, ...$parameters);
         }
     }
 
@@ -467,9 +484,9 @@ final class FastJsonPatch
             self::assertValidJsonPointer($p['path']);
 
             switch ($p['op']) {
-                case 'add':
-                case 'replace':
-                case 'test':
+                case self::OP_ADD:
+                case self::OP_REPLACE:
+                case self::OP_TEST:
                     if (!array_key_exists('value', $p)) {
                         throw new InvalidPatchValueException(
                             sprintf('"value" is missing in patch with index %d', $i),
@@ -478,8 +495,8 @@ final class FastJsonPatch
                         );
                     }
                     break;
-                case 'copy':
-                case 'move':
+                case self::OP_COPY:
+                case self::OP_MOVE:
                     if (!isset($p['from'])) {
                         throw new InvalidPatchFromException(
                             sprintf('"from" is missing in patch with index %d', $i),
@@ -490,7 +507,7 @@ final class FastJsonPatch
 
                     self::assertValidJsonPointer($p['from']);
                     break;
-                case 'remove':
+                case self::OP_REMOVE:
                     break;  // only needs "op" and "path" as mandatory properties
                 default:
                     throw new UnknownPatchOperationException(
@@ -512,10 +529,15 @@ final class FastJsonPatch
      */
     private static function pathSplitter(string $path): array
     {
-        return $path === '' ? [] : array_map(
-            fn(string $part): string => strtr($part, ['~1' => '/', '~0' => '~']),
-            explode('/', ltrim($path, '/'))
-        );
+        $tokens = [];
+
+        if ($path !== '') {
+            foreach (explode('/', ltrim($path, '/')) as $token) {
+                $tokens[] = strtr($token, ['~1' => '/', '~0' => '~']);
+            }
+        }
+
+        return $tokens;
     }
 
     /**
