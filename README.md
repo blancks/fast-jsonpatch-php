@@ -17,6 +17,11 @@ JSON Patch is a format for expressing a sequence of operations to be applied to 
 composer require blancks/fast-jsonpatch-php
 ```
 
+## Benchmarks
+
+Benchmark data is available [here](https://docs.google.com/spreadsheets/d/1YHVZ38GHf0v9nJMCz5Sx_Z5nz8_VKiwnDpaGnnHtiXQ/edit?gid=0#gid=0). \
+After each new release benchmark results will be updated at the same link.
+
 ## Key features
 
 1. **Apply JSON Patch Operations:** 
