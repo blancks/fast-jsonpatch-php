@@ -42,9 +42,8 @@ final class MalformedDocumentExceptionTest extends TestCase
         $FastJsonPatch = new FastJsonPatch;
         $reflection = new \ReflectionClass($FastJsonPatch);
         $method = $reflection->getMethod('documentToString');
-        $method->setAccessible(true);
 
         $this->expectException(MalformedDocumentException::class);
-        $method->invoke($FastJsonPatch, [utf8_decode('§')]);  // invalid UTF-8
+        $method->invoke($FastJsonPatch, [mb_convert_encoding('§', 'ISO-8859-1', 'UTF-8')]);  // invalid UTF-8
     }
 }
