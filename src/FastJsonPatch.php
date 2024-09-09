@@ -106,31 +106,82 @@ final class FastJsonPatch
     public static function applyByReference(array|\stdClass &$document, array $patch): void
     {
         self::validateDecodedPatch($patch);
+        $revert = [];
 
-        foreach ($patch as $p) {
-            $p = (array) $p;
-            $path = self::pathSplitter($p['path']);
+        try {
+            foreach ($patch as $p) {
+                $p = (array) $p;
+                $path = self::pathSplitter($p['path']);
 
-            switch ($p['op']) {
-                case self::OP_ADD:
-                    self::opAdd($document, $path, $p['value']);
-                    break;
-                case self::OP_REPLACE:
-                    self::opReplace($document, $path, $p['value']);
-                    break;
-                case self::OP_TEST:
-                    self::opTest($document, $path, $p['value']);
-                    break;
-                case self::OP_COPY:
-                    self::opCopy($document, self::pathSplitter($p['from']), $path);
-                    break;
-                case self::OP_MOVE:
-                    self::opMove($document, self::pathSplitter($p['from']), $path);
-                    break;
-                case self::OP_REMOVE:
-                    self::opRemove($document, $path);
-                    break;
+                switch ($p['op']) {
+                    case self::OP_ADD:
+                        $previous = self::opAdd($document, $path, $p['value']);
+
+                        // there was nothing before
+                        if (is_null($previous)) {
+                            $revert[] = ['op' => 'remove', 'path' => $path];
+                            break;
+                        }
+
+                        if (is_array($previous)) {
+                            if (end($path) === '-') {
+                                array_pop($path);
+                                $path[] = (string) count($previous);
+                            }
+                            $revert[] = ['op' => 'remove', 'path' => $path];
+                            break;
+                        }
+
+                        $revert[] = ['op' => 'replace', 'path' => $path, 'value' => $previous];
+                        break;
+                    case self::OP_REPLACE:
+                        $previous = self::opReplace($document, $path, $p['value']);
+                        $revert[] = ['op' => 'replace', 'path' => $path, 'value' => $previous];
+                        break;
+                    case self::OP_TEST:
+                        self::opTest($document, $path, $p['value']);
+                        break;
+                    case self::OP_COPY:
+                        $previous = self::opCopy($document, self::pathSplitter($p['from']), $path);
+
+                        if (is_array($previous) && end($path) === '-') {
+                            array_pop($path);
+                            $path[] = (string) count($previous);
+                        }
+
+                        $revert[] = ['op' => 'remove', 'path' => $path];
+                        break;
+                    case self::OP_MOVE:
+                        $from = self::pathSplitter($p['from']);
+                        self::opMove($document, $from, $path);
+                        $revert[] = ['op' => 'move', 'from' => $path, 'path' => $from];
+                        break;
+                    case self::OP_REMOVE:
+                        $previous = self::opRemove($document, $path);
+                        $revert[] = ['op' => 'add', 'path' => $path, 'value' => $previous];
+                        break;
+                }
             }
+        } catch (FastJsonPatchException $e) {
+            // Revert patch
+            foreach (array_reverse($revert) as $p) {
+                switch ($p['op']) {
+                    case self::OP_ADD:
+                        self::opAdd($document, $p['path'], $p['value']);
+                        break;
+                    case self::OP_REPLACE:
+                        self::opReplace($document, $p['path'], $p['value']);
+                        break;
+                    case self::OP_MOVE:
+                        self::opMove($document, $p['from'], $p['path']);
+                        break;
+                    case self::OP_REMOVE:
+                        self::opRemove($document, $p['path']);
+                        break;
+                }
+            }
+
+            throw $e;
         }
     }
 
@@ -194,11 +245,11 @@ final class FastJsonPatch
      * @param array<int|string, mixed>|\stdClass $document
      * @param string[] $path
      * @param mixed $value
-     * @return void
+     * @return mixed the previous value at $path or null if there was no value before
      */
-    private static function opAdd(array|\stdClass &$document, array $path, mixed $value): void
+    private static function opAdd(array|\stdClass &$document, array $path, mixed $value): mixed
     {
-        self::documentWriter($document, $path, $value);
+        return self::documentWriter($document, $path, $value);
     }
 
     /**
@@ -208,11 +259,11 @@ final class FastJsonPatch
      * @link https://datatracker.ietf.org/doc/html/rfc6902/#section-4.2
      * @param array<int|string, mixed>|\stdClass $document
      * @param string[] $path
-     * @return void
+     * @return mixed
      */
-    private static function opRemove(array|\stdClass &$document, array $path): void
+    private static function opRemove(array|\stdClass &$document, array $path): mixed
     {
-        self::documentRemover($document, $path);
+        return self::documentRemover($document, $path);
     }
 
     /**
@@ -224,12 +275,13 @@ final class FastJsonPatch
      * @param array<int|string, mixed>|\stdClass $document
      * @param string[] $path
      * @param mixed $value
-     * @return void
+     * @return mixed
      */
-    private static function opReplace(array|\stdClass &$document, array $path, mixed $value): void
+    private static function opReplace(array|\stdClass &$document, array $path, mixed $value): mixed
     {
-        self::documentRemover($document, $path);
+        $previous = self::documentRemover($document, $path);
         self::documentWriter($document, $path, $value);
+        return $previous;
     }
 
     /**
@@ -240,12 +292,12 @@ final class FastJsonPatch
      * @param array<int|string, mixed>|\stdClass $document
      * @param string[] $from
      * @param string[] $path
-     * @return void
+     * @return mixed
      */
-    private static function opMove(array|\stdClass &$document, array $from, array $path): void
+    private static function opMove(array|\stdClass &$document, array $from, array $path): mixed
     {
         $value = self::documentRemover($document, $from);
-        self::documentWriter($document, $path, $value);
+        return self::documentWriter($document, $path, $value);
     }
 
     /**
@@ -256,12 +308,12 @@ final class FastJsonPatch
      * @param array<int|string, mixed>|\stdClass $document
      * @param string[] $from
      * @param string[] $path
-     * @return void
+     * @return mixed
      */
-    private static function opCopy(array|\stdClass &$document, array $from, array $path): void
+    private static function opCopy(array|\stdClass &$document, array $from, array $path): mixed
     {
         $value = self::documentReader($document, $from);
-        self::documentWriter($document, $path, $value);
+        return self::documentWriter($document, $path, $value);
     }
 
     /**
@@ -295,17 +347,18 @@ final class FastJsonPatch
      * @param string[] $path
      * @param mixed $value
      * @param string[]|null $originalpath
-     * @return void
+     * @return mixed the previous value at $path location
      */
     private static function documentWriter(
         array|\stdClass &$document,
         array $path,
         mixed $value,
         ?array $originalpath = null
-    ): void {
+    ): mixed {
         if (count($path) === 0) {
+            $previous = $document;
             $document = $value;
-            return;
+            return $previous;
         }
 
         $originalpath ??= $path;
@@ -330,8 +383,9 @@ final class FastJsonPatch
             }
 
             if ($isObject) {
+                $previous = $document->{$node} ?? null;
                 $document->{$node} = $value;
-                return;
+                return $previous;
             }
 
             /** @phpstan-ignore-next-line */
@@ -339,8 +393,9 @@ final class FastJsonPatch
             $node = $appendToArray ? (string) $documentLength : $node;
 
             if ((!empty($document) && $isAssociative) || empty($document)) {
+                $previous = $document[$node] ?? [];
                 $document[$node] = $value;
-                return;
+                return $previous;
             }
 
             if (!is_numeric($node)) {
@@ -361,16 +416,16 @@ final class FastJsonPatch
                 );
             }
 
+            $previous = $document;
             array_splice($document, $nodeInt, 0, is_array($value) || is_object($value) ? [$value] : $value);
-            return;
+            return $previous;
         }
 
         if ($isObject) {
-            self::documentWriter($document->{$node}, $path, $value, $originalpath);
-            return;
+            return self::documentWriter($document->{$node}, $path, $value, $originalpath);
         }
 
-        self::documentWriter($document[$node], $path, $value, $originalpath);
+        return self::documentWriter($document[$node], $path, $value, $originalpath);
     }
 
     /**

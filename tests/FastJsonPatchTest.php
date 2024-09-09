@@ -40,6 +40,24 @@ final class FastJsonPatchTest extends JsonPatchCompliance
         $this->assertSame([], FastJsonPatch::applyDecode($json, $patch, true));
     }
 
+    #[DataProvider('atomicOperationsProvider')]
+    public function testAtomicOperations(string $json, string $patches, string $expected): void
+    {
+        $document = json_decode($json);
+        $patch = json_decode($patches);
+
+        try {
+            FastJsonPatch::applyByReference($document, $patch);
+        } catch (\Throwable) {
+            // expecting some error
+        }
+
+        $this->assertSame(
+            $this->normalizeJson($expected),
+            $this->normalizeJson(json_encode($document))
+        );
+    }
+
     #[DataProvider('validOperationsProvider')]
     public function testValidJsonPatches(string $json, string $patches, string $expected): void
     {
