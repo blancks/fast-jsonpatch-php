@@ -17,10 +17,20 @@ JSON Patch is a format for expressing a sequence of operations to be applied to 
 composer require blancks/fast-jsonpatch-php
 ```
 
-## Benchmarks
+## Benchmark Results
 
-Benchmark data is available [here](https://docs.google.com/spreadsheets/d/1YHVZ38GHf0v9nJMCz5Sx_Z5nz8_VKiwnDpaGnnHtiXQ/edit?gid=0#gid=0). \
-After each new release benchmark results will be updated at the same link.
+The following table shows the average time each library took to apply a patch with 1000 operations to a target document as summary of the performance. \
+The benchmark script and full data is available at  [blancks/php-jsonpatch-benchmarks](https://github.com/blancks/php-jsonpatch-benchmarks).
+
+| Library                     | Microseconds                       |
+|-----------------------------|------------------------------------|
+| blancks/fast-jsonpatch-php  | 2903                               |
+| mikemccabe/json-patch-php   | 3355                               |
+| swaggest/json-diff          | 3638                               |
+| gamringer/php-json-patch    | 7276                               |
+| xp-forge/json-patch         | 8534                               |
+| php-jsonpatch/php-jsonpatch | 10970                              |
+| remorhaz/php-json-patch     | N/A (needs many hours to complete) |
 
 ## Key features
 
