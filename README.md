@@ -19,7 +19,7 @@ composer require blancks/fast-jsonpatch-php
 
 ## Benchmark Results
 
-The following table shows the average time each library took to apply a patch with 1000 operations to a target document as summary of the performance. \
+The following table shows the average time each library took to apply a patch with 1000 operations to a target document as summary of the performance.
 The benchmark script and full data is available at  [blancks/php-jsonpatch-benchmarks](https://github.com/blancks/php-jsonpatch-benchmarks).
 
 | Library                     | Microseconds |
@@ -31,6 +31,8 @@ The benchmark script and full data is available at  [blancks/php-jsonpatch-bench
 | xp-forge/json-patch         | 8534         |
 | php-jsonpatch/php-jsonpatch | 10970        |
 | remorhaz/php-json-patch     | 870711       |
+
+Performance comparison between releases is still available [here](https://docs.google.com/spreadsheets/d/1YHVZ38GHf0v9nJMCz5Sx_Z5nz8_VKiwnDpaGnnHtiXQ/edit?usp=sharing)
 
 ## Key features
 
