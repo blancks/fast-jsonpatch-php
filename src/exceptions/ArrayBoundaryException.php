@@ -6,9 +6,9 @@ class ArrayBoundaryException extends \OutOfBoundsException implements FastJsonPa
 {
     use FastJsonPatchExceptionTrait;
 
-    public function __construct(string $message, ?string $pointer = null, ?string $document = null, ?\Throwable $previous = null)
+    public function __construct(string $message, ?string $pointer = null, ?\Throwable $previous = null)
     {
         parent::__construct($message, 0, $previous);
-        $this->storeContextData($pointer, $document);
+        $this->storeContextData($pointer);
     }
 }
