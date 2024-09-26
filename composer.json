@@ -25,10 +25,12 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^10",
-        "phpstan/phpstan": "^1.11"
+        "phpstan/phpstan": "^1.11",
+        "lkrms/pretty-php": "^0.4.72"
     },
     "scripts": {
         "test": "phpunit",
-        "static-analyse": "phpstan analyse --configuration phpstan.neon.dist"
+        "static-analyse": "phpstan analyse --configuration phpstan.neon.dist",
+        "pretty-php": "pretty-php src"
     }
 }
