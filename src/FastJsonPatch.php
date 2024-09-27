@@ -115,20 +115,31 @@ final class FastJsonPatch implements
 
     public function apply(string $patch): void
     {
-        /** @var array<int, object> $decodedPatch */
+        /** @var array<int, object{op: string, path: string, value?: mixed, from?: string}> $decodedPatch */
         $decodedPatch = $this->JsonHandler->decode($patch);
         $this->validatePatch($decodedPatch);
+        $revertPatch = [];
 
-        foreach ($decodedPatch as $p) {
-            $this->operations[$p->op]->apply($this->document, $p);
+        try {
+            foreach ($decodedPatch as $p) {
+                $this->operations[$p->op]->apply($this->document, $p);
+                $revertPatch[] = $this->operations[$p->op]->getRevertPatch($p);
+            }
+        } catch (FastJsonPatchException $e) {
+            foreach ($revertPatch as $p) {
+                $p = (object) $p;
+                $this->operations[$p->op]->apply($this->document, $p);
+            }
+
+            throw $e;
         }
     }
 
     public function isValidPatch(string $patch): bool
     {
         try {
+            /** @var array<int, object{op:string, path: string, value?: mixed, from?: string}> $decodedPatch */
             $decodedPatch = $this->JsonHandler->decode($patch);
-            /** @var array<int, object> $decodedPatch */
             $this->validatePatch($decodedPatch);
             return true;
         } catch (FastJsonPatchException) {

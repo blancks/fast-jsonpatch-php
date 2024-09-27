@@ -10,6 +10,14 @@ final class Test extends PatchOperation implements JsonHandlerAwareInterface
 {
     use JsonHandlerAwareTrait;
 
+    /**
+     * @param object{
+     *     op:string,
+     *     path: string,
+     *     value: mixed,
+     * } $patch
+     * @return void
+     */
     public function validate(object $patch): void
     {
         $this->assertValidOp($patch);
@@ -17,7 +25,16 @@ final class Test extends PatchOperation implements JsonHandlerAwareInterface
         $this->assertValidValue($patch);
     }
 
-    public function apply(mixed &$document, object $patch): mixed
+    /**
+     * @param mixed $document
+     * @param object{
+     *     op:string,
+     *     path: string,
+     *     value: mixed,
+     * } $patch
+     * @return void
+     */
+    public function apply(mixed &$document, object $patch): void
     {
         $item = $this->documentReader($document, $patch->path);
 
@@ -31,6 +48,23 @@ final class Test extends PatchOperation implements JsonHandlerAwareInterface
                 $patch->path
             );
         }
+    }
+
+    /**
+     * @param object{
+     *     op:string,
+     *     path: string,
+     *     value: mixed,
+     * } $patch
+     * @return null|array{
+     *     op:string,
+     *     path: string,
+     *     value?: mixed,
+     *     from?: string,
+     * }
+     */
+    public function getRevertPatch(object $patch): ?array
+    {
         return null;
     }
 

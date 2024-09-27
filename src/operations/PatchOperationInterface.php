@@ -17,7 +17,7 @@ interface PatchOperationInterface
     public function getOperation(): string;
 
     /**
-     * Ensures that $path contains all the necessary data to perform the operation
+     * Ensures that $patch contains all the necessary data to perform the operation
      *
      * @param object $patch
      * @return void
@@ -29,7 +29,25 @@ interface PatchOperationInterface
      *
      * @param mixed $document
      * @param object $patch
-     * @return mixed
+     * @return void
      */
-    public function apply(mixed &$document, object $patch): mixed;
+    public function apply(mixed &$document, object $patch): void;
+
+    /**
+     * Return the operation needed to revert last patch application
+     *
+     * @param object{
+     *     op:string,
+     *     path: string,
+     *     value?: mixed,
+     *     from?: string,
+     * } $patch
+     * @return null|array{
+     *     op:string,
+     *     path: string,
+     *     value?: mixed,
+     *     from?: string
+     * }
+     */
+    public function getRevertPatch(object $patch): ?array;
 }

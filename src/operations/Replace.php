@@ -4,6 +4,16 @@ namespace blancks\JsonPatch\operations;
 
 final class Replace extends PatchOperation
 {
+    private mixed $previous;
+
+    /**
+     * @param object{
+     *     op:string,
+     *     path: string,
+     *     value: mixed,
+     * } $patch
+     * @return void
+     */
     public function validate(object $patch): void
     {
         $this->assertValidOp($patch);
@@ -11,10 +21,36 @@ final class Replace extends PatchOperation
         $this->assertValidValue($patch);
     }
 
-    public function apply(mixed &$document, object $patch): mixed
+    /**
+     * @param mixed $document
+     * @param object{
+     *     op:string,
+     *     path: string,
+     *     value: mixed,
+     * } $patch
+     * @return void
+     */
+    public function apply(mixed &$document, object $patch): void
     {
-        $previous = $this->documentRemover($document, $patch->path);
+        $this->previous = $this->documentRemover($document, $patch->path);
         $this->documentWriter($document, $patch->path, $patch->value);
-        return $previous;
+    }
+
+    /**
+     * @param object{
+     *     op:string,
+     *     path: string,
+     *     value: mixed,
+     * } $patch
+     * @return null|array{
+     *     op:string,
+     *     path: string,
+     *     value?: mixed,
+     *     from?: string,
+     * }
+     */
+    public function getRevertPatch(object $patch): ?array
+    {
+        return ['op' => 'replace', 'path' => $patch->path, 'value' => $this->previous];
     }
 }
