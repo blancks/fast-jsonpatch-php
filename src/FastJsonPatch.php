@@ -127,7 +127,7 @@ final class FastJsonPatch implements
             }
         } catch (FastJsonPatchException $e) {
             // restore the original document
-            foreach ($revertPatch as $p) {
+            foreach (array_reverse($revertPatch) as $p) {
                 $p = (object) $p;
                 $this->operations[$p->op]->apply($this->document, $p);
             }

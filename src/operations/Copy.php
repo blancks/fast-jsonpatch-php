@@ -53,8 +53,8 @@ final class Copy extends PatchOperation
     {
         return [
             'op' => 'remove',
-            'path' => is_array($this->previous) && str_ends_with($patch->path, '/-')
-                ? str_replace('/-', '/' . count($this->previous), $patch->path)
+            'path' => is_array($this->previous) && str_ends_with($patch->path, '-')
+                ? substr_replace($patch->path, (string) count($this->previous), -1)
                 : $patch->path
         ];
     }

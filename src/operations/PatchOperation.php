@@ -99,13 +99,13 @@ abstract class PatchOperation implements
                             );
                         }
 
-                        $previous = $this->ArrayAccessor->set($document, (string) $index, $value);
-
                         if ($isAppendOperation) {
-                            return $document;
+                            $previous = $document;
+                            $this->ArrayAccessor->set($document, (string) $index, $value);
+                            return $previous;
                         }
 
-                        return $previous;
+                        return $this->ArrayAccessor->set($document, (string) $index, $value);
                     }
 
                     if (!$this->ArrayAccessor->exists($document, $tokens[$i])) {
