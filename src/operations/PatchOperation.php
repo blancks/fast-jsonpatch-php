@@ -59,16 +59,11 @@ abstract class PatchOperation implements
     {
         $tokens = $this->pathToTokens($path);
         $pathLength = count($tokens);
-        $documentType = gettype($document);
 
         if ($pathLength === 0) {
             $previous = $document;
             $document = $value;
             return $previous;
-        }
-
-        if ($documentType !== 'object' && $documentType !== 'array') {
-            throw new InvalidPatchPathException(sprintf('path "%s" does not exists', $path), $path);
         }
 
         $i = 0;
@@ -77,7 +72,7 @@ abstract class PatchOperation implements
         do {
             $isLastToken = $i === $lastIndex;
 
-            switch ($documentType) {
+            switch (gettype($document)) {
                 case 'array':
                     if ($isLastToken) {
                         $isAppendOperation = $tokens[$i] === '-';
@@ -97,11 +92,8 @@ abstract class PatchOperation implements
                         ) {
                             throw new ArrayBoundaryException(
                                 sprintf(
-                                    'Exceeding array boundaries trying to add index "%s; is-last: %s; token: %s; document: %s"',
-                                    $index,
-                                    $isLastToken ? 'yes' : 'no',
-                                    $tokens[$i],
-                                    print_r($document, true)
+                                    'Exceeding array boundaries trying to add index "%s',
+                                    $index
                                 ),
                                 $path
                             );
@@ -119,11 +111,8 @@ abstract class PatchOperation implements
                     if (!$this->ArrayAccessor->exists($document, $tokens[$i])) {
                         throw new UnknownPathException(
                             sprintf(
-                                'Unknown document path "%s"; is-last: %s; token: %s; document: %s',
-                                $path,
-                                $isLastToken ? 'yes' : 'no',
-                                $tokens[$i],
-                                print_r($document, true)
+                                'Unknown document path "%s"',
+                                $path
                             ),
                             $path
                         );
@@ -146,12 +135,8 @@ abstract class PatchOperation implements
                     $document = &$this->ObjectAccessor->get($document, $tokens[$i]);
                     break;
                 default:
-                    throw new \DomainException(
-                        sprintf('trying to access children for item of type "%s"', $documentType)
-                    );
+                    throw new UnknownPathException(sprintf('path "%s" does not exists', $path), $path);
             }
-
-            $documentType = gettype($document);
         } while (++$i < $pathLength);
 
         throw new UnknownPathException(sprintf('path "%s" does not exists', $path), $path);
@@ -161,7 +146,6 @@ abstract class PatchOperation implements
     {
         $tokens = $this->pathToTokens($path);
         $pathLength = count($tokens);
-        $documentType = gettype($document);
 
         if ($pathLength === 0) {
             $previous = $document;
@@ -175,7 +159,7 @@ abstract class PatchOperation implements
         do {
             $isLastToken = $i === $lastIndex;
 
-            switch ($documentType) {
+            switch (gettype($document)) {
                 case 'array':
                     if ($isLastToken) {
                         return $this->ArrayAccessor->delete($document, $tokens[$i]);
@@ -205,12 +189,8 @@ abstract class PatchOperation implements
                     $document = &$this->ObjectAccessor->get($document, $tokens[$i]);
                     break;
                 default:
-                    throw new \DomainException(
-                        sprintf('trying to access children for item of type "%s"', $documentType)
-                    );
+                    throw new UnknownPathException(sprintf('path "%s" does not exists', $path), $path);
             }
-
-            $documentType = gettype($document);
         } while (++$i < $pathLength);
 
         throw new UnknownPathException(sprintf('path "%s" does not exists', $path));
