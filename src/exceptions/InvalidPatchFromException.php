@@ -2,7 +2,7 @@
 
 namespace blancks\JsonPatch\exceptions;
 
-class InvalidPatchFromException extends \InvalidArgumentException implements FastJsonPatchException
+class InvalidPatchFromException extends \InvalidArgumentException implements FastJsonPatchValidationException
 {
     use FastJsonPatchExceptionTrait;
 

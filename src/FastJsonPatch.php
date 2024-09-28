@@ -14,13 +14,8 @@ use blancks\JsonPatch\accessors\{
 };
 use blancks\JsonPatch\exceptions\{
     FastJsonPatchException,
-    InvalidPatchException,
-    InvalidPatchFromException,
-    InvalidPatchOperationException,
-    InvalidPatchPathException,
-    InvalidPatchValueException,
-    MalformedPathException,
-    UnknownPatchOperationException
+    FastJsonPatchValidationException,
+    InvalidPatchException
 };
 use blancks\JsonPatch\json\{
     JsonHandlerAwareInterface,
@@ -113,24 +108,40 @@ final class FastJsonPatch implements
         $this->operations[$PatchOperation->getOperation()] = $PatchOperation;
     }
 
+    /**
+     * @param string $patch
+     * @return void
+     * @throws FastJsonPatchException
+     */
     public function apply(string $patch): void
     {
         /** @var array<int, object{op: string, path: string, value?: mixed, from?: string}> $decodedPatch */
         $decodedPatch = $this->JsonHandler->decode($patch);
-        $this->validatePatch($decodedPatch);
         $revertPatch = [];
 
         try {
-            foreach ($decodedPatch as $p) {
+            foreach ($decodedPatch as $i => $p) {
+                $this->operations[$p->op]->validate($p);
                 $this->operations[$p->op]->apply($this->document, $p);
                 $revertPatch[] = $this->operations[$p->op]->getRevertPatch($p);
             }
         } catch (FastJsonPatchException $e) {
+            // restore the original document
             foreach ($revertPatch as $p) {
                 $p = (object) $p;
                 $this->operations[$p->op]->apply($this->document, $p);
             }
 
+            // errors with the patch itself
+            if ($e instanceof FastJsonPatchValidationException) {
+                throw new InvalidPatchException(
+                    sprintf('%s in patch /%d', $e->getMessage(), $i),
+                    "/{$i}",
+                    $e
+                );
+            }
+
+            // errors with the state of the document while patching
             throw $e;
         }
     }
@@ -140,50 +151,12 @@ final class FastJsonPatch implements
         try {
             /** @var array<int, object{op:string, path: string, value?: mixed, from?: string}> $decodedPatch */
             $decodedPatch = $this->JsonHandler->decode($patch);
-            $this->validatePatch($decodedPatch);
+            foreach ($decodedPatch as $p) {
+                $this->operations[$p->op]->validate($p);
+            }
             return true;
         } catch (FastJsonPatchException) {
             return false;
-        }
-    }
-
-    /**
-     * Validates the JSON Patch document structure.
-     * throws a FastJsonPatchException if the $patch is invalid
-     *
-     * @param array<int, object{
-     *     op: string,
-     *     path: string,
-     *     value?: mixed,
-     *     from?: string,
-     * }> $patch array of patch operations
-     * @return void
-     * @throws InvalidPatchOperationException
-     * @throws InvalidPatchPathException
-     * @throws InvalidPatchValueException
-     * @throws InvalidPatchFromException
-     * @throws UnknownPatchOperationException
-     * @throws MalformedPathException
-     */
-    private function validatePatch(array $patch): void
-    {
-        foreach ($patch as $i => $p) {
-            if (!isset($this->operations[$p->op])) {
-                throw new UnknownPatchOperationException(
-                    sprintf('Unknown operation "%s" in patch with index %d', $p->op, $i),
-                    "/{$i}"
-                );
-            }
-
-            try {
-                $this->operations[$p->op]->validate($p);
-            } catch (\Throwable $e) {
-                throw new InvalidPatchException(
-                    sprintf('%s in patch #%d', $e->getMessage(), $i),
-                    "/{$i}",
-                    $e
-                );
-            }
         }
     }
 }

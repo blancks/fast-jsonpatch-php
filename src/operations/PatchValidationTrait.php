@@ -2,7 +2,10 @@
 
 namespace blancks\JsonPatch\operations;
 
+use blancks\JsonPatch\exceptions\InvalidPatchFromException;
 use blancks\JsonPatch\exceptions\InvalidPatchOperationException;
+use blancks\JsonPatch\exceptions\InvalidPatchPathException;
+use blancks\JsonPatch\exceptions\InvalidPatchValueException;
 use blancks\JsonPatch\exceptions\MalformedPathException;
 
 trait PatchValidationTrait
@@ -17,7 +20,7 @@ trait PatchValidationTrait
     protected function assertValidPath(object $patch): void
     {
         if (!isset($patch->path)) {
-            throw new InvalidPatchOperationException('"path" is missing');
+            throw new InvalidPatchPathException('"path" is missing');
         }
 
         $this->assertValidJsonPointer($patch->path);
@@ -26,7 +29,7 @@ trait PatchValidationTrait
     protected function assertValidFrom(object $patch): void
     {
         if (!isset($patch->from)) {
-            throw new InvalidPatchOperationException('"from" is missing');
+            throw new InvalidPatchFromException('"from" is missing');
         }
 
         $this->assertValidJsonPointer($patch->from);
@@ -35,7 +38,7 @@ trait PatchValidationTrait
     protected function assertValidValue(object $patch): void
     {
         if (!property_exists($patch, 'value')) {
-            throw new InvalidPatchOperationException('"value" is missing');
+            throw new InvalidPatchValueException('"value" is missing');
         }
     }
 

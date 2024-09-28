@@ -2,6 +2,8 @@
 
 namespace blancks\JsonPatch\operations;
 
+use blancks\JsonPatch\exceptions\FastJsonPatchException;
+
 /**
  * Object implementing this interface should
  * handle the patch application for a specific
@@ -21,6 +23,7 @@ interface PatchOperationInterface
      *
      * @param object $patch
      * @return void
+     * @throws FastJsonPatchException
      */
     public function validate(object $patch): void;
 
