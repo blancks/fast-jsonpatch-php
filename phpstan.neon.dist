@@ -4,9 +4,3 @@ parameters:
         - test
     paths:
         - src
-    reportUnmatchedIgnoredErrors: false
-    ignoreErrors:
-        - '#Cannot access offset string on array#'
-        - '#recursiveKeySort#'
-        - '#array_splice#'
-        - '#array_is_list#'

@@ -98,7 +98,7 @@ final class Test extends PatchOperation implements JsonHandlerAwareInterface
     /**
      * Applies ksort to each array element recursively
      *
-     * @param array $a
+     * @param array<string|int, mixed> $a
      * @return void
      */
     private function recursiveKeySort(array &$a): void
