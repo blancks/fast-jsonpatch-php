@@ -39,10 +39,11 @@ use blancks\JsonPatch\operations\{
  * @link https://datatracker.ietf.org/doc/html/rfc6902
  */
 final class FastJsonPatch implements
+    JsonHandlerAwareInterface,
     ArrayAccessorAwareInterface,
-    ObjectAccessorAwareInterface,
-    JsonHandlerAwareInterface
+    ObjectAccessorAwareInterface
 {
+    use JsonHandlerAwareTrait;
     use ArrayAccessorAwareTrait;
     use ObjectAccessorAwareTrait;
     use PatchValidationTrait;
@@ -57,21 +58,22 @@ final class FastJsonPatch implements
      */
     private array $operations;
 
-    public static function fromJson(string $document): self
-    {
-        $JsonHandler = new BasicJsonHandler;
+    public static function fromJson(
+        string $document,
+        ?JsonHandlerInterface $JsonHandler = null,
+        ?ArrayAccessorInterface $ArrayAccessor = null,
+        ?ObjectAccessorInterface $ObjectAccessor = null
+    ): self {
+        $JsonHandler = $JsonHandler ?? new BasicJsonHandler;
         $decodedJson = $JsonHandler->decode($document);
-        return new self(
-            document: $decodedJson,
-            JsonHandler: $JsonHandler
-        );
+        return new self($decodedJson, $JsonHandler, $ArrayAccessor, $ObjectAccessor);
     }
 
     public function __construct(
         mixed &$document,
+        ?JsonHandlerInterface $JsonHandler = null,
         ?ArrayAccessorInterface $ArrayAccessor = null,
-        ?ObjectAccessorInterface $ObjectAccessor = null,
-        ?JsonHandlerInterface $JsonHandler = null
+        ?ObjectAccessorInterface $ObjectAccessor = null
     ) {
         $this->document = &$document;
         $this->setArrayAccessor($ArrayAccessor ?? new ArrayAccessor);
