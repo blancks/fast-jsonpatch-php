@@ -10,7 +10,6 @@ use blancks\JsonPatch\accessors\{
 };
 use blancks\JsonPatch\exceptions\{
     ArrayBoundaryException,
-    InvalidPatchPathException,
     UnknownPathException
 };
 
@@ -77,7 +76,7 @@ abstract class PatchOperation implements
                     if ($isLastToken) {
                         $isAppendOperation = $tokens[$i] === '-';
                         $count = $this->ArrayAccessor->count($document);
-                        $index = $isAppendOperation ? $count : (int) $tokens[$i];
+                        $index = $isAppendOperation ? (string) $count : $tokens[$i];
 
                         // checks for out of bounds for non-empty indexed arrays only
                         if (
@@ -85,7 +84,7 @@ abstract class PatchOperation implements
                             $this->ArrayAccessor->isIndexed($document) &&
                             !$isAppendOperation &&
                             (
-                                (string) $index !== $tokens[$i] ||
+                                (string) intval($index) !== $tokens[$i] ||
                                 $index < 0 ||
                                 $index > $count
                             )
@@ -101,11 +100,11 @@ abstract class PatchOperation implements
 
                         if ($isAppendOperation) {
                             $previous = $document;
-                            $this->ArrayAccessor->set($document, (string) $index, $value);
+                            $this->ArrayAccessor->set($document, $index, $value);
                             return $previous;
                         }
 
-                        return $this->ArrayAccessor->set($document, (string) $index, $value);
+                        return $this->ArrayAccessor->set($document, $index, $value);
                     }
 
                     if (!$this->ArrayAccessor->exists($document, $tokens[$i])) {
@@ -161,10 +160,6 @@ abstract class PatchOperation implements
 
             switch (gettype($document)) {
                 case 'array':
-                    if ($isLastToken) {
-                        return $this->ArrayAccessor->delete($document, $tokens[$i]);
-                    }
-
                     if (!$this->ArrayAccessor->exists($document, $tokens[$i])) {
                         throw new UnknownPathException(
                             sprintf('Unknown document path "%s"', $path),
@@ -172,18 +167,22 @@ abstract class PatchOperation implements
                         );
                     }
 
+                    if ($isLastToken) {
+                        return $this->ArrayAccessor->delete($document, $tokens[$i]);
+                    }
+
                     $document = &$this->ArrayAccessor->get($document, $tokens[$i]);
                     break;
                 case 'object':
-                    if ($isLastToken) {
-                        return $this->ObjectAccessor->delete($document, $tokens[$i]);
-                    }
-
                     if (!$this->ObjectAccessor->exists($document, $tokens[$i])) {
                         throw new UnknownPathException(
                             sprintf('Unknown document path "%s"', $path),
                             $path
                         );
+                    }
+
+                    if ($isLastToken) {
+                        return $this->ObjectAccessor->delete($document, $tokens[$i]);
                     }
 
                     $document = &$this->ObjectAccessor->get($document, $tokens[$i]);
