@@ -16,8 +16,8 @@ final class Add extends PatchOperation
      */
     public function validate(object $patch): void
     {
-        $this->assertValidOp($patch);
-        $this->assertValidPath($patch);
+        // op and path are already guaranteed to be part of the patch
+        // we only need to validate the additional properties needed for this operation
         $this->assertValidValue($patch);
     }
 

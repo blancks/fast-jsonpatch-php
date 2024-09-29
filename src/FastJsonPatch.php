@@ -25,6 +25,7 @@ use blancks\JsonPatch\json\{
 };
 use blancks\JsonPatch\operations\{
     PatchOperationInterface,
+    PatchValidationTrait,
     Add,
     Copy,
     Move,
@@ -44,7 +45,7 @@ final class FastJsonPatch implements
 {
     use ArrayAccessorAwareTrait;
     use ObjectAccessorAwareTrait;
-    use JsonHandlerAwareTrait;
+    use PatchValidationTrait;
 
     /**
      * @var mixed reference of the document
@@ -115,12 +116,11 @@ final class FastJsonPatch implements
      */
     public function apply(string $patch): void
     {
-        /** @var array<int, object{op: string, path: string, value?: mixed, from?: string}> $decodedPatch */
-        $decodedPatch = $this->JsonHandler->decode($patch);
+        $i = 0;
         $revertPatch = [];
 
         try {
-            foreach ($decodedPatch as $i => $p) {
+            foreach ($this->patchIterator($patch) as $i => $p) {
                 $this->operations[$p->op]->validate($p);
                 $this->operations[$p->op]->apply($this->document, $p);
                 $revertPatch[] = $this->operations[$p->op]->getRevertPatch($p);
@@ -132,7 +132,7 @@ final class FastJsonPatch implements
                 $this->operations[$p->op]->apply($this->document, $p);
             }
 
-            // errors with the patch itself
+            // validation errors with the patch itself
             if ($e instanceof FastJsonPatchValidationException) {
                 throw new InvalidPatchException(
                     sprintf('%s in patch /%d', $e->getMessage(), $i),
@@ -141,7 +141,6 @@ final class FastJsonPatch implements
                 );
             }
 
-            // errors with the state of the document while patching
             throw $e;
         }
     }
@@ -149,14 +148,35 @@ final class FastJsonPatch implements
     public function isValidPatch(string $patch): bool
     {
         try {
-            /** @var array<int, object{op:string, path: string, value?: mixed, from?: string}> $decodedPatch */
-            $decodedPatch = $this->JsonHandler->decode($patch);
-            foreach ($decodedPatch as $p) {
+            foreach ($this->patchIterator($patch) as $p) {
                 $this->operations[$p->op]->validate($p);
             }
             return true;
         } catch (FastJsonPatchException) {
             return false;
+        }
+    }
+
+    /**
+     * @param string $patch
+     * @return \Generator & iterable<int, object{op: string, path: string, value?: mixed, from?: string}>
+     */
+    private function patchIterator(string $patch): \Generator
+    {
+        $decodedPatch = $this->JsonHandler->decode($patch);
+
+        if (!is_array($decodedPatch)) {
+            throw new InvalidPatchException('Invalid patch structure');
+        }
+
+        foreach ($decodedPatch as $p) {
+            if (!is_object($p)) {
+                $p = (object) $p;
+            }
+            $this->assertValidOp($p);
+            $this->assertValidPath($p);
+            /** @var object{op:string, path: string, value?: mixed, from?: string} $p */
+            yield $p;
         }
     }
 }
