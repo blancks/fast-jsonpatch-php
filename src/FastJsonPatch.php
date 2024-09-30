@@ -56,7 +56,7 @@ final class FastJsonPatch implements
     /**
      * @var array<string, PatchOperationInterface> registered classes for handling patch operations
      */
-    private array $operations;
+    private array $operations = [];
 
     public static function fromJson(
         string $document,
@@ -118,21 +118,26 @@ final class FastJsonPatch implements
      */
     public function apply(string $patch): void
     {
-        $i = 0;
-        $revertPatch = [];
-
         try {
-            foreach ($this->patchIterator($patch) as $i => $p) {
-                $this->operations[$p->op]->validate($p);
-                $this->operations[$p->op]->apply($this->document, $p);
-                $revertPatch[] = $this->operations[$p->op]->getRevertPatch($p);
+            $revertPatch = [];
+            $document = &$this->document;
+
+            foreach ($this->patchIterator($patch) as $op => $p) {
+                $Operation = $this->operations[$op];
+                $Operation->validate($p);
+                $Operation->apply($document, $p);
+                $revertPatch[] = $Operation->getRevertPatch($p);
             }
         } catch (FastJsonPatchException $e) {
             // restore the original document
             foreach (array_reverse($revertPatch) as $p) {
-                $p = (object) $p;
-                $this->operations[$p->op]->apply($this->document, $p);
+                if (!is_null($p)) {
+                    $p = (object) $p;
+                    $this->operations[$p->op]->apply($this->document, $p);
+                }
             }
+
+            $i = count($revertPatch)-1;
 
             // validation errors with the patch itself
             if ($e instanceof FastJsonPatchValidationException) {
@@ -150,8 +155,8 @@ final class FastJsonPatch implements
     public function isValidPatch(string $patch): bool
     {
         try {
-            foreach ($this->patchIterator($patch) as $p) {
-                $this->operations[$p->op]->validate($p);
+            foreach ($this->patchIterator($patch) as $op => $p) {
+                $this->operations[$op]->validate($p);
             }
             return true;
         } catch (FastJsonPatchException) {
@@ -161,7 +166,7 @@ final class FastJsonPatch implements
 
     /**
      * @param string $patch
-     * @return \Generator & iterable<int, object{op: string, path: string, value?: mixed, from?: string}>
+     * @return \Generator & iterable<string, object{op: string, path: string, value?: mixed, from?: string}>
      */
     private function patchIterator(string $patch): \Generator
     {
@@ -172,13 +177,11 @@ final class FastJsonPatch implements
         }
 
         foreach ($decodedPatch as $p) {
-            if (!is_object($p)) {
-                $p = (object) $p;
-            }
+            $p = (object) $p;
             $this->assertValidOp($p);
             $this->assertValidPath($p);
             /** @var object{op:string, path: string, value?: mixed, from?: string} $p */
-            yield $p;
+            yield $p->op => $p;
         }
     }
 }
