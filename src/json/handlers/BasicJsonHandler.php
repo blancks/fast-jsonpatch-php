@@ -1,11 +1,37 @@
 <?php declare(strict_types=1);
 
-namespace blancks\JsonPatch\json;
+namespace blancks\JsonPatch\json\handlers;
 
 use blancks\JsonPatch\exceptions\MalformedDocumentException;
+use blancks\JsonPatch\json\accessors\{
+    ArrayAccessor,
+    ArrayAccessorAwareInterface,
+    ArrayAccessorAwareTrait,
+    ArrayAccessorInterface,
+    ObjectAccessor,
+    ObjectAccessorAwareInterface,
+    ObjectAccessorAwareTrait,
+    ObjectAccessorInterface
+};
+use blancks\JsonPatch\json\crud\CrudTrait;
 
-class BasicJsonHandler implements JsonHandlerInterface
+class BasicJsonHandler implements
+    JsonHandlerInterface,
+    ArrayAccessorAwareInterface,
+    ObjectAccessorAwareInterface
 {
+    use ArrayAccessorAwareTrait;
+    use ObjectAccessorAwareTrait;
+    use CrudTrait;
+
+    public function __construct(
+        ?ArrayAccessorInterface $ArrayAccessor = null,
+        ?ObjectAccessorInterface $ObjectAccessor = null
+    ) {
+        $this->setArrayAccessor($ArrayAccessor ?? new ArrayAccessor);
+        $this->setObjectAccessor($ObjectAccessor ?? new ObjectAccessor);
+    }
+
     /**
      * @param mixed $document
      * @param array{

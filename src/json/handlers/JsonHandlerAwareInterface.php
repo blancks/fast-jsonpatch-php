@@ -1,8 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace blancks\JsonPatch\json;
-
-use blancks\JsonPatch\json\JsonHandlerInterface;
+namespace blancks\JsonPatch\json\handlers;
 
 interface JsonHandlerAwareInterface
 {

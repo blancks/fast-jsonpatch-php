@@ -30,8 +30,8 @@ final class Move extends PatchOperation
      */
     public function apply(mixed &$document, object $patch): void
     {
-        $value = $this->documentRemover($document, $patch->from);
-        $this->documentWriter($document, $patch->path, $value);
+        $value = $this->JsonHandler->delete($document, $patch->from);
+        $this->JsonHandler->write($document, $patch->path, $value);
     }
 
     /**

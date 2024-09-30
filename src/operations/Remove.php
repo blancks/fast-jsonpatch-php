@@ -29,7 +29,7 @@ final class Remove extends PatchOperation
      */
     public function apply(mixed &$document, object $patch): void
     {
-        $this->previous = $this->documentRemover($document, $patch->path);
+        $this->previous = $this->JsonHandler->delete($document, $patch->path);
     }
 
     /**

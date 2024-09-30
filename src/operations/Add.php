@@ -32,7 +32,7 @@ final class Add extends PatchOperation
      */
     public function apply(mixed &$document, object $patch): void
     {
-        $this->previous = $this->documentWriter($document, $patch->path, $patch->value);
+        $this->previous = $this->JsonHandler->write($document, $patch->path, $patch->value);
     }
 
     /**

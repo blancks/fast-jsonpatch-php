@@ -2,33 +2,23 @@
 
 namespace blancks\JsonPatch;
 
-use blancks\JsonPatch\accessors\{
-    ArrayAccessorAwareInterface,
-    ArrayAccessorAwareTrait,
-    ArrayAccessorInterface,
-    ArrayAccessor,
-    ObjectAccessorAwareInterface,
-    ObjectAccessorAwareTrait,
-    ObjectAccessorInterface,
-    ObjectAccessor
-};
 use blancks\JsonPatch\exceptions\{
     FastJsonPatchException,
     FastJsonPatchValidationException,
     InvalidPatchException
 };
-use blancks\JsonPatch\json\{
+use blancks\JsonPatch\json\handlers\{
+    BasicJsonHandler,
     JsonHandlerAwareInterface,
     JsonHandlerAwareTrait,
-    JsonHandlerInterface,
-    BasicJsonHandler
+    JsonHandlerInterface
 };
 use blancks\JsonPatch\operations\{
-    PatchOperationInterface,
-    PatchValidationTrait,
     Add,
     Copy,
     Move,
+    PatchOperationInterface,
+    PatchValidationTrait,
     Remove,
     Replace,
     Test
@@ -38,14 +28,9 @@ use blancks\JsonPatch\operations\{
  * This class allow to perform a sequence of operations to apply to a target JSON document as per RFC 6902
  * @link https://datatracker.ietf.org/doc/html/rfc6902
  */
-final class FastJsonPatch implements
-    JsonHandlerAwareInterface,
-    ArrayAccessorAwareInterface,
-    ObjectAccessorAwareInterface
+final class FastJsonPatch implements JsonHandlerAwareInterface
 {
     use JsonHandlerAwareTrait;
-    use ArrayAccessorAwareTrait;
-    use ObjectAccessorAwareTrait;
     use PatchValidationTrait;
 
     /**
@@ -58,26 +43,14 @@ final class FastJsonPatch implements
      */
     private array $operations = [];
 
-    public static function fromJson(
-        string $document,
-        ?JsonHandlerInterface $JsonHandler = null,
-        ?ArrayAccessorInterface $ArrayAccessor = null,
-        ?ObjectAccessorInterface $ObjectAccessor = null
-    ): self {
+    public static function fromJson(string $document, ?JsonHandlerInterface $JsonHandler = null): self {
         $JsonHandler = $JsonHandler ?? new BasicJsonHandler;
         $decodedJson = $JsonHandler->decode($document);
-        return new self($decodedJson, $JsonHandler, $ArrayAccessor, $ObjectAccessor);
+        return new self($decodedJson, $JsonHandler);
     }
 
-    public function __construct(
-        mixed &$document,
-        ?JsonHandlerInterface $JsonHandler = null,
-        ?ArrayAccessorInterface $ArrayAccessor = null,
-        ?ObjectAccessorInterface $ObjectAccessor = null
-    ) {
+    public function __construct(mixed &$document, ?JsonHandlerInterface $JsonHandler = null) {
         $this->document = &$document;
-        $this->setArrayAccessor($ArrayAccessor ?? new ArrayAccessor);
-        $this->setObjectAccessor($ObjectAccessor ?? new ObjectAccessor);
         $this->setJsonHandler($JsonHandler ?? new BasicJsonHandler);
         $this->registerOperation(new Add);
         $this->registerOperation(new Copy);
@@ -94,16 +67,7 @@ final class FastJsonPatch implements
      * @param PatchOperationInterface $PatchOperation
      * @return void
      */
-    public function registerOperation(PatchOperationInterface $PatchOperation): void
-    {
-        if ($PatchOperation instanceof ArrayAccessorAwareInterface) {
-            $PatchOperation->setArrayAccessor($this->ArrayAccessor);
-        }
-
-        if ($PatchOperation instanceof ObjectAccessorAwareInterface) {
-            $PatchOperation->setObjectAccessor($this->ObjectAccessor);
-        }
-
+    public function registerOperation(PatchOperationInterface $PatchOperation): void {
         if ($PatchOperation instanceof JsonHandlerAwareInterface) {
             $PatchOperation->setJsonHandler($this->JsonHandler);
         }
@@ -116,8 +80,7 @@ final class FastJsonPatch implements
      * @return void
      * @throws FastJsonPatchException
      */
-    public function apply(string $patch): void
-    {
+    public function apply(string $patch): void {
         try {
             $revertPatch = [];
             $document = &$this->document;
@@ -132,12 +95,12 @@ final class FastJsonPatch implements
             // restore the original document
             foreach (array_reverse($revertPatch) as $p) {
                 if (!is_null($p)) {
-                    $p = (object) $p;
+                    $p = (object)$p;
                     $this->operations[$p->op]->apply($this->document, $p);
                 }
             }
 
-            $i = count($revertPatch)-1;
+            $i = count($revertPatch) - 1;
 
             // validation errors with the patch itself
             if ($e instanceof FastJsonPatchValidationException) {
@@ -152,8 +115,7 @@ final class FastJsonPatch implements
         }
     }
 
-    public function isValidPatch(string $patch): bool
-    {
+    public function isValidPatch(string $patch): bool {
         try {
             foreach ($this->patchIterator($patch) as $op => $p) {
                 $this->operations[$op]->validate($p);
@@ -162,6 +124,15 @@ final class FastJsonPatch implements
         } catch (FastJsonPatchException) {
             return false;
         }
+    }
+
+    public function read(string $path): mixed {
+        return $this->JsonHandler->read($this->document, $path);
+    }
+
+    public function &getDocument(): mixed
+    {
+        return $this->document;
     }
 
     /**

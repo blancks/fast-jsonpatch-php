@@ -3,13 +3,9 @@
 namespace blancks\JsonPatch\operations;
 
 use blancks\JsonPatch\exceptions\FailedTestException;
-use blancks\JsonPatch\json\JsonHandlerAwareInterface;
-use blancks\JsonPatch\json\JsonHandlerAwareTrait;
 
-final class Test extends PatchOperation implements JsonHandlerAwareInterface
+final class Test extends PatchOperation
 {
-    use JsonHandlerAwareTrait;
-
     /**
      * @param object{
      *     op:string,
@@ -36,12 +32,12 @@ final class Test extends PatchOperation implements JsonHandlerAwareInterface
      */
     public function apply(mixed &$document, object $patch): void
     {
-        $item = $this->documentReader($document, $patch->path);
+        $item = $this->JsonHandler->read($document, $patch->path);
 
         if (!$this->isJsonEquals($item, $patch->value)) {
             throw new FailedTestException(
                 sprintf(
-                    'Test operation failed asserting that %s equals %s',
+                    'Test operation failed asserting that "%s" equals "%s"',
                     $this->JsonHandler->encode($item),
                     $this->JsonHandler->encode($patch->value)
                 ),

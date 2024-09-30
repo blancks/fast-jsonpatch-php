@@ -32,8 +32,8 @@ final class Copy extends PatchOperation
      */
     public function apply(mixed &$document, object $patch): void
     {
-        $value = $this->documentReader($document, $patch->from);
-        $this->previous = $this->documentWriter($document, $patch->path, $value);
+        $value = $this->JsonHandler->read($document, $patch->from);
+        $this->previous = $this->JsonHandler->write($document, $patch->path, $value);
     }
 
     /**

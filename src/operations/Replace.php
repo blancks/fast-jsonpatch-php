@@ -32,8 +32,8 @@ final class Replace extends PatchOperation
      */
     public function apply(mixed &$document, object $patch): void
     {
-        $this->previous = $this->documentRemover($document, $patch->path);
-        $this->documentWriter($document, $patch->path, $patch->value);
+        $this->previous = $this->JsonHandler->delete($document, $patch->path);
+        $this->JsonHandler->write($document, $patch->path, $patch->value);
     }
 
     /**

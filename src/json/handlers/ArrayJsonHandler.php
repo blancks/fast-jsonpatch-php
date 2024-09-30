@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace blancks\JsonPatch\json;
+namespace blancks\JsonPatch\json\handlers;
 
 final class ArrayJsonHandler extends BasicJsonHandler
 {

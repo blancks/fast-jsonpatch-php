@@ -1,8 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace blancks\JsonPatch\json;
+namespace blancks\JsonPatch\json\handlers;
 
-interface JsonHandlerInterface
+use blancks\JsonPatch\json\crud\CrudInterface;
+
+interface JsonHandlerInterface extends CrudInterface
 {
     /**
      * @param mixed $document
