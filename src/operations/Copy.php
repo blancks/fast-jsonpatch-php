@@ -51,11 +51,23 @@ final class Copy extends PatchOperation
      */
     public function getRevertPatch(object $patch): ?array
     {
-        return [
-            'op' => 'remove',
-            'path' => is_array($this->previous) && str_ends_with($patch->path, '-')
-                ? substr_replace($patch->path, (string) count($this->previous), -1)
-                : $patch->path
-        ];
+        if (str_ends_with($patch->path, '-')) {
+            if (!is_int($this->previous)) {
+                throw new \LogicException(
+                    sprintf(
+                        'Return value of array append operation ("-" token) is expected to be '
+                            . 'the array size as integer, %s was given instead',
+                        gettype($this->previous)
+                    )
+                );
+            }
+
+            return [
+                'op' => 'remove',
+                'path' => substr_replace($patch->path, (string) $this->previous, -1)
+            ];
+        }
+
+        return ['op' => 'remove', 'path' => $patch->path];
     }
 }

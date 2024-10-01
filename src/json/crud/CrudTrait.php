@@ -72,9 +72,8 @@ trait CrudTrait
                         }
 
                         if ($isAppendOperation) {
-                            $previous = $document;
                             $this->ArrayAccessor->set($document, $index, $value);
-                            return $previous;
+                            return $count;
                         }
 
                         return $this->ArrayAccessor->set($document, $index, $value);
