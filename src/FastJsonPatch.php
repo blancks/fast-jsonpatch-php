@@ -100,10 +100,9 @@ final class FastJsonPatch implements JsonHandlerAwareInterface
                 }
             }
 
-            $i = count($revertPatch) - 1;
-
             // validation errors with the patch itself
             if ($e instanceof FastJsonPatchValidationException) {
+                $i = count($revertPatch);
                 throw new InvalidPatchException(
                     sprintf('%s in patch /%d', $e->getMessage(), $i),
                     "/{$i}",
