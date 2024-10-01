@@ -2,6 +2,8 @@
 
 namespace blancks\JsonPatch\operations;
 
+use blancks\JsonPatch\json\accessors\UndefinedValue;
+
 final class Add extends PatchOperation
 {
     private mixed $previous;
@@ -50,7 +52,7 @@ final class Add extends PatchOperation
      */
     public function getRevertPatch(object $patch): ?array
     {
-        if (is_null($this->previous)) {
+        if ($this->previous instanceof UndefinedValue) {
             return ['op' => 'remove', 'path' => $patch->path];
         }
 

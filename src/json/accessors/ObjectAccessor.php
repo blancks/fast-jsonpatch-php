@@ -4,6 +4,13 @@ namespace blancks\JsonPatch\json\accessors;
 
 final class ObjectAccessor implements ObjectAccessorInterface
 {
+    private UndefinedValue $UndefinedValue;
+
+    public function __construct()
+    {
+        $this->UndefinedValue = new UndefinedValue;
+    }
+
     public function exists(object $document, string $key): bool
     {
         return property_exists($document, $key);
@@ -16,7 +23,7 @@ final class ObjectAccessor implements ObjectAccessorInterface
 
     public function set(object $document, string $key, mixed $value): mixed
     {
-        $previous = $document->{$key} ?? null;
+        $previous = $this->exists($document, $key) ? $document->{$key} : $this->UndefinedValue;
         $document->{$key} = $value;
         return $previous;
     }

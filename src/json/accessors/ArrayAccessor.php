@@ -4,6 +4,13 @@ namespace blancks\JsonPatch\json\accessors;
 
 final class ArrayAccessor implements ArrayAccessorInterface
 {
+    private UndefinedValue $UndefinedValue;
+
+    public function __construct()
+    {
+        $this->UndefinedValue = new UndefinedValue;
+    }
+
     /**
      * @param array<string|int, mixed> $document
      * @param string $index
@@ -33,7 +40,7 @@ final class ArrayAccessor implements ArrayAccessorInterface
      */
     public function set(array &$document, string $index, mixed $value): mixed
     {
-        $previous = $document[$index] ?? null;
+        $previous = $this->exists($document, $index) ? $document[$index] : $this->UndefinedValue;
 
         if ($this->count($document) > 0 && $this->isIndexed($document)) {
             $type = gettype($value);
