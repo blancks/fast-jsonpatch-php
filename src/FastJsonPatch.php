@@ -43,13 +43,15 @@ final class FastJsonPatch implements JsonHandlerAwareInterface
      */
     private array $operations = [];
 
-    public static function fromJson(string $document, ?JsonHandlerInterface $JsonHandler = null): self {
+    public static function fromJson(string $document, ?JsonHandlerInterface $JsonHandler = null): self
+    {
         $JsonHandler = $JsonHandler ?? new BasicJsonHandler;
         $decodedJson = $JsonHandler->decode($document);
         return new self($decodedJson, $JsonHandler);
     }
 
-    public function __construct(mixed &$document, ?JsonHandlerInterface $JsonHandler = null) {
+    public function __construct(mixed &$document, ?JsonHandlerInterface $JsonHandler = null)
+    {
         $this->document = &$document;
         $this->setJsonHandler($JsonHandler ?? new BasicJsonHandler);
         $this->registerOperation(new Add);
@@ -67,7 +69,8 @@ final class FastJsonPatch implements JsonHandlerAwareInterface
      * @param PatchOperationInterface $PatchOperation
      * @return void
      */
-    public function registerOperation(PatchOperationInterface $PatchOperation): void {
+    public function registerOperation(PatchOperationInterface $PatchOperation): void
+    {
         if ($PatchOperation instanceof JsonHandlerAwareInterface) {
             $PatchOperation->setJsonHandler($this->JsonHandler);
         }
@@ -80,7 +83,8 @@ final class FastJsonPatch implements JsonHandlerAwareInterface
      * @return void
      * @throws FastJsonPatchException
      */
-    public function apply(string $patch): void {
+    public function apply(string $patch): void
+    {
         try {
             $revertPatch = [];
             $document = &$this->document;
@@ -95,7 +99,7 @@ final class FastJsonPatch implements JsonHandlerAwareInterface
             // restore the original document
             foreach (array_reverse($revertPatch) as $p) {
                 if (!is_null($p)) {
-                    $p = (object)$p;
+                    $p = (object) $p;
                     $this->operations[$p->op]->apply($this->document, $p);
                 }
             }
@@ -114,7 +118,8 @@ final class FastJsonPatch implements JsonHandlerAwareInterface
         }
     }
 
-    public function isValidPatch(string $patch): bool {
+    public function isValidPatch(string $patch): bool
+    {
         try {
             foreach ($this->patchIterator($patch) as $op => $p) {
                 $this->operations[$op]->validate($p);
@@ -125,7 +130,8 @@ final class FastJsonPatch implements JsonHandlerAwareInterface
         }
     }
 
-    public function read(string $path): mixed {
+    public function read(string $path): mixed
+    {
         return $this->JsonHandler->read($this->document, $path);
     }
 
