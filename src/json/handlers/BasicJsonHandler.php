@@ -33,11 +33,11 @@ class BasicJsonHandler implements
     public function __construct(
         ?ArrayAccessorInterface $ArrayAccessor = null,
         ?ObjectAccessorInterface $ObjectAccessor = null,
-        ?ValueAccessorInterface $DataAccessor = null
+        ?ValueAccessorInterface $ValueAccessor = null
     ) {
         $this->setArrayAccessor($ArrayAccessor ?? new ArrayAccessor);
         $this->setObjectAccessor($ObjectAccessor ?? new ObjectAccessor);
-        $this->setValueAccessor($DataAccessor ?? new ValueAccessor);
+        $this->setValueAccessor($ValueAccessor ?? new ValueAccessor);
     }
 
     /**
