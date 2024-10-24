@@ -11,25 +11,33 @@ use blancks\JsonPatch\json\accessors\{
     ObjectAccessor,
     ObjectAccessorAwareInterface,
     ObjectAccessorAwareTrait,
-    ObjectAccessorInterface
+    ObjectAccessorInterface,
+    ValueAccessor,
+    ValueAccessorAwareInterface,
+    ValueAccessorAwareTrait,
+    ValueAccessorInterface
 };
 use blancks\JsonPatch\json\crud\CrudTrait;
 
 class BasicJsonHandler implements
     JsonHandlerInterface,
     ArrayAccessorAwareInterface,
-    ObjectAccessorAwareInterface
+    ObjectAccessorAwareInterface,
+    ValueAccessorAwareInterface
 {
     use ArrayAccessorAwareTrait;
     use ObjectAccessorAwareTrait;
+    use ValueAccessorAwareTrait;
     use CrudTrait;
 
     public function __construct(
         ?ArrayAccessorInterface $ArrayAccessor = null,
-        ?ObjectAccessorInterface $ObjectAccessor = null
+        ?ObjectAccessorInterface $ObjectAccessor = null,
+        ?ValueAccessorInterface $DataAccessor = null
     ) {
         $this->setArrayAccessor($ArrayAccessor ?? new ArrayAccessor);
         $this->setObjectAccessor($ObjectAccessor ?? new ObjectAccessor);
+        $this->setValueAccessor($DataAccessor ?? new ValueAccessor);
     }
 
     /**

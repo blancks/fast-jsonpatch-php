@@ -28,8 +28,7 @@ final class ArrayAccessor implements ArrayAccessorInterface
      */
     public function &get(array &$document, string $index): mixed
     {
-        $value = &$document[$index];
-        return $value;
+        return $document[$index];
     }
 
     /**

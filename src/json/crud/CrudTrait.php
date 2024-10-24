@@ -2,11 +2,65 @@
 
 namespace blancks\JsonPatch\json\crud;
 
-use blancks\JsonPatch\exceptions\ArrayBoundaryException;
 use blancks\JsonPatch\exceptions\UnknownPathException;
+use blancks\JsonPatch\json\accessors\ArrayAccessorInterface;
+use blancks\JsonPatch\json\accessors\ObjectAccessorInterface;
 
 trait CrudTrait
 {
+    public function write(mixed &$document, string $path, mixed $value): mixed
+    {
+        $item = $this->pathResolver($document, $path);
+        return $this->ValueAccessor->write(
+            $item['Accessor'],
+            $item['document'],
+            $path,
+            $item['token'],
+            $value
+        );
+    }
+
+    public function &read(mixed &$document, string $path): mixed
+    {
+        $item = $this->pathResolver($document, $path);
+        return $this->ValueAccessor->read(
+            $item['Accessor'],
+            $item['document'],
+            $path,
+            $item['token']
+        );
+    }
+
+    public function update(mixed &$document, string $path, mixed $value): mixed
+    {
+        $item = $this->pathResolver($document, $path);
+        $previous = $this->ValueAccessor->delete(
+            $item['Accessor'],
+            $item['document'],
+            $path,
+            $item['token'],
+        );
+        $this->ValueAccessor->write(
+            $item['Accessor'],
+            $item['document'],
+            $path,
+            $item['token'],
+            $value
+        );
+        return $previous;
+    }
+
+    public function delete(mixed &$document, string $path): mixed
+    {
+        $itemData = $this->pathResolver($document, $path);
+        return $this->ValueAccessor->delete(
+            $itemData['Accessor'],
+            $itemData['document'],
+            $path,
+            $itemData['token']
+        );
+    }
+
     /**
      * Returns the $path tokens as array
      *
@@ -16,91 +70,59 @@ trait CrudTrait
      */
     private function pathToTokens(string $path): array
     {
-        $tokens = [];
-
         if ($path !== '') {
-            foreach (explode('/', ltrim($path, '/')) as $token) {
-                $tokens[] = strtr($token, ['~1' => '/', '~0' => '~']);
-            }
+            $path = strtr(substr($path, 1), ['/' => '~ ', '~1' => '/', '~0' => '~']);
+            return explode('~ ', $path);
         }
 
-        return $tokens;
+        return [];
     }
 
-    public function write(mixed &$document, string $path, mixed $value): mixed
+    /**
+     * @param mixed $document
+     * @param string $path
+     * @return array{
+     *     'Accessor': ArrayAccessorInterface|ObjectAccessorInterface,
+     *     'document': mixed,
+     *     'token': ?string,
+     * }
+     */
+    private function pathResolver(mixed &$document, string $path): array
     {
         $tokens = $this->pathToTokens($path);
         $pathLength = count($tokens);
 
         if ($pathLength === 0) {
-            $previous = $document;
-            $document = $value;
-            return $previous;
+            return [
+                'Accessor' => gettype($document) === 'array' ? $this->ArrayAccessor : $this->ObjectAccessor,
+                'document' => &$document,
+                'token' => null,
+            ];
         }
 
         $i = 0;
-        $lastIndex = $pathLength - 1;
+        --$pathLength;
 
         do {
-            $isLastToken = $i === $lastIndex;
-
             switch (gettype($document)) {
                 case 'array':
-                    if ($isLastToken) {
-                        $isAppendOperation = $tokens[$i] === '-';
-                        $count = $this->ArrayAccessor->count($document);
-                        $index = $isAppendOperation ? (string) $count : $tokens[$i];
-
-                        // checks for out of bounds for non-empty indexed arrays only
-                        if (
-                            $count > 0 &&
-                            $this->ArrayAccessor->isIndexed($document) &&
-                            !$isAppendOperation &&
-                            (
-                                (string) intval($index) !== $tokens[$i] ||
-                                $index < 0 ||
-                                $index > $count
-                            )
-                        ) {
-                            throw new ArrayBoundaryException(
-                                sprintf(
-                                    'Exceeding array boundaries trying to add index "%s',
-                                    $index
-                                ),
-                                $path
-                            );
-                        }
-
-                        if ($isAppendOperation) {
-                            $this->ArrayAccessor->set($document, $index, $value);
-                            return $count;
-                        }
-
-                        return $this->ArrayAccessor->set($document, $index, $value);
-                    }
-
-                    if (!$this->ArrayAccessor->exists($document, $tokens[$i])) {
-                        throw new UnknownPathException(
-                            sprintf(
-                                'Unknown document path "%s"',
-                                $path
-                            ),
-                            $path
-                        );
+                    if ($i === $pathLength) {
+                        return [
+                            'Accessor' => $this->ArrayAccessor,
+                            'document' => &$document,
+                            'token' => $tokens[$i],
+                        ];
                     }
 
                     $document = &$this->ArrayAccessor->get($document, $tokens[$i]);
                     break;
                 case 'object':
-                    if ($isLastToken) {
-                        return $this->ObjectAccessor->set($document, $tokens[$i], $value);
-                    }
-
-                    if (!$this->ObjectAccessor->exists($document, $tokens[$i])) {
-                        throw new UnknownPathException(
-                            sprintf('Unknown document path "%s"', $path),
-                            $path
-                        );
+                    if ($i === $pathLength) {
+                        return [
+                            'Accessor' => $this->ObjectAccessor,
+                            'document' => &$document,
+                            'token' => $tokens[$i],
+                        ];
                     }
 
                     $document = &$this->ObjectAccessor->get($document, $tokens[$i]);
@@ -108,103 +130,8 @@ trait CrudTrait
                 default:
                     throw new UnknownPathException(sprintf('path "%s" does not exists', $path), $path);
             }
-        } while (++$i < $pathLength);
+        } while (++$i <= $pathLength);
 
-        throw new UnknownPathException(sprintf('path "%s" does not exists', $path), $path);
-    }
-
-    public function delete(mixed &$document, string $path): mixed
-    {
-        $tokens = $this->pathToTokens($path);
-        $pathLength = count($tokens);
-
-        if ($pathLength === 0) {
-            $previous = $document;
-            $document = '';
-            return $previous;
-        }
-
-        $i = 0;
-        $lastIndex = $pathLength - 1;
-
-        do {
-            $isLastToken = $i === $lastIndex;
-
-            switch (gettype($document)) {
-                case 'array':
-                    if (!$this->ArrayAccessor->exists($document, $tokens[$i])) {
-                        throw new UnknownPathException(
-                            sprintf('Unknown document path "%s"', $path),
-                            $path
-                        );
-                    }
-
-                    if ($isLastToken) {
-                        return $this->ArrayAccessor->delete($document, $tokens[$i]);
-                    }
-
-                    $document = &$this->ArrayAccessor->get($document, $tokens[$i]);
-                    break;
-                case 'object':
-                    if (!$this->ObjectAccessor->exists($document, $tokens[$i])) {
-                        throw new UnknownPathException(
-                            sprintf('Unknown document path "%s"', $path),
-                            $path
-                        );
-                    }
-
-                    if ($isLastToken) {
-                        return $this->ObjectAccessor->delete($document, $tokens[$i]);
-                    }
-
-                    $document = &$this->ObjectAccessor->get($document, $tokens[$i]);
-                    break;
-                default:
-                    throw new UnknownPathException(sprintf('path "%s" does not exists', $path), $path);
-            }
-        } while (++$i < $pathLength);
-
-        throw new UnknownPathException(sprintf('path "%s" does not exists', $path));
-    }
-
-    public function &read(mixed &$document, string $path): mixed
-    {
-        $tokens = $this->pathToTokens($path);
-        $pathLength = count($tokens);
-
-        if ($pathLength === 0) {
-            return $document;
-        }
-
-        $i = 0;
-
-        do {
-            switch (gettype($document)) {
-                case 'array':
-                    if (!$this->ArrayAccessor->exists($document, $tokens[$i])) {
-                        throw new UnknownPathException(
-                            sprintf('Unknown document path "%s"', $path),
-                            $path
-                        );
-                    }
-
-                    $document = &$this->ArrayAccessor->get($document, $tokens[$i]);
-                    break;
-                case 'object':
-                    if (!$this->ObjectAccessor->exists($document, $tokens[$i])) {
-                        throw new UnknownPathException(
-                            sprintf('Unknown document path "%s"', $path),
-                            $path
-                        );
-                    }
-
-                    $document = &$this->ObjectAccessor->get($document, $tokens[$i]);
-                    break;
-                default:
-                    throw new UnknownPathException(sprintf('path "%s" does not exists', $path), $path);
-            }
-        } while (++$i < $pathLength);
-
-        return $document;
+        throw new \LogicException(sprintf('Unexpected failure occurred while exploring path "%s"', $path));
     }
 }
