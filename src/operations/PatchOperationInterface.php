@@ -13,14 +13,12 @@ interface PatchOperationInterface
 {
     /**
      * Must return the operation name that the class will handle
-     *
      * @return string
      */
     public function getOperation(): string;
 
     /**
      * Ensures that $patch contains all the necessary data to perform the operation
-     *
      * @param object $patch
      * @return void
      * @throws FastJsonPatchException
@@ -29,7 +27,6 @@ interface PatchOperationInterface
 
     /**
      * Applies $patch to $document
-     *
      * @param mixed $document
      * @param object $patch
      * @return void
@@ -38,7 +35,6 @@ interface PatchOperationInterface
 
     /**
      * Return the operation needed to revert last patch application
-     *
      * @param object{
      *     op:string,
      *     path: string,

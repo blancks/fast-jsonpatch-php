@@ -62,23 +62,8 @@ trait CrudTrait
     }
 
     /**
-     * Returns the $path tokens as array
-     *
-     * @link https://datatracker.ietf.org/doc/html/rfc6901#section-3
-     * @param string $path
-     * @return string[]
-     */
-    private function pathToTokens(string $path): array
-    {
-        if ($path !== '') {
-            $path = strtr(substr($path, 1), ['/' => '~ ', '~1' => '/', '~0' => '~']);
-            return explode('~ ', $path);
-        }
-
-        return [];
-    }
-
-    /**
+     * Explores the document based on the given JSON Pointer and returns the last item,
+     * the last token and the proper accessor to perform CRUD operations on target data
      * @param mixed $document
      * @param string $path
      * @return array{
@@ -133,5 +118,21 @@ trait CrudTrait
         } while (++$i <= $pathLength);
 
         throw new \LogicException(sprintf('Unexpected failure occurred while exploring path "%s"', $path));
+    }
+
+    /**
+     * Returns the given JSON Pointer (RFC-6901) as an array of tokens
+     * @link https://datatracker.ietf.org/doc/html/rfc6901#section-3
+     * @param string $path the JSON Pointer
+     * @return string[]
+     */
+    private function pathToTokens(string $path): array
+    {
+        if ($path !== '') {
+            $path = strtr(substr($path, 1), ['/' => '~ ', '~1' => '/', '~0' => '~']);
+            return explode('~ ', $path);
+        }
+
+        return [];
     }
 }

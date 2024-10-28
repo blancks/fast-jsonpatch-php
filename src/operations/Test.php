@@ -66,7 +66,6 @@ final class Test extends PatchOperation
 
     /**
      * Tells if $a and $b are of the same JSON type
-     *
      * @link https://datatracker.ietf.org/doc/html/rfc6902/#section-4.6
      * @param mixed $a
      * @param mixed $b
@@ -93,7 +92,6 @@ final class Test extends PatchOperation
 
     /**
      * Applies ksort to each array element recursively
-     *
      * @param array<string|int, mixed> $a
      * @return void
      */

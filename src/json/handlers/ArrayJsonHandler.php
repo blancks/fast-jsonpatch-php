@@ -2,6 +2,9 @@
 
 namespace blancks\JsonPatch\json\handlers;
 
+/**
+ * Alternative handler that decodes objects in a JSON string as associative arrays instead of \stdClass instances
+ */
 final class ArrayJsonHandler extends BasicJsonHandler
 {
     /**

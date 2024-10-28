@@ -19,6 +19,9 @@ use blancks\JsonPatch\json\accessors\{
 };
 use blancks\JsonPatch\json\crud\CrudTrait;
 
+/**
+ * Responsibile of handling document encoding/decoding and CRUD operations
+ */
 class BasicJsonHandler implements
     JsonHandlerInterface,
     ArrayAccessorAwareInterface,

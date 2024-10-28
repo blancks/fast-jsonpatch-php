@@ -5,7 +5,8 @@ namespace blancks\JsonPatch;
 use blancks\JsonPatch\exceptions\{
     FastJsonPatchException,
     FastJsonPatchValidationException,
-    InvalidPatchException
+    InvalidPatchException,
+    UnknownPathException
 };
 use blancks\JsonPatch\json\handlers\{
     BasicJsonHandler,
@@ -14,11 +15,11 @@ use blancks\JsonPatch\json\handlers\{
     JsonHandlerInterface
 };
 use blancks\JsonPatch\operations\{
+    PatchOperationInterface,
+    PatchValidationTrait,
     Add,
     Copy,
     Move,
-    PatchOperationInterface,
-    PatchValidationTrait,
     Remove,
     Replace,
     Test
@@ -43,6 +44,12 @@ final class FastJsonPatch implements JsonHandlerAwareInterface
      */
     private array $operations = [];
 
+    /**
+     * Creates a FastJsonPatch instance from a json string document
+     * @param string $document
+     * @param JsonHandlerInterface|null $JsonHandler handler responsible for handling encoding/decoding and crud operations against the document
+     * @return self
+     */
     public static function fromJson(string $document, ?JsonHandlerInterface $JsonHandler = null): self
     {
         $JsonHandler = $JsonHandler ?? new BasicJsonHandler;
@@ -50,6 +57,11 @@ final class FastJsonPatch implements JsonHandlerAwareInterface
         return new self($decodedJson, $JsonHandler);
     }
 
+    /**
+     * Construct the class to perform patch against the given $document reference
+     * @param mixed $document
+     * @param JsonHandlerInterface|null $JsonHandler handler responsible for handling encoding/decoding and crud operations against the document
+     */
     public function __construct(mixed &$document, ?JsonHandlerInterface $JsonHandler = null)
     {
         $this->document = &$document;
@@ -65,7 +77,6 @@ final class FastJsonPatch implements JsonHandlerAwareInterface
     /**
      * Allows to register a class that will be responsible to handle a specific patch operation.
      * You can replace a handler class for a given operation or register handlers for custom patch operations
-     *
      * @param PatchOperationInterface $PatchOperation
      * @return void
      */
@@ -79,6 +90,8 @@ final class FastJsonPatch implements JsonHandlerAwareInterface
     }
 
     /**
+     * Applies the patch to the referenced document.
+     * The operation is atomic, if the patch cannot be applied the original document is restored
      * @param string $patch
      * @return void
      * @throws FastJsonPatchException
@@ -118,6 +131,11 @@ final class FastJsonPatch implements JsonHandlerAwareInterface
         }
     }
 
+    /**
+     * Tells if the json patch is syntactically valid
+     * @param string $patch
+     * @return bool
+     */
     public function isValidPatch(string $patch): bool
     {
         try {
@@ -130,11 +148,21 @@ final class FastJsonPatch implements JsonHandlerAwareInterface
         }
     }
 
+    /**
+     * Uses a JSON Pointer (RFC-6901) to fetch data from the referenced document
+     * @param string $path the json pointer
+     * @return mixed
+     * @throws UnknownPathException if the pointer does not match to a valid path
+     */
     public function read(string $path): mixed
     {
         return $this->JsonHandler->read($this->document, $path);
     }
 
+    /**
+     * Returns the document reference that the instance is holding
+     * @return mixed
+     */
     public function &getDocument(): mixed
     {
         return $this->document;

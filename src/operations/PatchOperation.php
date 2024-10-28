@@ -16,7 +16,6 @@ abstract class PatchOperation implements
      * Returns the operation name that the class will handle.
      * Please note that this method will assume the class short name as the name of the operation,
      * feel free to override if this is not the behaviour you want for your operation handler class.
-     *
      * @return string
      */
     public function getOperation(): string
