@@ -2,7 +2,6 @@
 
 namespace blancks\JsonPatchTest\exceptions;
 
-use blancks\JsonPatch\exceptions\InvalidPatchException;
 use blancks\JsonPatch\exceptions\MalformedDocumentException;
 use blancks\JsonPatch\FastJsonPatch;
 use blancks\JsonPatch\json\accessors\ArrayAccessor;
@@ -11,7 +10,6 @@ use blancks\JsonPatch\json\accessors\ObjectAccessor;
 use blancks\JsonPatch\json\accessors\ObjectAccessorAwareTrait;
 use blancks\JsonPatch\json\accessors\ValueAccessorAwareTrait;
 use blancks\JsonPatch\json\handlers\BasicJsonHandler;
-use blancks\JsonPatch\operations\PatchOperation;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
