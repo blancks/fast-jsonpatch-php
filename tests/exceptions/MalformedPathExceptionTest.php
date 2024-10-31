@@ -2,6 +2,7 @@
 
 namespace blancks\JsonPatchTest\exceptions;
 
+use blancks\JsonPatch\exceptions\InvalidPatchException;
 use blancks\JsonPatch\exceptions\MalformedPathException;
 use blancks\JsonPatch\FastJsonPatch;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -11,18 +12,28 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(MalformedPathException::class)]
 final class MalformedPathExceptionTest extends TestCase
 {
+    /**
+     * @return void
+     * @throws \blancks\JsonPatch\exceptions\FastJsonPatchException
+     */
     public function testPatchWithMalformedPathParameterShouldFail(): void
     {
-        $this->expectException(MalformedPathException::class);
-        FastJsonPatch::apply('{}', '[{"op":"add", "path": "foo", "value": "bar"}]');
+        $this->expectException(InvalidPatchException::class);
+        $FastJsonPatch = FastJsonPatch::fromJson('{}');
+        $FastJsonPatch->apply('[{"op":"add", "path": "foo", "value": "bar"}]');
     }
 
+    /**
+     * @return void
+     * @throws \blancks\JsonPatch\exceptions\FastJsonPatchException
+     */
     public function testMalformedPathExceptionContextData(): void
     {
         try {
-            FastJsonPatch::apply('{}', '[{"op":"add", "path": "foo", "value": "bar"}]');
-        } catch (MalformedPathException $e) {
-            $this->assertSame('foo', $e->getContextPointer());
+            $FastJsonPatch = FastJsonPatch::fromJson('{}');
+            $FastJsonPatch->apply('[{"op":"add", "path": "foo", "value": "bar"}]');
+        } catch (InvalidPatchException $e) {
+            $this->assertSame('/0', $e->getContextPointer());
         }
     }
 }

@@ -12,23 +12,37 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(ArrayBoundaryException::class)]
 final class ArrayBoundaryExceptionTest extends TestCase
 {
+    /**
+     * @param string $json
+     * @param string $patch
+     * @return void
+     * @throws \blancks\JsonPatch\exceptions\FastJsonPatchException
+     */
     #[DataProvider('outOfBoundsProvider')]
-    public function testAddingOutOfArrayBoundariesShouldFail(string $json, string $patches): void
+    public function testAddingOutOfArrayBoundariesShouldFail(string $json, string $patch): void
     {
         $this->expectException(ArrayBoundaryException::class);
-        echo FastJsonPatch::apply($json, $patches);
+        $FastJsonPatch = FastJsonPatch::fromJson($json);
+        $FastJsonPatch->apply($patch);
     }
 
-    public function testArrayBoundaryExceptionContextData(): void
+    /**
+     * @return void
+     * @throws \blancks\JsonPatch\exceptions\FastJsonPatchException
+     */
+    public function testArrayBoundaryExceptionContextPointer(): void
     {
         try {
-            FastJsonPatch::apply('{"bar": [1, 2]}', '[{"op": "add", "path": "/bar/8", "value": "5"}]');
+            $FastJsonPatch = FastJsonPatch::fromJson('{"bar": [1, 2]}');
+            $FastJsonPatch->apply('[{"op": "add", "path": "/bar/8", "value": "5"}]');
         } catch (ArrayBoundaryException $e) {
             $this->assertSame('/bar/8', $e->getContextPointer());
-            $this->assertSame('[1,2]', $e->getContextDocument());
         }
     }
 
+    /**
+     * @return array<string, string[]>
+     */
     public static function outOfBoundsProvider(): array
     {
         return [

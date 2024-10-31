@@ -2,68 +2,144 @@
 
 namespace blancks\JsonPatchTest;
 
-use blancks\JsonPatch\exceptions\InvalidPatchPathException;
+use blancks\JsonPatch\exceptions\FastJsonPatchException;
 use blancks\JsonPatch\exceptions\UnknownPathException;
+use blancks\JsonPatch\operations\PatchOperation;
 use blancks\JsonPatch\FastJsonPatch;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
 
 #[CoversClass(FastJsonPatch::class)]
+#[UsesClass(FastJsonPatchException::class)]
 #[UsesClass(UnknownPathException::class)]
-#[UsesClass(InvalidPatchPathException::class)]
 final class FastJsonPatchTest extends JsonPatchCompliance
 {
-    public function testValidatePatch(): void
+    public function testValidPatch(): void
     {
-        $this->expectNotToPerformAssertions();
-        FastJsonPatch::validatePatch('[{"op": "add", "path": "/foo", "value": "Hello World"}]');
+        $FastJsonPatch = FastJsonPatch::fromJson('{"foo":"bar"}');
+        $this->assertTrue($FastJsonPatch->isValidPatch('[{"op":"test","path":"/foo","value":"bar"}]'));
     }
 
-    public function testValidatePatchShouldFail(): void
+    public function testInvalidPatch(): void
     {
-        // @codeCoverageIgnore
-        $this->expectException(InvalidPatchPathException::class);
-        FastJsonPatch::validatePatch('[{"op": "add", "value": "Hello World"}]');
+        $FastJsonPatch = FastJsonPatch::fromJson('{"foo":"bar"}');
+        $this->assertFalse($FastJsonPatch->isValidPatch('{"op":"test","path":"/foo","value":"bar"}'));
+        $this->assertFalse($FastJsonPatch->isValidPatch('[{"op":"add"}]'));
     }
 
-    public function testParsePath(): void
+    public function testInvalidUnknownPatchMustThrow(): void
     {
-        $json = '[{"foo":[{"bar":"hello world"}]}]';
-        $this->assertSame('hello world', FastJsonPatch::parsePath($json, '/0/foo/0/bar'));
+        $FastJsonPatch = FastJsonPatch::fromJson('{"foo":"bar"}');
+        $this->expectException(\Error::class);
+        $FastJsonPatch->isValidPatch('[{"op":"unknown","path":"/foo","value":"bar"}]');
     }
 
-    public function testRemoveFromAssociativeObject(): void
+    #[DataProvider('jsonReadProvider')]
+    public function testJsonPointerRead(string $document, string $pointer, null|string|bool $expected): void
     {
-        $json = '{"foo": false}';
-        $patch = '[{"op": "remove", "path": "/foo"}]';
-        $this->assertSame([], FastJsonPatch::applyDecode($json, $patch, true));
+        $FastJsonPatch = FastJsonPatch::fromJson($document);
+        $this->assertSame($FastJsonPatch->read($pointer), $expected);
     }
 
-    #[DataProvider('atomicOperationsProvider')]
-    public function testAtomicOperations(string $json, string $patches, string $expected): void
+    /**
+     * @return array<string, array<int, bool|null|string>>
+     */
+    public static function jsonReadProvider(): array
     {
-        $document = json_decode($json);
-        $patch = json_decode($patches);
-
-        try {
-            FastJsonPatch::applyByReference($document, $patch);
-        } catch (\Throwable) {
-            // expecting some error
-        }
-
-        $this->assertSame(
-            $this->normalizeJson($expected),
-            $this->normalizeJson(json_encode($document))
-        );
+        return [
+            'Read root document' => ['"foo"', '', 'foo'],
+            'Read array leaf' => ['{"foo":["bar"]}', '/foo/0', 'bar'],
+            'Read object leaf' => ['{"foo":"bar"}', '/foo', 'bar'],
+            'Read boolean true' => ['{"foo":true}', '/foo', true],
+            'Read boolean false' => ['{"foo":false}', '/foo', false],
+            'Read null' => ['{"foo":null}', '/foo', null],
+        ];
     }
 
+    public function testInvalidJsonPointerRead(): void
+    {
+        $FastJsonPatch = FastJsonPatch::fromJson('{"foo":"bar"}');
+        $this->expectException(UnknownPathException::class);
+        $FastJsonPatch->read('/bar');
+    }
+
+    /**
+     * @return void
+     * @throws FastJsonPatchException
+     */
+    public function testCustomOperationHandler(): void
+    {
+        $FastJsonPatch = FastJsonPatch::fromJson('{}');
+        $FastJsonPatch->registerOperation(new class() extends PatchOperation {
+            public function getOperation(): string
+            {
+                return 'addexclamation';
+            }
+
+            public function validate(object $patch): void
+            {
+                $this->assertValidValue($patch);
+            }
+
+            /**
+             * @param mixed $document
+             * @param object{op:string,  path: string, value: mixed} $patch
+             * @return void
+             */
+            public function apply(mixed &$document, object $patch): void
+            {
+                $this->JsonHandler->write($document, $patch->path, $patch->value . '!');
+            }
+
+            public function getRevertPatch(object $patch): ?array
+            {
+                return null;
+            }
+        });
+
+        $FastJsonPatch->apply('[{"op": "addexclamation", "path": "/foo", "value": "Hello World"}]');
+        $this->assertSame($FastJsonPatch->read('/foo'), 'Hello World!');
+    }
+
+    /**
+     * @param string $json
+     * @param string $patches
+     * @param string $expected
+     * @return void
+     * @throws \JsonException
+     * @throws FastJsonPatchException
+     */
     #[DataProvider('validOperationsProvider')]
     public function testValidJsonPatches(string $json, string $patches, string $expected): void
     {
+        $FastJsonPatch = FastJsonPatch::fromJson($json);
+        $FastJsonPatch->apply($patches);
+
         $this->assertSame(
             $this->normalizeJson($expected),
-            $this->normalizeJson(FastJsonPatch::apply($json, $patches))
+            $this->normalizeJson($this->jsonEncode($FastJsonPatch->getDocument()))
+        );
+    }
+
+    /**
+     * @param string $json
+     * @param string $patches
+     * @param string $expected
+     * @return void
+     * @throws \JsonException
+     */
+    #[DataProvider('atomicOperationsProvider')]
+    public function testAtomicOperations(string $json, string $patches, string $expected): void
+    {
+        $FastJsonPatch = FastJsonPatch::fromJson($json);
+
+        $this->expectException(FastJsonPatchException::class);
+        $FastJsonPatch->apply($patches);
+
+        $this->assertSame(
+            $this->normalizeJson($expected),
+            $this->normalizeJson($this->jsonEncode($FastJsonPatch->getDocument()))
         );
     }
 }

@@ -11,9 +11,14 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(InvalidPatchException::class)]
 final class InvalidPatchExceptionTest extends TestCase
 {
-    public function testInvalidPatchShouldFail(): void
+    /**
+     * @return void
+     * @throws \blancks\JsonPatch\exceptions\FastJsonPatchException
+     */
+    public function testOperationsWithFailureCases(): void
     {
         $this->expectException(InvalidPatchException::class);
-        FastJsonPatch::apply('{}', '{"op":"add", "path": "/foo"}');
+        $FastJsonPatch = FastJsonPatch::fromJson('{}');
+        $FastJsonPatch->apply('{}');
     }
 }

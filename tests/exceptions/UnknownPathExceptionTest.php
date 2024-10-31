@@ -12,57 +12,61 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(UnknownPathException::class)]
 final class UnknownPathExceptionTest extends TestCase
 {
+    /**
+     * @param string $json
+     * @param string $patch
+     * @return void
+     * @throws \blancks\JsonPatch\exceptions\FastJsonPatchException
+     */
     #[DataProvider('unknownPathsProvider')]
-    public function testOperationsOnUnknownPathShouldFail(string $json, string $patches): void
+    public function testOperationsOnUnknownPathShouldFail(string $json, string $patch): void
     {
         $this->expectException(UnknownPathException::class);
-        echo FastJsonPatch::apply($json, $patches);
+        $FastJsonPatch = FastJsonPatch::fromJson($json);
+        $FastJsonPatch->apply($patch);
     }
 
+    /**
+     * @param string $json
+     * @param string $patch
+     * @param string $expectedPointer
+     * @return void
+     * @throws \blancks\JsonPatch\exceptions\FastJsonPatchException
+     */
     #[DataProvider('unknownPathsContextProvider')]
     public function testUnknownPathExceptionContextData(
         string $json,
-        string $patches,
+        string $patch,
         string $expectedPointer,
-        string $expectedDocument
     ): void {
         try {
-            FastJsonPatch::apply($json, $patches);
+            $FastJsonPatch = FastJsonPatch::fromJson($json);
+            $FastJsonPatch->apply($patch);
         } catch (UnknownPathException $e) {
             $this->assertSame($expectedPointer, $e->getContextPointer());
-            $this->assertSame($expectedDocument, $e->getContextDocument());
         }
     }
 
+    /**
+     * @return array<string, string[]>
+     */
     public static function unknownPathsContextProvider(): array
     {
         return [
-            'Invalid array index operation' => [
-                '["foo", "sil"]',
-                '[{"op": "add", "path": "/bar", "value": 42}]',
-                '/bar',
-                '["foo","sil"]'
-            ],
             'Invalid object property operation' => [
                 '{"foo": 1, "baz": [1,2,3,4]}',
                 '[{"op": "add", "path": "/baz/bar/0", "value": "bar"}]',
                 '/baz/bar/0',
-                '[1,2,3,4]'
             ]
         ];
     }
 
+    /**
+     * @return array<string, string[]>
+     */
     public static function unknownPathsProvider(): array
     {
         return [
-            'Add Object operation on array target should fail' => [
-                '["foo", "sil"]',
-                '[{"op": "add", "path": "/bar", "value": 42}]'
-            ],
-            'Add to a bad array index should fail' => [
-                '["foo", "sil"]',
-                '[{"op": "add", "path": "/bar", "value": "bar"}]'
-            ],
             'Copy with bad array index should fail' => [
                 '{"baz": [1,2,3], "bar": 1}',
                 '[{"op": "copy", "from": "/baz/1e0", "path": "/boo"}]'

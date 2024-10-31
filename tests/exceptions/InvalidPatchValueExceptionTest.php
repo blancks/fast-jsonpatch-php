@@ -2,6 +2,7 @@
 
 namespace blancks\JsonPatchTest\exceptions;
 
+use blancks\JsonPatch\exceptions\InvalidPatchException;
 use blancks\JsonPatch\exceptions\InvalidPatchValueException;
 use blancks\JsonPatch\FastJsonPatch;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -11,19 +12,28 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(InvalidPatchValueException::class)]
 final class InvalidPatchValueExceptionTest extends TestCase
 {
+    /**
+     * @return void
+     * @throws \blancks\JsonPatch\exceptions\FastJsonPatchException
+     */
     public function testPatchWithMissingValueParameterShouldFail(): void
     {
-        $this->expectException(InvalidPatchValueException::class);
-        FastJsonPatch::apply('{}', '[{"op":"add", "path": "/foo"}]');
+        $this->expectException(InvalidPatchException::class);
+        $FastJsonPatch = FastJsonPatch::fromJson('{}');
+        $FastJsonPatch->apply('[{"op":"add", "path": "/foo"}]');
     }
 
+    /**
+     * @return void
+     * @throws \blancks\JsonPatch\exceptions\FastJsonPatchException
+     */
     public function testInvalidPatchValueExceptionContextData(): void
     {
         try {
-            FastJsonPatch::apply('{}', '[{"op":"add", "path": "/foo"}]');
-        } catch (InvalidPatchValueException $e) {
+            $FastJsonPatch = FastJsonPatch::fromJson('{}');
+            $FastJsonPatch->apply('[{"op":"add", "path": "/foo"}]');
+        } catch (InvalidPatchException $e) {
             $this->assertSame('/0', $e->getContextPointer());
-            $this->assertSame('{"op":"add","path":"\/foo"}', $e->getContextDocument());
         }
     }
 }

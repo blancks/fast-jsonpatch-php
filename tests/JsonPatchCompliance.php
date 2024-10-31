@@ -6,6 +6,9 @@ use PHPUnit\Framework\TestCase;
 
 abstract class JsonPatchCompliance extends TestCase
 {
+    /**
+     * @return array<string, string[]>
+     */
     public static function atomicOperationsProvider(): array
     {
         return [
@@ -59,6 +62,11 @@ abstract class JsonPatchCompliance extends TestCase
                 '[{"op": "remove", "path": "/0"}, {"op": "test", "path": "/a", "value": ""}]',
                 '["Hello"]',
             ],
+            'Atomic Operations, nested array: REMOVE' => [
+                '["Hello",["hello",["ciao"]]]',
+                '[{"op": "remove", "path": "/1/1"}, {"op": "test", "path": "/a", "value": ""}]',
+                '["Hello",["hello",["ciao"]]]',
+            ],
             'Atomic operations, mixed' => [
                 '{"foo":[{"bar":"start"}]}',
                 '[{"op": "add", "path": "/foo/-", "value": "Hello"},
@@ -73,6 +81,9 @@ abstract class JsonPatchCompliance extends TestCase
         ];
     }
 
+    /**
+     * @return array<string, string[]>
+     */
     public static function validOperationsProvider(): array
     {
         return [
@@ -439,13 +450,42 @@ abstract class JsonPatchCompliance extends TestCase
         ];
     }
 
+    /**
+     * @param string $json
+     * @return string
+     * @throws \JsonException
+     */
     protected function normalizeJson(string $json): string
     {
-        $document = json_decode($json, false, 512, JSON_THROW_ON_ERROR);
+        $document = $this->jsonDencode($json);
         $this->recursiveKeySort($document);
-        return json_encode($document);
+        return $this->jsonEncode($document);
     }
 
+    /**
+     * @param mixed $document
+     * @return string
+     * @throws \JsonException
+     */
+    protected function jsonEncode(mixed $document): string
+    {
+        return json_encode($document, JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * @param string $json
+     * @return mixed
+     * @throws \JsonException
+     */
+    protected function jsonDencode(string $json): mixed
+    {
+        return json_decode($json, false, 512, JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * @param array<int, mixed>|\stdClass $a
+     * @return void
+     */
     protected function recursiveKeySort(array|\stdClass &$a): void
     {
         foreach ($a as &$item) {

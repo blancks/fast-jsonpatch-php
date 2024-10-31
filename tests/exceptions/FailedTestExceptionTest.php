@@ -12,23 +12,37 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass(FailedTestException::class)]
 final class FailedTestExceptionTest extends TestCase
 {
+    /**
+     * @param string $json
+     * @param string $patch
+     * @return void
+     * @throws \blancks\JsonPatch\exceptions\FastJsonPatchException
+     */
     #[DataProvider('failedTestsProvider')]
-    public function testOperationsWithFailureCases(string $json, string $patches): void
+    public function testOperationsWithFailureCases(string $json, string $patch): void
     {
         $this->expectException(FailedTestException::class);
-        echo FastJsonPatch::apply($json, $patches);
+        $FastJsonPatch = FastJsonPatch::fromJson($json);
+        $FastJsonPatch->apply($patch);
     }
 
+    /**
+     * @return void
+     * @throws \blancks\JsonPatch\exceptions\FastJsonPatchException
+     */
     public function testFailedTestExceptionContextData(): void
     {
         try {
-            FastJsonPatch::apply('{"foo": {"bar": [1, 2, 5, 4]}}', '[{"op": "test", "path": "/foo", "value": [1, 2]}]');
+            $FastJsonPatch = FastJsonPatch::fromJson('{"foo": {"bar": [1, 2, 5, 4]}}');
+            $FastJsonPatch->apply('[{"op": "test", "path": "/foo", "value": [1, 2]}]');
         } catch (FailedTestException $e) {
             $this->assertSame('/foo', $e->getContextPointer());
-            $this->assertSame('{"bar":[1,2,5,4]}', $e->getContextDocument());
         }
     }
 
+    /**
+     * @return array<string, string[]>
+     */
     public static function failedTestsProvider(): array
     {
         return [
