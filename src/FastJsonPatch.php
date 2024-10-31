@@ -6,6 +6,7 @@ use blancks\JsonPatch\exceptions\{
     FastJsonPatchException,
     FastJsonPatchValidationException,
     InvalidPatchException,
+    InvalidPatchOperationException,
     UnknownPathException
 };
 use blancks\JsonPatch\json\handlers\{
@@ -103,6 +104,9 @@ final class FastJsonPatch implements JsonHandlerAwareInterface
             $document = &$this->document;
 
             foreach ($this->patchIterator($patch) as $op => $p) {
+                if (!isset($this->operations[$op])) {
+                    throw new InvalidPatchOperationException(sprintf('Unknown operation "%s"', $op));
+                }
                 $Operation = $this->operations[$op];
                 $Operation->validate($p);
                 $Operation->apply($document, $p);
@@ -140,6 +144,9 @@ final class FastJsonPatch implements JsonHandlerAwareInterface
     {
         try {
             foreach ($this->patchIterator($patch) as $op => $p) {
+                if (!isset($this->operations[$op])) {
+                    return false;
+                }
                 $this->operations[$op]->validate($p);
             }
             return true;

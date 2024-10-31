@@ -3,6 +3,7 @@
 namespace blancks\JsonPatchTest;
 
 use blancks\JsonPatch\exceptions\FastJsonPatchException;
+use blancks\JsonPatch\exceptions\InvalidPatchException;
 use blancks\JsonPatch\exceptions\UnknownPathException;
 use blancks\JsonPatch\operations\PatchOperation;
 use blancks\JsonPatch\FastJsonPatch;
@@ -28,11 +29,21 @@ final class FastJsonPatchTest extends JsonPatchCompliance
         $this->assertFalse($FastJsonPatch->isValidPatch('[{"op":"add"}]'));
     }
 
-    public function testInvalidUnknownPatchMustThrow(): void
+    public function testUnknownPatchOperation(): void
     {
         $FastJsonPatch = FastJsonPatch::fromJson('{"foo":"bar"}');
-        $this->expectException(\Error::class);
-        $FastJsonPatch->isValidPatch('[{"op":"unknown","path":"/foo","value":"bar"}]');
+        $this->assertFalse($FastJsonPatch->isValidPatch('[{"op":"unknown","path":"/foo","value":"bar"}]'));
+    }
+
+    /**
+     * @return void
+     * @throws FastJsonPatchException
+     */
+    public function testAppyUnknownPatchOperationMustThrow(): void
+    {
+        $FastJsonPatch = FastJsonPatch::fromJson('{"foo":"bar"}');
+        $this->expectException(InvalidPatchException::class);
+        $FastJsonPatch->apply('[{"op":"unknown","path":"/foo","value":"bar"}]');
     }
 
     #[DataProvider('jsonReadProvider')]
