@@ -31,6 +31,6 @@
     "scripts": {
         "test": "phpunit",
         "static-analyse": "phpstan analyse --configuration phpstan.neon.dist",
-        "pretty-php": "pretty-php src"
+        "pretty-php": "pretty-php src tests"
     }
 }
