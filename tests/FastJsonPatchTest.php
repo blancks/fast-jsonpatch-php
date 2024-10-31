@@ -2,18 +2,60 @@
 
 namespace blancks\JsonPatchTest;
 
-use blancks\JsonPatch\exceptions\FastJsonPatchException;
-use blancks\JsonPatch\exceptions\InvalidPatchException;
-use blancks\JsonPatch\exceptions\UnknownPathException;
-use blancks\JsonPatch\operations\PatchOperation;
+use blancks\JsonPatch\exceptions\{
+    FastJsonPatchException,
+    InvalidPatchException,
+    InvalidPatchOperationException,
+    InvalidPatchPathException,
+    UnknownPathException
+};
+use blancks\JsonPatch\json\{
+    accessors\ArrayAccessor,
+    accessors\ArrayAccessorAwareTrait,
+    accessors\ObjectAccessor,
+    accessors\ObjectAccessorAwareTrait,
+    accessors\ValueAccessor,
+    accessors\ValueAccessorAwareTrait,
+    crud\CrudTrait,
+    handlers\BasicJsonHandler
+};
+use blancks\JsonPatch\operations\{
+    PatchOperation,
+    Add,
+    Copy,
+    Move,
+    Remove,
+    Replace,
+    Test
+};
 use blancks\JsonPatch\FastJsonPatch;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Attributes\UsesClass;
+use PHPUnit\Framework\Attributes\{
+    CoversClass,
+    DataProvider,
+    UsesClass
+};
 
 #[CoversClass(FastJsonPatch::class)]
-#[UsesClass(FastJsonPatchException::class)]
+#[CoversClass(FastJsonPatchException::class)]
+#[UsesClass(InvalidPatchException::class)]
 #[UsesClass(UnknownPathException::class)]
+#[UsesClass(InvalidPatchOperationException::class)]
+#[UsesClass(InvalidPatchPathException::class)]
+#[UsesClass(ArrayAccessor::class)]
+#[UsesClass(ArrayAccessorAwareTrait::class)]
+#[UsesClass(ObjectAccessor::class)]
+#[UsesClass(ObjectAccessorAwareTrait::class)]
+#[UsesClass(ValueAccessor::class)]
+#[UsesClass(ValueAccessorAwareTrait::class)]
+#[UsesClass(CrudTrait::class)]
+#[UsesClass(BasicJsonHandler::class)]
+#[UsesClass(PatchOperation::class)]
+#[UsesClass(Add::class)]
+#[UsesClass(Copy::class)]
+#[UsesClass(Move::class)]
+#[UsesClass(Remove::class)]
+#[UsesClass(Replace::class)]
+#[UsesClass(Test::class)]
 final class FastJsonPatchTest extends JsonPatchCompliance
 {
     public function testValidPatch(): void

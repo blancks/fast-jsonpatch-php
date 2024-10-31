@@ -2,14 +2,47 @@
 
 namespace blancks\JsonPatchTest\exceptions;
 
+use blancks\JsonPatch\exceptions\InvalidPatchException;
 use blancks\JsonPatch\exceptions\UnknownPathException;
 use blancks\JsonPatch\FastJsonPatch;
+use blancks\JsonPatch\json\accessors\ArrayAccessor;
+use blancks\JsonPatch\json\accessors\ArrayAccessorAwareTrait;
+use blancks\JsonPatch\json\accessors\ObjectAccessor;
+use blancks\JsonPatch\json\accessors\ObjectAccessorAwareTrait;
+use blancks\JsonPatch\json\accessors\ValueAccessor;
+use blancks\JsonPatch\json\accessors\ValueAccessorAwareTrait;
+use blancks\JsonPatch\json\crud\CrudTrait;
+use blancks\JsonPatch\json\handlers\BasicJsonHandler;
+use blancks\JsonPatch\operations\Add;
+use blancks\JsonPatch\operations\Copy;
+use blancks\JsonPatch\operations\Move;
+use blancks\JsonPatch\operations\PatchOperation;
+use blancks\JsonPatch\operations\Remove;
+use blancks\JsonPatch\operations\Replace;
+use blancks\JsonPatch\operations\Test;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(FastJsonPatch::class)]
 #[CoversClass(UnknownPathException::class)]
+#[UsesClass(InvalidPatchException::class)]
+#[UsesClass(ArrayAccessor::class)]
+#[UsesClass(ArrayAccessorAwareTrait::class)]
+#[UsesClass(ObjectAccessor::class)]
+#[UsesClass(ObjectAccessorAwareTrait::class)]
+#[UsesClass(ValueAccessor::class)]
+#[UsesClass(ValueAccessorAwareTrait::class)]
+#[UsesClass(CrudTrait::class)]
+#[UsesClass(BasicJsonHandler::class)]
+#[UsesClass(PatchOperation::class)]
+#[UsesClass(Add::class)]
+#[UsesClass(Copy::class)]
+#[UsesClass(Move::class)]
+#[UsesClass(Remove::class)]
+#[UsesClass(Replace::class)]
+#[UsesClass(Test::class)]
 final class UnknownPathExceptionTest extends TestCase
 {
     /**
