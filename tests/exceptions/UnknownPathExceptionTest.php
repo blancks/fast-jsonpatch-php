@@ -4,7 +4,6 @@ namespace blancks\JsonPatchTest\exceptions;
 
 use blancks\JsonPatch\exceptions\InvalidPatchException;
 use blancks\JsonPatch\exceptions\UnknownPathException;
-use blancks\JsonPatch\FastJsonPatch;
 use blancks\JsonPatch\json\accessors\ArrayAccessor;
 use blancks\JsonPatch\json\accessors\ArrayAccessorAwareTrait;
 use blancks\JsonPatch\json\accessors\ObjectAccessor;
@@ -20,6 +19,7 @@ use blancks\JsonPatch\operations\PatchOperation;
 use blancks\JsonPatch\operations\Remove;
 use blancks\JsonPatch\operations\Replace;
 use blancks\JsonPatch\operations\Test;
+use blancks\JsonPatch\FastJsonPatch;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;

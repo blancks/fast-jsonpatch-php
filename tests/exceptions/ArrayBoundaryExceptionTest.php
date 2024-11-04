@@ -3,7 +3,6 @@
 namespace blancks\JsonPatchTest\exceptions;
 
 use blancks\JsonPatch\exceptions\ArrayBoundaryException;
-use blancks\JsonPatch\FastJsonPatch;
 use blancks\JsonPatch\json\accessors\ArrayAccessor;
 use blancks\JsonPatch\json\accessors\ArrayAccessorAwareTrait;
 use blancks\JsonPatch\json\accessors\ObjectAccessor;
@@ -14,6 +13,7 @@ use blancks\JsonPatch\json\crud\CrudTrait;
 use blancks\JsonPatch\json\handlers\BasicJsonHandler;
 use blancks\JsonPatch\operations\Add;
 use blancks\JsonPatch\operations\PatchOperation;
+use blancks\JsonPatch\FastJsonPatch;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
