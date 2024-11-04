@@ -488,15 +488,8 @@ abstract class JsonPatchCompliance extends TestCase
      */
     protected function recursiveKeySort(array|\stdClass &$a): void
     {
-        foreach ($a as &$item) {
+        foreach ((array) $a as &$item) {
             if (is_array($item) || is_object($item)) {
-                if ($item instanceof \stdClass) {
-                    $item = (array) $item;
-                    $this->recursiveKeySort($item);
-                    $item = (object) $item;
-                    continue;
-                }
-
                 $this->recursiveKeySort($item);
             }
         }
