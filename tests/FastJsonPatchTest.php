@@ -152,7 +152,7 @@ final class FastJsonPatchTest extends JsonPatchCompliance
         });
 
         $FastJsonPatch->apply('[{"op": "addexclamation", "path": "/foo", "value": "Hello World"}]');
-        $this->assertSame($FastJsonPatch->read('/foo'), 'Hello World!');
+        $this->assertSame('Hello World!', $FastJsonPatch->read('/foo'));
     }
 
     /**
