@@ -1,6 +1,5 @@
 parameters:
     level: max
-    excludePaths:
-        - test
     paths:
         - src
+        - tests
