@@ -3,13 +3,12 @@ PHP Fast JSON Patch
 
 ![Test](https://github.com/blancks/fast-jsonpatch-php/workflows/Test/badge.svg)
 ![phpstan](https://github.com/blancks/fast-jsonpatch-php/workflows/phpstan/badge.svg)
-[![codecov](https://codecov.io/github/blancks/fast-jsonpatch-php/graph/badge.svg?token=3PUC5RAPPQ)](https://codecov.io/github/blancks/fast-jsonpatch-php)
+[![codecov](https://codecov.io/gh/blancks/fast-jsonpatch-php/branch/dev-v2/graph/badge.svg?token=3PUC5RAPPQ)](https://codecov.io/gh/blancks/fast-jsonpatch-php)
+[![maintainability](https://api.codeclimate.com/v1/badges/44af70d9b23b5f6c7760/maintainability)](https://codeclimate.com/github/blancks/fast-jsonpatch-php)
 [![PHP Version Require](https://poser.pugx.org/blancks/fast-jsonpatch-php/require/php)](https://packagist.org/packages/blancks/fast-jsonpatch-php)
 [![Latest Stable Version](https://poser.pugx.org/blancks/fast-jsonpatch-php/v)](https://packagist.org/packages/blancks/fast-jsonpatch-php)
 
-FastJsonPatch is designed to handle JSON Patch operations in accordance with the [RFC 6902](http://tools.ietf.org/html/rfc6902) specification.
-
-JSON Patch is a format for expressing a sequence of operations to be applied to a JSON document. This class provides methods to parse, validate, and apply these operations, allowing you to modify JSON objects or arrays programmatically.
+This documentation covers the `FastJsonPatch` PHP class, designed to apply a series of JSON Patch operations as specified in [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902). JSON Patch is a format for describing changes to a JSON document.
 
 ## Installation via Composer
 
@@ -17,101 +16,240 @@ JSON Patch is a format for expressing a sequence of operations to be applied to 
 composer require blancks/fast-jsonpatch-php
 ```
 
-## Benchmark Results
+---
 
-The following table shows the average time each library took to apply a patch with 1000 operations to a target document as summary of the performance.
-The benchmark script and full data is available at  [blancks/php-jsonpatch-benchmarks](https://github.com/blancks/php-jsonpatch-benchmarks).
+## Class Overview
 
-| Library                     | Microseconds |
-|-----------------------------|--------------|
-| blancks/fast-jsonpatch-php  | 2903         |
-| mikemccabe/json-patch-php   | 3355         |
-| swaggest/json-diff          | 3638         |
-| gamringer/php-json-patch    | 7276         |
-| xp-forge/json-patch         | 8534         |
-| php-jsonpatch/php-jsonpatch | 10970        |
-| remorhaz/php-json-patch     | 870711       |
+The `FastJsonPatch` class provides a way to modify JSON documents using a structured patch object. The patch object contains an array of operations (`add`, `remove`, `replace`, `move`, `copy`, and `test`) that describe the changes to be made to the target JSON document.
 
-Performance comparison between releases is still available [here](https://docs.google.com/spreadsheets/d/1YHVZ38GHf0v9nJMCz5Sx_Z5nz8_VKiwnDpaGnnHtiXQ/edit?usp=sharing)
+---
 
-## Key features
+### Usage Example
 
-1. **Apply JSON Patch Operations:** 
-   - The class can apply a series of JSON Patch operations to a target JSON document.
-   - The operations are performed sequentially, modifying the document as specified in the patch.
+Below is an example of how to use the `FastJsonPatch` class to apply a patch to a JSON document:
 
-
-2. **Operation Types:**
-   - **add**: Adds a value to a specific location in the JSON document.
-   - **copy**: Copies a value from one location to another within the JSON document.
-   - **move**: Moves a value from one location to another within the JSON document.
-   - **remove**: Removes a value from a specific location in the JSON document.
-   - **replace**: Replaces the value at a specific location with a new value.
-   - **test**: Tests whether a specified value is present at a specific location in the JSON document.
-
-
-3. **Path Parsing:**
-    - The class uses JSON Pointer ([RFC 6901](https://datatracker.ietf.org/doc/html/rfc6901)) notation to identify locations within the JSON document. It correctly handles the path syntax, including edge cases such as escaping special characters.
-
-
-4. **Validation:**
-    - The class ensures that the provided patch document conforms to the JSON Patch specification, validating the structure and types of operations before applying them.
-
-
-5. **Performance:**
-    - The class is optimized for performance, time complexity is O(N*P) where N is the number of operations of the patch and where P is the nesting level of patch operations.
-    - Best use case is for scenarios where JSON document can be fully loaded into memory, and you need fast patch processing like websockets server/client.
-
-
-6. **Tests:**
-    - Extensive unit testing ensures that everything is robust and works as intended.
-
-## Basic Usage
-
-``` php
-<?php require_once 'vendor/autoload.php';
-
+```php
 use blancks\JsonPatch\FastJsonPatch;
-use blancks\JsonPatch\FastJsonPatch\exceptions\FastJsonPatchException;
 
-$json = '{"name": "John", "age": 30}';
+$document = '{"foo":"bar","baz":["qux","quux"]}';
+
 $patch = '[
-    {"op": "replace", "path": "/name", "value": "Jane"},
-    {"op": "add", "path": "/email", "value": "jane@example.com"}
+    {"op":"replace","path":"\/baz\/1","value":"boo"},
+    {"op":"add","path":"\/hello","value":{"world":"wide"}},
+    {"op":"remove","path":"\/foo"}
 ]';
 
-try {
+$FastJsonPatch = FastJsonPatch::fromJson($document);
+$FastJsonPatch->apply($patch);
 
-   echo FastJsonPatch::apply($json, $patch); 
-   // Output: {"name": "Jane", "age": 30, "email": "jane@example.com"}
-   
-} catch(FastJsonPatchException $e) {
-
-   // FastJsonPatchException comes with two additional methods to fetch context data:
-   // $e->getContextPointer() may return the context JSON pointer for given error
-   // $e->getContextDocument() may return the portion of the document relevant for the error 
-   
-}
+print_r($FastJsonPatch->getDocument());
 ```
 
-## Methods Overview
+**Expected Output:**
 
-- `apply(string $json, string $patch): string` Applies the $patch operations to the provided $json document and returns the updated json document string.
+```php
+[
+    "baz" => ["qux", "boo"],
+    "hello" => ["world" => "wide"]
+]
+```
 
+If the document is already json-decoded in your code you can just pass it to the class constructor instead:
 
-- `applyDecoded(string $json, string $patch): mixed` Same as **apply** but returns the decoded document instead of a json string
+```php
+use blancks\JsonPatch\FastJsonPatch;
 
+$document = [
+    "foo" => "bar",
+    "baz" => ["qux", "quux"]
+];
 
-- `applyByReference(array|\stdClass &$document, array $patch): void` References your in-memory representation of the document and applies the patch in place.
+$patch = '[
+    {"op":"replace","path":"\/baz\/1","value":"boo"},
+    {"op":"add","path":"\/hello","value":{"world":"wide"}},
+    {"op":"remove","path":"\/foo"}
+]';
 
+$FastJsonPatch = new FastJsonPatch($document);
+$FastJsonPatch->apply($patch);
 
-- `parsePath(string $json, string $pointer): mixed` Returns the value located by the given $pointer from the $json string document
+// $document is edited by reference
+print_r($document);
+```
 
+---
 
-- `parsePathByReference(array|\stdClass &$document, string $pointer): mixed` Same as **parsePath** but finds the location from your in-memory document
+## Constructor
 
+### `__construct(mixed &$document, ?JsonHandlerInterface $JsonHandler = null)`
 
-- `validatePatch(string $patch): void` Checks if the provided $patch is structurally valid
+- **Description**: Initializes a new instance of the `FastJsonPatch` class.
+- **Parameters**:
+  - `mixed &$document`: The decoded JSON document.
+  - `?JsonHandlerInterface $JsonHandler`: An instance of the JSON handler which will be responsible for encoding/decoding and CRUD operations.\
+    The default handler is the `BasicJsonHandler` class and decodes json objects as php \stdClass instances. This is the recommended way.\
+    If you cannot avoid working with associative arrays, you can pass a `ArrayJsonHandler` instance instead.
+- **Returns**: Instance of the `FastJsonPatch` class.
+
+---
+
+## Public Methods
+
+### `static function fromJson(string $patch, ?JsonHandlerInterface $JsonHandler = null) : void`
+
+- **Description**: Returns a new instance of the `FastJsonPatch` class.
+- **Parameters**:
+  - `string $document`: A json encoded document to which the patches will be applied
+  - `?JsonHandlerInterface $JsonHandler`: An instance of the JSON handler which will be responsible for encoding/decoding and CRUD operations.\
+    The default handler is the `BasicJsonHandler` class and decodes json objects as php \stdClass instances. This is the recommended way.\
+    If you cannot avoid working with associative arrays, you can pass a `ArrayJsonHandler` instance instead.
+- **Example**:
+  ```php
+  $FastJsonPatch = FastJsonPatch::fromJson('{"foo":"bar","baz":["qux","quux"]}');
+  ```
+
+---
+
+### `function apply(string $patch) : void`
+
+- **Description**: Applies a series of patch operations to the specified JSON document. Ensures atomicity by applying all operations successfully or making no changes at all if any operation fails.
+- **Parameters**:
+  - `string $patch`: A json-encoded array of patch operations.
+- **Exceptions**:
+  - Throws `FastJsonPatchValidationException` if a patch operation is invalid or improperly formatted.
+  - Throws `FastJsonPatchException` if any other error occurs while applying the patch
+- **Example**:
+  ```php
+  $FastJsonPatch->apply($patch);
+  ```
+
+---
+
+### `function isValidPatch(string $patch): bool`
+
+- **Description**: Tells if the $patch passes the validation
+- **Parameters**:
+  - `string $patch`: A json-encoded array of patch operations.
+- **Returns**: True is the patch is valid, false otherwise
+- **Example**:
+  ```php
+  $patch = '[{"op":"add","path":"/foo"}]'; // invalid because there's no "value" key 
+ 
+  if ($FastJsonPatch->isValidPatch($patch)) {
+    $FastJsonPatch->apply($patch);
+  } else {
+    echo "Invalid patch!";
+  }
+  ```
+
+---
+
+### `function read(string $path): mixed`
+
+- **Description**: Uses a JSON Pointer (RFC-6901) to fetch data from the referenced document
+- **Parameters**:
+  - `string $patch`: A json pointer
+- **Returns**: The value located by the provided pointer
+- **Example**:
+  ```php
+  $FastJsonPatch = FastJsonPatch::fromJson('{"foo":"bar","baz":["qux","quux"]}')
+  echo $FastJsonPatch->read('/baz/1'); // "quux"
+  ```
+
+---
+
+### `function &getDocument(): mixed`
+
+- **Description**: Returns the document reference that the instance is holding
+- **Returns**: The referenced document
+- **Example**:
+  ```php
+  $FastJsonPatch = FastJsonPatch::fromJson('["qux","quux"]')
+  var_dump($FastJsonPatch->getDocument()); // array(2) {[0]=> string(3) "qux" [1]=> string(4) "quux"}
+  ```
+
+---
+
+### `function registerOperation(PatchOperationInterface $PatchOperation): void`
+
+- **Description**: Allows to register new patch operation handlers or to override existing ones.
+- **Parameters**:
+  - `PatchOperationInterface $PatchOperation`: The handler class for handling the operation.
+- **Example**:
+  ```php
+  $FastJsonPatch->registerOperation(new Add);
+  ```
+
+---
+
+## Supported Operations
+
+#### `add`
+
+- **Description**: Adds a value to the specified path in the document. Creates any necessary intermediate nodes.
+- **Parameters**:
+    - `path`: JSON Pointer to the location where the value should be added.
+    - `value`: The value to add.
+- **Example**:
+  ```json
+  {"op":"add","path":"/new/key","value":"example"}
+  ```
+
+#### `remove`
+
+- **Description**: Removes the value at the specified path.
+- **Parameters**:
+    - `path`: JSON Pointer to the location of the value to remove.
+- **Example**:
+  ```php
+  {"op":"remove","path":"/old/key"}
+  ```
+
+#### `replace`
+
+- **Description**: Replaces the value at the specified path with a new value.
+- **Parameters**:
+    - `path`: JSON Pointer to the location of the value to replace.
+    - `value`: The new value.
+- **Example**:
+  ```json
+  {"op":"replace","path":"/replace/key","value":"newValue"}
+  ```
+
+#### `move`
+
+- **Description**: Moves the value from one path to another.
+- **Parameters**:
+    - `from`: JSON Pointer to the source location of the value to move.
+    - `path`: JSON Pointer to the destination location.
+- **Example**:
+  ```json
+  {"op":"move","from":"/old/key","path":"/new/key"}
+  ```
+
+#### `copy`
+
+- **Description**: Copies the value from one path to another.
+- **Parameters**:
+    - `from`: JSON Pointer to the source location of the value to copy.
+    - `path`: JSON Pointer to the destination location.
+- **Example**:
+  ```json
+  {"op":"copy","from":"/source/key","path":"/target/key"}
+  ```
+
+#### `test`
+
+- **Description**: Tests that the specified value matches the value at the path.
+- **Parameters**:
+    - `path`: JSON Pointer to the location of the value to test.
+    - `value`: The value to compare.
+- **Example**:
+  ```json
+  {"op":"test","path":"/test/key","value":"expectedValue"}
+  ```
+
+---
 
 ## Running tests
 
