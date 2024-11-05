@@ -16,13 +16,11 @@ This documentation covers the `FastJsonPatch` PHP class, designed to apply a ser
 composer require blancks/fast-jsonpatch-php
 ```
 
----
 
 ## Class Overview
 
 The `FastJsonPatch` class provides a way to modify JSON documents using a structured patch object. The patch object contains an array of operations (`add`, `remove`, `replace`, `move`, `copy`, and `test`) that describe the changes to be made to the target JSON document.
 
----
 
 ### Usage Example
 
@@ -77,11 +75,10 @@ $FastJsonPatch->apply($patch);
 print_r($document);
 ```
 
----
 
 ## Constructor
 
-### `__construct(mixed &$document, ?JsonHandlerInterface $JsonHandler = null)`
+#### `__construct(mixed &$document, ?JsonHandlerInterface $JsonHandler = null)`
 
 - **Description**: Initializes a new instance of the `FastJsonPatch` class.
 - **Parameters**:
@@ -91,11 +88,10 @@ print_r($document);
     If you cannot avoid working with associative arrays, you can pass a `ArrayJsonHandler` instance instead.
 - **Returns**: Instance of the `FastJsonPatch` class.
 
----
 
 ## Public Methods
 
-### `static function fromJson(string $patch, ?JsonHandlerInterface $JsonHandler = null) : void`
+#### `static function fromJson(string $patch, ?JsonHandlerInterface $JsonHandler = null) : void`
 
 - **Description**: Returns a new instance of the `FastJsonPatch` class.
 - **Parameters**:
@@ -108,9 +104,8 @@ print_r($document);
   $FastJsonPatch = FastJsonPatch::fromJson('{"foo":"bar","baz":["qux","quux"]}');
   ```
 
----
 
-### `function apply(string $patch) : void`
+#### `function apply(string $patch) : void`
 
 - **Description**: Applies a series of patch operations to the specified JSON document. Ensures atomicity by applying all operations successfully or making no changes at all if any operation fails.
 - **Parameters**:
@@ -123,9 +118,8 @@ print_r($document);
   $FastJsonPatch->apply($patch);
   ```
 
----
 
-### `function isValidPatch(string $patch): bool`
+#### `function isValidPatch(string $patch): bool`
 
 - **Description**: Tells if the $patch passes the validation
 - **Parameters**:
@@ -142,9 +136,8 @@ print_r($document);
   }
   ```
 
----
 
-### `function read(string $path): mixed`
+#### `function read(string $path): mixed`
 
 - **Description**: Uses a JSON Pointer (RFC-6901) to fetch data from the referenced document
 - **Parameters**:
@@ -156,9 +149,8 @@ print_r($document);
   echo $FastJsonPatch->read('/baz/1'); // "quux"
   ```
 
----
 
-### `function &getDocument(): mixed`
+#### `function &getDocument(): mixed`
 
 - **Description**: Returns the document reference that the instance is holding
 - **Returns**: The referenced document
@@ -168,9 +160,8 @@ print_r($document);
   var_dump($FastJsonPatch->getDocument()); // array(2) {[0]=> string(3) "qux" [1]=> string(4) "quux"}
   ```
 
----
 
-### `function registerOperation(PatchOperationInterface $PatchOperation): void`
+#### `function registerOperation(PatchOperationInterface $PatchOperation): void`
 
 - **Description**: Allows to register new patch operation handlers or to override existing ones.
 - **Parameters**:
@@ -180,7 +171,6 @@ print_r($document);
   $FastJsonPatch->registerOperation(new Add);
   ```
 
----
 
 ## Supported Operations
 
@@ -249,7 +239,6 @@ print_r($document);
   {"op":"test","path":"/test/key","value":"expectedValue"}
   ```
 
----
 
 ## Running tests
 
