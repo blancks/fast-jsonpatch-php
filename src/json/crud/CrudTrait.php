@@ -113,11 +113,11 @@ trait CrudTrait
                     $document = &$this->ObjectAccessor->get($document, $tokens[$i]);
                     break;
                 default:
-                    throw new UnknownPathException(sprintf('path "%s" does not exists', $path), $path);
+                    break 2;
             }
         } while (++$i <= $pathLength);
 
-        throw new \LogicException(sprintf('Unexpected failure occurred while exploring path "%s"', $path));
+        throw new UnknownPathException(sprintf('path "%s" does not exists', $path), $path);
     }
 
     /**
