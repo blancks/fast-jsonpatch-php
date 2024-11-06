@@ -1,5 +1,5 @@
 .idea
 vendor
-.phpunit.result.cache
+.phpunit.cache
 php_errors.log
 composer.lock
