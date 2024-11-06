@@ -16,12 +16,14 @@ use blancks\JsonPatch\json\crud\CrudTrait;
 use blancks\JsonPatch\json\handlers\BasicJsonHandler;
 use blancks\JsonPatch\json\handlers\JsonHandlerAwareTrait;
 use blancks\JsonPatch\operations\Copy;
+use blancks\JsonPatch\operations\PatchOperation;
 use blancks\JsonPatch\operations\PatchValidationTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Copy::class)]
+#[CoversClass(PatchOperation::class)]
 #[UsesClass(PatchValidationTrait::class)]
 #[UsesClass(CrudTrait::class)]
 #[UsesClass(BasicJsonHandler::class)]
@@ -44,6 +46,11 @@ class CopyTest extends TestCase
     {
         $this->Operation = new Copy();
         $this->Operation->setJsonHandler(new BasicJsonHandler);
+    }
+
+    public function testGetOperation(): void
+    {
+        $this->assertSame('copy', $this->Operation->getOperation());
     }
 
     public function testValidateHandlesValidPatchStructure(): void

@@ -14,12 +14,14 @@ use blancks\JsonPatch\json\crud\CrudTrait;
 use blancks\JsonPatch\json\handlers\BasicJsonHandler;
 use blancks\JsonPatch\json\handlers\JsonHandlerAwareTrait;
 use blancks\JsonPatch\operations\Add;
+use blancks\JsonPatch\operations\PatchOperation;
 use blancks\JsonPatch\operations\PatchValidationTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(Add::class)]
+#[CoversClass(PatchOperation::class)]
 #[UsesClass(PatchValidationTrait::class)]
 #[UsesClass(CrudTrait::class)]
 #[UsesClass(BasicJsonHandler::class)]
@@ -40,6 +42,11 @@ class AddTest extends TestCase
     {
         $this->Operation = new Add();
         $this->Operation->setJsonHandler(new BasicJsonHandler);
+    }
+
+    public function testGetOperation(): void
+    {
+        $this->assertSame('add', $this->Operation->getOperation());
     }
 
     public function testValidate(): void
