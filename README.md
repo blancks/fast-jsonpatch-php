@@ -8,7 +8,8 @@ PHP Fast JSON Patch
 [![PHP Version Require](https://poser.pugx.org/blancks/fast-jsonpatch-php/require/php)](https://packagist.org/packages/blancks/fast-jsonpatch-php)
 [![Latest Stable Version](https://poser.pugx.org/blancks/fast-jsonpatch-php/v)](https://packagist.org/packages/blancks/fast-jsonpatch-php)
 
-This documentation covers the `FastJsonPatch` PHP class, designed to apply a series of JSON Patch operations as specified in [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902). JSON Patch is a format for describing changes to a JSON document.
+This documentation covers the `FastJsonPatch` PHP class, designed to apply a series of JSON Patch operations as specified in [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902). \
+JSON Patch is a format for describing changes to a JSON document.
 
 ## Installation via Composer
 
@@ -19,7 +20,8 @@ composer require blancks/fast-jsonpatch-php
 
 ## Class Overview
 
-The `FastJsonPatch` class provides a way to modify JSON documents using a structured patch object. The patch object contains an array of operations (`add`, `remove`, `replace`, `move`, `copy`, and `test`) that describe the changes to be made to the target JSON document.
+The `FastJsonPatch` class provides a way to modify JSON documents using a structured patch object. \
+The patch object contains an array of operations (`add`, `remove`, `replace`, `move`, `copy`, and `test`) that describe the changes to be made to the target JSON document.
 
 
 ### Usage Example
@@ -50,29 +52,6 @@ print_r($FastJsonPatch->getDocument());
     "baz" => ["qux", "boo"],
     "hello" => ["world" => "wide"]
 ]
-```
-
-If the document is already json-decoded in your code you can just pass it to the class constructor instead:
-
-```php
-use blancks\JsonPatch\FastJsonPatch;
-
-$document = [
-    "foo" => "bar",
-    "baz" => ["qux", "quux"]
-];
-
-$patch = '[
-    {"op":"replace","path":"\/baz\/1","value":"boo"},
-    {"op":"add","path":"\/hello","value":{"world":"wide"}},
-    {"op":"remove","path":"\/foo"}
-]';
-
-$FastJsonPatch = new FastJsonPatch($document);
-$FastJsonPatch->apply($patch);
-
-// $document is edited by reference
-print_r($document);
 ```
 
 
@@ -246,7 +225,7 @@ print_r($document);
 composer test
 ```
 
-Test cases comes from [json-patch/json-patch-tests](https://github.com/json-patch/json-patch-tests) and extended furthermore.
+Test cases comes from [json-patch/json-patch-tests](https://github.com/json-patch/json-patch-tests) and extended furthermore to ensure a strict compliance with RFC-6902.
 
 ## License
 
