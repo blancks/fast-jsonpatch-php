@@ -1,13 +1,15 @@
 <?php declare(strict_types=1);
 
-namespace blancks\JsonPatchTest\accessors;
+namespace blancks\JsonPatchTest\json\accessors;
 
 use blancks\JsonPatch\json\accessors\ObjectAccessor;
 use blancks\JsonPatch\json\accessors\UndefinedValue;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(ObjectAccessor::class)]
+#[UsesClass(UndefinedValue::class)]
 class ObjectAccessorTest extends TestCase
 {
     private ObjectAccessor $ObjectAccessor;

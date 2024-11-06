@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace blancks\JsonPatchTest\accessors;
+namespace blancks\JsonPatchTest\json\accessors;
 
 use blancks\JsonPatch\json\accessors\ArrayAccessor;
 use blancks\JsonPatch\json\accessors\UndefinedValue;
