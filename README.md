@@ -3,13 +3,17 @@ PHP Fast JSON Patch
 
 ![Test](https://github.com/blancks/fast-jsonpatch-php/workflows/Test/badge.svg)
 ![phpstan](https://github.com/blancks/fast-jsonpatch-php/workflows/phpstan/badge.svg)
-[![codecov](https://codecov.io/gh/blancks/fast-jsonpatch-php/branch/dev-v2/graph/badge.svg?token=3PUC5RAPPQ)](https://codecov.io/gh/blancks/fast-jsonpatch-php)
+[![codecov](https://codecov.io/github/blancks/fast-jsonpatch-php/graph/badge.svg?token=3PUC5RAPPQ)](https://codecov.io/github/blancks/fast-jsonpatch-php)
 [![maintainability](https://api.codeclimate.com/v1/badges/44af70d9b23b5f6c7760/maintainability)](https://codeclimate.com/github/blancks/fast-jsonpatch-php)
 [![PHP Version Require](https://poser.pugx.org/blancks/fast-jsonpatch-php/require/php)](https://packagist.org/packages/blancks/fast-jsonpatch-php)
 [![Latest Stable Version](https://poser.pugx.org/blancks/fast-jsonpatch-php/v)](https://packagist.org/packages/blancks/fast-jsonpatch-php)
 
 This documentation covers the `FastJsonPatch` PHP class, designed to apply a series of JSON Patch operations as specified in [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902). \
 JSON Patch is a format for describing changes to a JSON document.
+
+### Why "Fast" ?
+
+Fast JSON Patch is the fastest fully RFC compliance package available, you can find compliance test and benchmark results [here](https://github.com/blancks/php-jsonpatch-benchmarks).
 
 ## Installation via Composer
 
