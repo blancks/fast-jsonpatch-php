@@ -28,13 +28,14 @@ class ValueAccessor implements ValueAccessorInterface
         $isAppendOperation = $token === '-';
         $count = $Accessor->count($document);
         $index = $isAppendOperation ? (string) $count : $token;
+        $isOutOfBounds = (string) intval($index) !== $token || $index < 0 || $index > $count;
 
         // checks for out of bounds for non-empty indexed arrays only
         if (
             $count > 0 &&
             !$isAppendOperation &&
             $Accessor->isIndexed($document) &&
-            ((string) intval($index) !== $token || $index < 0 || $index > $count)
+            $isOutOfBounds
         ) {
             throw new ArrayBoundaryException(
                 sprintf(
