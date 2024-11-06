@@ -58,6 +58,8 @@ print_r($FastJsonPatch->getDocument());
 ]
 ```
 
+The expected workflow is that once you got a `FastJsonPatch` instance you can call the `apply` method each time a new patch is received. \
+This is particular handy in long-running context like a websocket client/server.
 
 ## Constructor
 
@@ -70,7 +72,11 @@ print_r($FastJsonPatch->getDocument());
     The default handler is the `BasicJsonHandler` class and decodes json objects as php \stdClass instances. This is the recommended way.\
     If you cannot avoid working with associative arrays, you can pass a `ArrayJsonHandler` instance instead.
 - **Returns**: Instance of the `FastJsonPatch` class.
-
+- **Example**:
+  ```php
+  $document = ['one', 'two', 'three'];
+  $FastJsonPatch = new FastJsonPatch($document);
+  ```
 
 ## Public Methods
 
@@ -98,6 +104,7 @@ print_r($FastJsonPatch->getDocument());
   - Throws `FastJsonPatchException` if any other error occurs while applying the patch
 - **Example**:
   ```php
+  $patch = '[{"op":"test", "path":"/foo", "value":"bar"}]';
   $FastJsonPatch->apply($patch);
   ```
 
@@ -113,9 +120,9 @@ print_r($FastJsonPatch->getDocument());
   $patch = '[{"op":"add","path":"/foo"}]'; // invalid because there's no "value" key 
  
   if ($FastJsonPatch->isValidPatch($patch)) {
-    $FastJsonPatch->apply($patch);
+      $FastJsonPatch->apply($patch);
   } else {
-    echo "Invalid patch!";
+      echo "Invalid patch!";
   }
   ```
 
@@ -128,7 +135,7 @@ print_r($FastJsonPatch->getDocument());
 - **Returns**: The value located by the provided pointer
 - **Example**:
   ```php
-  $FastJsonPatch = FastJsonPatch::fromJson('{"foo":"bar","baz":["qux","quux"]}')
+  $FastJsonPatch = FastJsonPatch::fromJson('{"foo":"bar","baz":["qux","quux"]}');
   echo $FastJsonPatch->read('/baz/1'); // "quux"
   ```
 
@@ -139,7 +146,7 @@ print_r($FastJsonPatch->getDocument());
 - **Returns**: The referenced document
 - **Example**:
   ```php
-  $FastJsonPatch = FastJsonPatch::fromJson('["qux","quux"]')
+  $FastJsonPatch = FastJsonPatch::fromJson('["qux","quux"]');
   var_dump($FastJsonPatch->getDocument()); // array(2) {[0]=> string(3) "qux" [1]=> string(4) "quux"}
   ```
 
@@ -174,7 +181,7 @@ print_r($FastJsonPatch->getDocument());
 - **Parameters**:
     - `path`: JSON Pointer to the location of the value to remove.
 - **Example**:
-  ```php
+  ```json
   {"op":"remove","path":"/old/key"}
   ```
 
