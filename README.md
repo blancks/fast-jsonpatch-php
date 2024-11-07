@@ -4,7 +4,7 @@ PHP Fast JSON Patch
 ![Test](https://github.com/blancks/fast-jsonpatch-php/workflows/Test/badge.svg)
 ![phpstan](https://github.com/blancks/fast-jsonpatch-php/workflows/phpstan/badge.svg)
 [![codecov](https://codecov.io/github/blancks/fast-jsonpatch-php/graph/badge.svg?token=3PUC5RAPPQ)](https://codecov.io/github/blancks/fast-jsonpatch-php)
-[![maintainability](https://api.codeclimate.com/v1/badges/44af70d9b23b5f6c7760/maintainability)](https://codeclimate.com/github/blancks/fast-jsonpatch-php)
+[![Maintainability](https://api.codeclimate.com/v1/badges/92765b3410e20dc9a431/maintainability)](https://codeclimate.com/github/blancks/fast-jsonpatch-php/maintainability)
 [![PHP Version Require](https://poser.pugx.org/blancks/fast-jsonpatch-php/require/php)](https://packagist.org/packages/blancks/fast-jsonpatch-php)
 [![Latest Stable Version](https://poser.pugx.org/blancks/fast-jsonpatch-php/v)](https://packagist.org/packages/blancks/fast-jsonpatch-php)
 
