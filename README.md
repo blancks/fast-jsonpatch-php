@@ -11,8 +11,6 @@ PHP Fast JSON Patch
 This documentation covers the `FastJsonPatch` PHP class, designed to apply a series of JSON Patch operations as specified in [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902). \
 JSON Patch is a format for describing changes to a JSON document.
 
-### Why "Fast" ?
-
 Fast JSON Patch is the fastest fully RFC compliance package available, you can find compliance test and benchmark results [here](https://github.com/blancks/php-jsonpatch-benchmarks).
 
 ## Installation via Composer
