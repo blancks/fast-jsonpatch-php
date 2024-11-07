@@ -57,7 +57,7 @@ print_r($FastJsonPatch->getDocument());
 ```
 
 The expected workflow is that once you got a `FastJsonPatch` instance you can call the `apply` method each time a new patch is received.
-This is particular handy in long-running context like a websocket client/server.
+This is particularly handy in long-running context like a websocket client/server.
 
 ## Constructor
 
@@ -164,7 +164,7 @@ This is particular handy in long-running context like a websocket client/server.
 
 #### `add`
 
-- **Description**: Adds a value to the specified path in the document. Creates any necessary intermediate nodes.
+- **Description**: Adds a value to the specified path in the document.
 - **Parameters**:
     - `path`: JSON Pointer to the location where the value should be added.
     - `value`: The value to add.
