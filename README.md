@@ -44,16 +44,26 @@ $patch = '[
 $FastJsonPatch = FastJsonPatch::fromJson($document);
 $FastJsonPatch->apply($patch);
 
-print_r($FastJsonPatch->getDocument());
+var_dump($FastJsonPatch->getDocument());
 ```
 
 **Expected Output:**
 
-```php
-[
-    "baz" => ["qux", "boo"],
-    "hello" => ["world" => "wide"]
-]
+```txt
+object(stdClass)#9 (2) {
+  ["baz"]=>
+  array(2) {
+    [0]=>
+    string(3) "qux"
+    [1]=>
+    string(3) "boo"
+  }
+  ["hello"]=>
+  object(stdClass)#21 (1) {
+    ["world"]=>
+    string(4) "wide"
+  }
+}
 ```
 
 The expected workflow is that once you got a `FastJsonPatch` instance you can call the `apply` method each time a new patch is received.
