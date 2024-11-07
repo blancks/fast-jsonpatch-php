@@ -8,10 +8,10 @@ PHP Fast JSON Patch
 [![PHP Version Require](https://poser.pugx.org/blancks/fast-jsonpatch-php/require/php)](https://packagist.org/packages/blancks/fast-jsonpatch-php)
 [![Latest Stable Version](https://poser.pugx.org/blancks/fast-jsonpatch-php/v)](https://packagist.org/packages/blancks/fast-jsonpatch-php)
 
-This documentation covers the `FastJsonPatch` PHP class, designed to apply a series of JSON Patch operations as specified in [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902). \
+This documentation covers the `FastJsonPatch` PHP class, designed to apply a series of JSON Patch operations as specified in [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902). 
 JSON Patch is a format for describing changes to a JSON document.
 
-Fast JSON Patch is the fastest fully RFC compliance package available, you can find compliance test and benchmark results [here](https://github.com/blancks/php-jsonpatch-benchmarks).
+Fast JSON Patch is the fastest fully RFC compliance package available in PHP, you can find compliance test and benchmark results [here](https://github.com/blancks/php-jsonpatch-benchmarks).
 
 ## Installation via Composer
 
@@ -56,7 +56,7 @@ print_r($FastJsonPatch->getDocument());
 ]
 ```
 
-The expected workflow is that once you got a `FastJsonPatch` instance you can call the `apply` method each time a new patch is received. \
+The expected workflow is that once you got a `FastJsonPatch` instance you can call the `apply` method each time a new patch is received.
 This is particular handy in long-running context like a websocket client/server.
 
 ## Constructor
