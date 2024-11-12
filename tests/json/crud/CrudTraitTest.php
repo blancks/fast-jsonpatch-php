@@ -8,6 +8,10 @@ use blancks\JsonPatch\json\accessors\ObjectAccessorInterface;
 use blancks\JsonPatch\json\accessors\ValueAccessorInterface;
 use blancks\JsonPatch\json\crud\CrudInterface;
 use blancks\JsonPatch\json\crud\CrudTrait;
+use blancks\JsonPatch\json\pointer\JsonPointer6901;
+use blancks\JsonPatch\json\pointer\JsonPointerHandlerAwareInterface;
+use blancks\JsonPatch\json\pointer\JsonPointerHandlerAwareTrait;
+use blancks\JsonPatch\json\pointer\JsonPointerHandlerInterface;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -40,12 +44,28 @@ class CrudTraitTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->crud = new class implements CrudInterface {
+        $this->crud = new class implements CrudInterface, JsonPointerHandlerInterface, JsonPointerHandlerAwareInterface {
             use CrudTrait;
+            use JsonPointerHandlerAwareTrait;
 
             public ArrayAccessorInterface $ArrayAccessor;
             public ObjectAccessorInterface $ObjectAccessor;
             public ValueAccessorInterface $ValueAccessor;
+
+            public function __construct()
+            {
+                $this->setJsonPointerHandler(new JsonPointer6901);
+            }
+
+            public function isValidPointer(string $pointer): bool
+            {
+                return $this->jsonPointerHandler->isValidPointer($pointer);
+            }
+
+            public function getTokensFromPointer(string $pointer): array
+            {
+                return $this->jsonPointerHandler->getTokensFromPointer($pointer);
+            }
         };
         $this->ArrayAccessorMock = $this->createMock(ArrayAccessorInterface::class);
         $this->ObjectAccessorMock = $this->createMock(ObjectAccessorInterface::class);

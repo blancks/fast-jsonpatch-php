@@ -44,8 +44,8 @@ trait PatchValidationTrait
 
     protected function assertValidJsonPointer(string $pointer): void
     {
-        if ($pointer !== '' && $pointer[0] !== '/') {
-            throw new MalformedPathException(sprintf('path "%s" is missing a leading slash', $pointer), $pointer);
+        if (!$this->JsonHandler->isValidPointer($pointer)) {
+            throw new MalformedPathException(sprintf('path "%s" is not a valid JSON Pointer', $pointer), $pointer);
         }
     }
 }

@@ -74,7 +74,7 @@ trait CrudTrait
      */
     private function pathResolver(mixed &$document, string $path): array
     {
-        $tokens = $this->pathToTokens($path);
+        $tokens = $this->getTokensFromPointer($path);
         $pathLength = count($tokens);
 
         if ($pathLength === 0) {
@@ -118,21 +118,5 @@ trait CrudTrait
         } while (++$i <= $pathLength);
 
         throw new UnknownPathException(sprintf('path "%s" does not exists', $path), $path);
-    }
-
-    /**
-     * Returns the given JSON Pointer (RFC-6901) as an array of tokens
-     * @link https://datatracker.ietf.org/doc/html/rfc6901#section-3
-     * @param string $path the JSON Pointer
-     * @return string[]
-     */
-    private function pathToTokens(string $path): array
-    {
-        if ($path !== '') {
-            $path = strtr(substr($path, 1), ['/' => '~ ', '~1' => '/', '~0' => '~']);
-            return explode('~ ', $path);
-        }
-
-        return [];
     }
 }
