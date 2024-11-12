@@ -55,9 +55,8 @@ class MoveTest extends TestCase
 
     public function testValidateWithValidPatchObject(): void
     {
-        $move = new Move();
         $patch = (object) ['op' => 'move', 'path' => '/path/to/resource', 'from' => '/path/from/resource'];
-        $move->validate($patch);
+        $this->Operation->validate($patch);
         $this->assertTrue(true);
     }
 
