@@ -429,7 +429,7 @@ abstract class JsonPatchCompliance extends TestCase
                     {"op": "test", "path": "/c%d", "value": 2},
                     {"op": "test", "path": "/e^f", "value": 3},
                     {"op": "test", "path": "/g|h", "value": 4},
-                    {"op": "test", "path":  "/i\\\\j", "value": 5},
+                    {"op": "test", "path": "/i\\\\j", "value": 5},
                     {"op": "test", "path": "/k\"l", "value": 6},
                     {"op": "test", "path": "/ ", "value": 7},
                     {"op": "test", "path": "/m~0n", "value": 8}
