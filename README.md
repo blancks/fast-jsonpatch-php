@@ -32,7 +32,12 @@ Below is an example of how to use the `FastJsonPatch` class to apply a patch to 
 ```php
 use blancks\JsonPatch\FastJsonPatch;
 
-$document = '{"addressbook":[{"name":"John","number":"-"},{"name":"Dave","number":"+1 222 333 4444"}]}';
+$document = '{
+    "addressbook":[
+        {"name":"John","number":"-"},
+        {"name":"Dave","number":"+1 222 333 4444"}
+    ]
+}';
 
 $patch = '[
     {"op":"add","path":"/addressbook/-","value":{"name":"Jane", "number":"+1 353 644 2121"}},
@@ -70,8 +75,61 @@ object(stdClass) (1) {
 }
 ```
 
-The expected workflow is that once you got a `FastJsonPatch` instance you can call the `apply` method each time a new patch is received.
-This is particularly handy in long-running context like a websocket client/server.
+The expected workflow is that once you got a `FastJsonPatch` instance you can call the `apply` method each time a new patch is received and this is particularly handy in long-running context like a websocket client/server.
+
+
+### Error Handling Example
+
+All exceptions implement the interface `blancks\JsonPatch\exceptions\FastJsonPatchException` and so catching an error is pretty straightforward:
+
+```php
+use blancks\JsonPatch\FastJsonPatch;
+use blancks\JsonPatch\exceptions\FastJsonPatchException;
+
+$document = '{"addressbook":[{"name":"John","number":"-"}]}';
+
+// Trying to remove an item that not exists will make the patch application to fail
+$patch = '[
+    {"op":"replace","path":"/addressbook/0/number","value":"+1 212 555 1212"},
+    {"op":"remove","path":"/addressbook/5"}
+]';
+
+try {
+
+    $FastJsonPatch = FastJsonPatch::fromJson($document);
+    $FastJsonPatch->apply($patch);
+
+} catch (FastJsonPatchException $e) {
+
+    // something wrong while applying the patch
+    echo $e->getMessage(), "\n";
+
+}
+
+var_dump($FastJsonPatch->getDocument());
+```
+
+**Expected Output:**
+
+```txt
+Unknown document path "/addressbook/5"
+object(stdClass) (1) {
+  ["addressbook"]=>
+  array(1) {
+    [0]=>
+    object(stdClass)#10 (2) {
+      ["name"]=>
+      string(4) "John"
+      ["number"]=>
+      string(1) "-"
+    }
+  }
+}
+```
+
+Patch application is designed to be atomic. If any operation of a given patch fails the original document is restored.\
+In this example you can see that the number of "John" has not changed.
+
 
 ## Constructor
 
