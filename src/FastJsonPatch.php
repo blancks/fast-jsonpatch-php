@@ -141,7 +141,6 @@ final class FastJsonPatch implements JsonHandlerAwareInterface, JsonPointerHandl
                 $revertPatch[] = $Operation->getRevertPatch($p);
             }
         } catch (FastJsonPatchException $e) {
-            // restore the original document
             foreach (array_reverse($revertPatch) as $p) {
                 if (!is_null($p)) {
                     $p = (object) $p;
@@ -149,7 +148,6 @@ final class FastJsonPatch implements JsonHandlerAwareInterface, JsonPointerHandl
                 }
             }
 
-            // validation errors with the patch itself
             if ($e instanceof FastJsonPatchValidationException) {
                 $i = count($revertPatch);
                 throw new InvalidPatchException(
