@@ -10,6 +10,7 @@ use blancks\JsonPatch\json\accessors\ObjectAccessor;
 use blancks\JsonPatch\json\accessors\ObjectAccessorAwareTrait;
 use blancks\JsonPatch\json\accessors\ValueAccessorAwareTrait;
 use blancks\JsonPatch\json\handlers\BasicJsonHandler;
+use blancks\JsonPatch\json\pointer\JsonPointer6901;
 use blancks\JsonPatch\operations\Add;
 use blancks\JsonPatch\operations\PatchOperation;
 use blancks\JsonPatch\FastJsonPatch;
@@ -26,6 +27,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(ObjectAccessorAwareTrait::class)]
 #[UsesClass(ValueAccessorAwareTrait::class)]
 #[UsesClass(BasicJsonHandler::class)]
+#[UsesClass(JsonPointer6901::class)]
 #[UsesClass(PatchOperation::class)]
 #[UsesClass(Add::class)]
 final class InvalidPatchValueExceptionTest extends TestCase

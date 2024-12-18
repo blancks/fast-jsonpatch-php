@@ -17,7 +17,8 @@ use blancks\JsonPatch\json\{
     accessors\ValueAccessor,
     accessors\ValueAccessorAwareTrait,
     crud\CrudTrait,
-    handlers\BasicJsonHandler
+    handlers\BasicJsonHandler,
+    pointer\JsonPointer6901
 };
 use blancks\JsonPatch\operations\{
     PatchOperation,
@@ -49,6 +50,7 @@ use PHPUnit\Framework\Attributes\{
 #[UsesClass(ValueAccessorAwareTrait::class)]
 #[UsesClass(CrudTrait::class)]
 #[UsesClass(BasicJsonHandler::class)]
+#[UsesClass(JsonPointer6901::class)]
 #[UsesClass(PatchOperation::class)]
 #[UsesClass(Add::class)]
 #[UsesClass(Copy::class)]

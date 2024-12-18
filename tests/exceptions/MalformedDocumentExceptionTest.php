@@ -10,6 +10,7 @@ use blancks\JsonPatch\json\accessors\ObjectAccessorAwareTrait;
 use blancks\JsonPatch\json\accessors\ValueAccessorAwareTrait;
 use blancks\JsonPatch\json\handlers\BasicJsonHandler;
 use blancks\JsonPatch\FastJsonPatch;
+use blancks\JsonPatch\json\pointer\JsonPointer6901;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
@@ -22,6 +23,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(ObjectAccessorAwareTrait::class)]
 #[UsesClass(ValueAccessorAwareTrait::class)]
 #[UsesClass(BasicJsonHandler::class)]
+#[UsesClass(JsonPointer6901::class)]
 final class MalformedDocumentExceptionTest extends TestCase
 {
     /**

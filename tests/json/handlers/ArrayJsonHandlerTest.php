@@ -9,12 +9,14 @@ use blancks\JsonPatch\json\accessors\ObjectAccessorAwareTrait;
 use blancks\JsonPatch\json\accessors\ValueAccessorAwareTrait;
 use blancks\JsonPatch\json\handlers\ArrayJsonHandler;
 use blancks\JsonPatch\json\handlers\BasicJsonHandler;
+use blancks\JsonPatch\json\pointer\JsonPointer6901;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(ArrayJsonHandler::class)]
 #[UsesClass(BasicJsonHandler::class)]
+#[UsesClass(JsonPointer6901::class)]
 #[UsesClass(ArrayAccessor::class)]
 #[UsesClass(ArrayAccessorAwareTrait::class)]
 #[UsesClass(ObjectAccessor::class)]
