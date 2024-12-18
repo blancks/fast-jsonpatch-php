@@ -94,16 +94,13 @@ $patch = '[
     {"op":"remove","path":"/addressbook/5"}
 ]';
 
+$FastJsonPatch = FastJsonPatch::fromJson($document);
+    
 try {
-
-    $FastJsonPatch = FastJsonPatch::fromJson($document);
     $FastJsonPatch->apply($patch);
-
 } catch (FastJsonPatchException $e) {
-
     // something wrong while applying the patch
     echo $e->getMessage(), "\n";
-
 }
 
 var_dump($FastJsonPatch->getDocument());
