@@ -1,17 +1,16 @@
 PHP Fast JSON Patch
 =====================
 
-![Test](https://github.com/blancks/fast-jsonpatch-php/workflows/Test/badge.svg)
-![phpstan](https://github.com/blancks/fast-jsonpatch-php/workflows/phpstan/badge.svg)
+[![Test](https://github.com/blancks/fast-jsonpatch-php/workflows/Test/badge.svg)](https://github.com/blancks/fast-jsonpatch-php/blob/main/.github/workflows/test.yml)
+[![phpstan](https://github.com/blancks/fast-jsonpatch-php/workflows/phpstan/badge.svg)](https://github.com/blancks/fast-jsonpatch-php/blob/main/phpstan.neon.dist)
 [![codecov](https://codecov.io/github/blancks/fast-jsonpatch-php/graph/badge.svg?token=3PUC5RAPPQ)](https://codecov.io/github/blancks/fast-jsonpatch-php)
 [![Maintainability](https://api.codeclimate.com/v1/badges/92765b3410e20dc9a431/maintainability)](https://codeclimate.com/github/blancks/fast-jsonpatch-php/maintainability)
 [![PHP Version Require](https://poser.pugx.org/blancks/fast-jsonpatch-php/require/php)](https://packagist.org/packages/blancks/fast-jsonpatch-php)
 [![Latest Stable Version](https://poser.pugx.org/blancks/fast-jsonpatch-php/v)](https://packagist.org/packages/blancks/fast-jsonpatch-php)
 
-This documentation covers the `FastJsonPatch` PHP class, designed to apply a series of JSON Patch operations as specified in [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902). 
-JSON Patch is a format for describing changes to a JSON document.
+This documentation covers the `FastJsonPatch` PHP class, designed to apply a series of JSON Patch operations as specified in [RFC 6902](https://datatracker.ietf.org/doc/html/rfc6902).
 
-Fast JSON Patch is the fastest fully RFC compliance package available in PHP, you can find compliance test and benchmark results [here](https://github.com/blancks/php-jsonpatch-benchmarks).
+Fast JSON Patch is the fastest fully RFC compliant package available in PHP, you can find compliance test and benchmark results [here](https://github.com/blancks/php-jsonpatch-benchmarks).
 
 ## Installation via Composer
 
@@ -33,12 +32,12 @@ Below is an example of how to use the `FastJsonPatch` class to apply a patch to 
 ```php
 use blancks\JsonPatch\FastJsonPatch;
 
-$document = '{"foo":"bar","baz":["qux","quux"]}';
+$document = '{"addressbook":[{"name":"John","number":"-"},{"name":"Dave","number":"+1 222 333 4444"}]}';
 
 $patch = '[
-    {"op":"replace","path":"\/baz\/1","value":"boo"},
-    {"op":"add","path":"\/hello","value":{"world":"wide"}},
-    {"op":"remove","path":"\/foo"}
+    {"op":"add","path":"/addressbook/-","value":{"name":"Jane", "number":"+1 353 644 2121"}},
+    {"op":"replace","path":"/addressbook/0/number","value":"+1 212 555 1212"},
+    {"op":"remove","path":"/addressbook/1"}
 ]';
 
 $FastJsonPatch = FastJsonPatch::fromJson($document);
@@ -50,18 +49,23 @@ var_dump($FastJsonPatch->getDocument());
 **Expected Output:**
 
 ```txt
-object(stdClass)#9 (2) {
-  ["baz"]=>
+object(stdClass) (1) {
+  ["addressbook"]=>
   array(2) {
     [0]=>
-    string(3) "qux"
+    object(stdClass) (2) {
+      ["name"]=>
+      string(4) "John"
+      ["number"]=>
+      string(15) "+1 212 555 1212"
+    }
     [1]=>
-    string(3) "boo"
-  }
-  ["hello"]=>
-  object(stdClass)#21 (1) {
-    ["world"]=>
-    string(4) "wide"
+    object(stdClass) (2) {
+      ["name"]=>
+      string(4) "Jane"
+      ["number"]=>
+      string(15) "+1 353 644 2121"
+    }
   }
 }
 ```
@@ -77,8 +81,8 @@ This is particularly handy in long-running context like a websocket client/serve
 - **Parameters**:
   - `mixed &$document`: The decoded JSON document.
   - `?JsonHandlerInterface $JsonHandler`: An instance of the JSON handler which will be responsible for encoding/decoding and CRUD operations.\
-    The default handler is the `BasicJsonHandler` class and decodes json objects as php \stdClass instances. This is the recommended way.\
-    If you cannot avoid working with associative arrays, you can pass a `ArrayJsonHandler` instance instead.
+    The default handler is `blancks\JsonPatch\json\handlers\BasicJsonHandler` and decodes json objects as php \stdClass instances. This is the recommended way.\
+    If you application requires working with associative arrays only, you can pass a `blancks\JsonPatch\json\handlers\ArrayJsonHandler` instance instead.
 - **Returns**: Instance of the `FastJsonPatch` class.
 - **Example**:
   ```php
@@ -94,8 +98,8 @@ This is particularly handy in long-running context like a websocket client/serve
 - **Parameters**:
   - `string $document`: A json encoded document to which the patches will be applied
   - `?JsonHandlerInterface $JsonHandler`: An instance of the JSON handler which will be responsible for encoding/decoding and CRUD operations.\
-    The default handler is the `BasicJsonHandler` class and decodes json objects as php \stdClass instances. This is the recommended way.\
-    If you cannot avoid working with associative arrays, you can pass a `ArrayJsonHandler` instance instead.
+    The default handler is `blancks\JsonPatch\json\handlers\BasicJsonHandler` and decodes json objects as php \stdClass instances. This is the recommended way.\
+    If you application requires working with associative arrays only, you can pass a `blancks\JsonPatch\json\handlers\ArrayJsonHandler` instance instead.
 - **Example**:
   ```php
   $FastJsonPatch = FastJsonPatch::fromJson('{"foo":"bar","baz":["qux","quux"]}');
@@ -119,7 +123,7 @@ This is particularly handy in long-running context like a websocket client/serve
 
 #### `function isValidPatch(string $patch): bool`
 
-- **Description**: Tells if the $patch passes the validation
+- **Description**: Tells if the $patch is syntactically valid
 - **Parameters**:
   - `string $patch`: A json-encoded array of patch operations.
 - **Returns**: True is the patch is valid, false otherwise
@@ -245,6 +249,17 @@ composer test
 ```
 
 Test cases comes from [json-patch/json-patch-tests](https://github.com/json-patch/json-patch-tests) and extended furthermore to ensure a strict compliance with RFC-6902.
+
+
+## Contributing
+
+Contributions are welcome! 🎉\
+Feel free to fork the repository if you'd like to contribute to this project!
+
+Please ensure your contributions align with the project's goals and code style. If you have any questions or need guidance, feel free to open an issue or start a discussion.
+
+Thank you for helping to improve this project!
+
 
 ## License
 
