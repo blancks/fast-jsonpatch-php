@@ -19,6 +19,7 @@ use PHPUnit\Framework\TestCase;
 
 #[CoversClass(CrudTrait::class)]
 #[UsesClass(UnknownPathException::class)]
+#[UsesClass(JsonPointer6901::class)]
 class CrudTraitTest extends TestCase
 {
     private CrudInterface $crud;
