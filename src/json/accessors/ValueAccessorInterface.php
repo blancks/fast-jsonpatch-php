@@ -12,7 +12,7 @@ interface ValueAccessorInterface
         mixed $value
     ): mixed;
 
-    public function read(
+    public function &read(
         ArrayAccessorInterface|ObjectAccessorInterface $Accessor,
         mixed &$document,
         string $path,
