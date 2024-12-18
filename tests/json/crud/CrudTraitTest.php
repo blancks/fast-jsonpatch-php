@@ -61,12 +61,12 @@ class CrudTraitTest extends TestCase
 
             public function isValidPointer(string $pointer): bool
             {
-                return $this->jsonPointerHandler->isValidPointer($pointer);
+                return $this->JsonPointerHandler->isValidPointer($pointer);
             }
 
             public function getTokensFromPointer(string $pointer): array
             {
-                return $this->jsonPointerHandler->getTokensFromPointer($pointer);
+                return $this->JsonPointerHandler->getTokensFromPointer($pointer);
             }
         };
         $this->ArrayAccessorMock = $this->createMock(ArrayAccessorInterface::class);

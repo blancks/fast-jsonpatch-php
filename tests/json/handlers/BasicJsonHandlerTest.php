@@ -22,17 +22,9 @@ class BasicJsonHandlerTest extends TestCase
 {
     private BasicJsonHandler $BasicJsonHandler;
 
-    /** @var JsonPointerHandlerInterface&MockObject */
-    private JsonPointerHandlerInterface $JsonPointerHandlerMock;
-
-    /**
-     * @return void
-     * @throws \PHPUnit\Framework\MockObject\Exception
-     */
     protected function setUp(): void
     {
-        $this->JsonPointerHandlerMock = $this->createMock(JsonPointerHandlerInterface::class);
-        $this->BasicJsonHandler = new BasicJsonHandler(JsonPointerHandler: $this->JsonPointerHandlerMock);
+        $this->BasicJsonHandler = new BasicJsonHandler();
         parent::setUp();
     }
 
@@ -84,31 +76,5 @@ class BasicJsonHandlerTest extends TestCase
         $json = "\xb11";
         $this->expectException(MalformedDocumentException::class);
         $this->BasicJsonHandler->decode($json);
-    }
-
-    /**
-     * Tests that the result of the isValidPointer method is determined by
-     * the JsonPointerHandler passed as class dependency
-     * @return void
-     */
-    public function testIsValidPointer(): void
-    {
-        $this->JsonPointerHandlerMock->method('isValidPointer')->willReturn(true);
-        $this->assertTrue($this->BasicJsonHandler->isValidPointer('...'));
-
-        $this->JsonPointerHandlerMock->method('isValidPointer')->willReturn(false);
-        $this->assertTrue($this->BasicJsonHandler->isValidPointer('...'));
-    }
-
-    /**
-     * Tests that the result of the getTokensFromPointer method is determined by
-     * the JsonPointerHandler passed as class dependency
-     * @return void
-     */
-    public function testGetTokensFromPointer(): void
-    {
-        $expected = ['some','path'];
-        $this->JsonPointerHandlerMock->method('getTokensFromPointer')->willReturn($expected);
-        $this->assertSame($expected, $this->BasicJsonHandler->getTokensFromPointer('...'));
     }
 }

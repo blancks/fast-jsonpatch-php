@@ -4,13 +4,17 @@ namespace blancks\JsonPatch\operations;
 
 use blancks\JsonPatch\json\handlers\JsonHandlerAwareInterface;
 use blancks\JsonPatch\json\handlers\JsonHandlerAwareTrait;
+use blancks\JsonPatch\json\pointer\JsonPointerHandlerAwareInterface;
+use blancks\JsonPatch\json\pointer\JsonPointerHandlerAwareTrait;
 
 abstract class PatchOperation implements
     PatchOperationInterface,
-    JsonHandlerAwareInterface
+    JsonHandlerAwareInterface,
+    JsonPointerHandlerAwareInterface
 {
     use PatchValidationTrait;
     use JsonHandlerAwareTrait;
+    use JsonPointerHandlerAwareTrait;
 
     /**
      * Returns the operation name that the class will handle.

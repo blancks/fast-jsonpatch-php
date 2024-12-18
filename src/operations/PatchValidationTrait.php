@@ -44,7 +44,7 @@ trait PatchValidationTrait
 
     protected function assertValidJsonPointer(string $pointer): void
     {
-        if (!$this->JsonHandler->isValidPointer($pointer)) {
+        if (!$this->JsonPointerHandler->isValidPointer($pointer)) {
             throw new MalformedPathException(sprintf('path "%s" is not a valid JSON Pointer', $pointer), $pointer);
         }
     }

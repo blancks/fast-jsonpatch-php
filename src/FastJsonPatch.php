@@ -15,6 +15,12 @@ use blancks\JsonPatch\json\handlers\{
     JsonHandlerAwareTrait,
     JsonHandlerInterface
 };
+use blancks\JsonPatch\json\pointer\{
+    JsonPointer6901,
+    JsonPointerHandlerAwareInterface,
+    JsonPointerHandlerAwareTrait,
+    JsonPointerHandlerInterface
+};
 use blancks\JsonPatch\operations\{
     PatchOperationInterface,
     PatchValidationTrait,
@@ -30,8 +36,9 @@ use blancks\JsonPatch\operations\{
  * This class allow to perform a sequence of operations to apply to a target JSON document as per RFC 6902
  * @link https://datatracker.ietf.org/doc/html/rfc6902
  */
-final class FastJsonPatch implements JsonHandlerAwareInterface
+final class FastJsonPatch implements JsonHandlerAwareInterface, JsonPointerHandlerAwareInterface
 {
+    use JsonPointerHandlerAwareTrait;
     use JsonHandlerAwareTrait;
     use PatchValidationTrait;
 
@@ -49,24 +56,41 @@ final class FastJsonPatch implements JsonHandlerAwareInterface
      * Creates a FastJsonPatch instance from a json string document
      * @param string $document
      * @param JsonHandlerInterface|null $JsonHandler handler responsible for handling encoding/decoding and crud operations against the document
+     * @param JsonPointerHandlerInterface|null $JsonPointerHandler
      * @return self
      */
-    public static function fromJson(string $document, ?JsonHandlerInterface $JsonHandler = null): self
-    {
+    public static function fromJson(
+        string $document,
+        ?JsonHandlerInterface $JsonHandler = null,
+        ?JsonPointerHandlerInterface $JsonPointerHandler = null
+    ): self {
         $JsonHandler = $JsonHandler ?? new BasicJsonHandler;
+        $JsonPointerHandler = $JsonPointerHandler ?? new JsonPointer6901;
         $decodedJson = $JsonHandler->decode($document);
-        return new self($decodedJson, $JsonHandler);
+        return new self($decodedJson, $JsonHandler, $JsonPointerHandler);
     }
 
     /**
      * Construct the class to perform patch against the given $document reference
      * @param mixed $document
      * @param JsonHandlerInterface|null $JsonHandler handler responsible for handling encoding/decoding and crud operations against the document
+     * @param JsonPointerHandlerInterface|null $JsonPointerHandler
      */
-    public function __construct(mixed &$document, ?JsonHandlerInterface $JsonHandler = null)
-    {
+    public function __construct(
+        mixed &$document,
+        ?JsonHandlerInterface $JsonHandler = null,
+        ?JsonPointerHandlerInterface $JsonPointerHandler = null
+    ) {
         $this->document = &$document;
-        $this->setJsonHandler($JsonHandler ?? new BasicJsonHandler);
+        $JsonHandler = $JsonHandler ?? new BasicJsonHandler;
+        $JsonPointerHandler = $JsonPointerHandler ?? new JsonPointer6901;
+
+        if ($JsonHandler instanceof JsonPointerHandlerAwareInterface) {
+            $JsonHandler->setJsonPointerHandler($JsonPointerHandler);
+        }
+
+        $this->setJsonPointerHandler($JsonPointerHandler);
+        $this->setJsonHandler($JsonHandler);
         $this->registerOperation(new Add);
         $this->registerOperation(new Copy);
         $this->registerOperation(new Move);
@@ -85,6 +109,10 @@ final class FastJsonPatch implements JsonHandlerAwareInterface
     {
         if ($PatchOperation instanceof JsonHandlerAwareInterface) {
             $PatchOperation->setJsonHandler($this->JsonHandler);
+        }
+
+        if ($PatchOperation instanceof JsonPointerHandlerAwareInterface) {
+            $PatchOperation->setJsonPointerHandler($this->JsonPointerHandler);
         }
 
         $this->operations[$PatchOperation->getOperation()] = $PatchOperation;

@@ -46,8 +46,13 @@ class MoveTest extends TestCase
 
     protected function setUp(): void
     {
+        $JsonHandler = new BasicJsonHandler;
+        $JsonPointerHandler = new JsonPointer6901;
+        $JsonHandler->setJsonPointerHandler($JsonPointerHandler);
+
         $this->Operation = new Move();
-        $this->Operation->setJsonHandler(new BasicJsonHandler);
+        $this->Operation->setJsonHandler($JsonHandler);
+        $this->Operation->setJsonPointerHandler($JsonPointerHandler);
     }
 
     public function testGetOperation(): void

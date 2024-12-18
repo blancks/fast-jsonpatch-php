@@ -74,7 +74,7 @@ trait CrudTrait
      */
     private function pathResolver(mixed &$document, string $path): array
     {
-        $tokens = $this->getTokensFromPointer($path);
+        $tokens = $this->JsonPointerHandler->getTokensFromPointer($path);
         $pathLength = count($tokens);
 
         if ($pathLength === 0) {

@@ -19,10 +19,8 @@ use blancks\JsonPatch\json\accessors\{
 };
 use blancks\JsonPatch\json\crud\CrudTrait;
 use blancks\JsonPatch\json\pointer\{
-    JsonPointer6901,
     JsonPointerHandlerAwareInterface,
     JsonPointerHandlerAwareTrait,
-    JsonPointerHandlerInterface
 };
 
 /**
@@ -44,13 +42,11 @@ class BasicJsonHandler implements
     public function __construct(
         ?ArrayAccessorInterface $ArrayAccessor = null,
         ?ObjectAccessorInterface $ObjectAccessor = null,
-        ?ValueAccessorInterface $ValueAccessor = null,
-        ?JsonPointerHandlerInterface $JsonPointerHandler = null
+        ?ValueAccessorInterface $ValueAccessor = null
     ) {
         $this->setArrayAccessor($ArrayAccessor ?? new ArrayAccessor);
         $this->setObjectAccessor($ObjectAccessor ?? new ObjectAccessor);
         $this->setValueAccessor($ValueAccessor ?? new ValueAccessor);
-        $this->setJsonPointerHandler($JsonPointerHandler ?? new JsonPointer6901);
     }
 
     /**
@@ -95,20 +91,5 @@ class BasicJsonHandler implements
         } catch (\Exception $e) {
             throw new MalformedDocumentException('Error while decoding JSON: ' . $e->getMessage(), null, $e);
         }
-    }
-
-    /**
-     * Returns true if $path is a valid JSON Pointer
-     * @param string $pointer
-     * @return bool
-     */
-    public function isValidPointer(string $pointer): bool
-    {
-        return $this->jsonPointerHandler->isValidPointer($pointer);
-    }
-
-    public function getTokensFromPointer(string $pointer): array
-    {
-        return $this->jsonPointerHandler->getTokensFromPointer($pointer);
     }
 }

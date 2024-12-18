@@ -4,10 +4,10 @@ namespace blancks\JsonPatch\json\pointer;
 
 trait JsonPointerHandlerAwareTrait
 {
-    protected JsonPointerHandlerInterface $jsonPointerHandler;
+    protected JsonPointerHandlerInterface $JsonPointerHandler;
 
-    public function setJsonPointerHandler(JsonPointerHandlerInterface $jsonPointerHandler): void
+    public function setJsonPointerHandler(JsonPointerHandlerInterface $JsonPointerHandler): void
     {
-        $this->jsonPointerHandler = $jsonPointerHandler;
+        $this->JsonPointerHandler = $JsonPointerHandler;
     }
 }

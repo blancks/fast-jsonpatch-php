@@ -3,9 +3,8 @@
 namespace blancks\JsonPatch\json\handlers;
 
 use blancks\JsonPatch\json\crud\CrudInterface;
-use blancks\JsonPatch\json\pointer\JsonPointerHandlerInterface;
 
-interface JsonHandlerInterface extends CrudInterface, JsonPointerHandlerInterface
+interface JsonHandlerInterface extends CrudInterface
 {
     /**
      * @param mixed $document
