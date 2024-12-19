@@ -31,22 +31,33 @@ Below is an example of how to use the `FastJsonPatch` class to apply a patch to 
 
 ```php
 use blancks\JsonPatch\FastJsonPatch;
+use blancks\JsonPatch\exceptions\FastJsonPatchException;
 
 $document = '{
-    "addressbook":[
+    "contacts":[
         {"name":"John","number":"-"},
         {"name":"Dave","number":"+1 222 333 4444"}
     ]
 }';
 
 $patch = '[
-    {"op":"add","path":"/addressbook/-","value":{"name":"Jane", "number":"+1 353 644 2121"}},
-    {"op":"replace","path":"/addressbook/0/number","value":"+1 212 555 1212"},
-    {"op":"remove","path":"/addressbook/1"}
+    {"op":"add","path":"/contacts/-","value":{"name":"Jane", "number":"+1 353 644 2121"}},
+    {"op":"replace","path":"/contacts/0/number","value":"+1 212 555 1212"},
+    {"op":"remove","path":"/contacts/1"}
 ]';
 
 $FastJsonPatch = FastJsonPatch::fromJson($document);
-$FastJsonPatch->apply($patch);
+
+try {
+
+    $FastJsonPatch->apply($patch);
+    
+} catch (FastJsonPatchException $e) {
+
+    // here if patch cannot be applied for some reason
+    echo $e->getMessage(), "\n";
+    
+}
 
 var_dump($FastJsonPatch->getDocument());
 ```
@@ -55,7 +66,7 @@ var_dump($FastJsonPatch->getDocument());
 
 ```txt
 object(stdClass) (1) {
-  ["addressbook"]=>
+  ["contacts"]=>
   array(2) {
     [0]=>
     object(stdClass) (2) {
@@ -77,60 +88,12 @@ object(stdClass) (1) {
 
 The expected workflow is that once you got a `FastJsonPatch` instance you can call the `apply` method each time a new patch is received and this is particularly handy in long-running context like a websocket client/server.
 
-
-### Error Handling Example
-
-All exceptions implement the interface `blancks\JsonPatch\exceptions\FastJsonPatchException` and so catching an error is pretty straightforward:
-
-```php
-use blancks\JsonPatch\FastJsonPatch;
-use blancks\JsonPatch\exceptions\FastJsonPatchException;
-
-$document = '{"addressbook":[{"name":"John","number":"-"}]}';
-
-// Trying to remove an item that not exists will make the patch application to fail
-$patch = '[
-    {"op":"replace","path":"/addressbook/0/number","value":"+1 212 555 1212"},
-    {"op":"remove","path":"/addressbook/5"}
-]';
-
-$FastJsonPatch = FastJsonPatch::fromJson($document);
-    
-try {
-    $FastJsonPatch->apply($patch);
-} catch (FastJsonPatchException $e) {
-    // something wrong while applying the patch
-    echo $e->getMessage(), "\n";
-}
-
-var_dump($FastJsonPatch->getDocument());
-```
-
-**Expected Output:**
-
-```txt
-Unknown document path "/addressbook/5"
-object(stdClass) (1) {
-  ["addressbook"]=>
-  array(1) {
-    [0]=>
-    object(stdClass)#10 (2) {
-      ["name"]=>
-      string(4) "John"
-      ["number"]=>
-      string(1) "-"
-    }
-  }
-}
-```
-
-Patch application is designed to be atomic. If any operation of a given patch fails the original document is restored.\
-In this example you can see that the number of "John" has not changed.
+Patch application is designed to be atomic. If any operation of a given patch fails the original document is restored, ensuring a consistent state of the document.
 
 
 ## Constructor
 
-#### `__construct(mixed &$document, ?JsonHandlerInterface $JsonHandler = null)`
+#### `__construct(mixed &$document, ?JsonHandlerInterface $JsonHandler = null, ?JsonPointerHandlerInterface $JsonPointerHandler = null)`
 
 - **Description**: Initializes a new instance of the `FastJsonPatch` class.
 - **Parameters**:
@@ -138,6 +101,8 @@ In this example you can see that the number of "John" has not changed.
   - `?JsonHandlerInterface $JsonHandler`: An instance of the JSON handler which will be responsible for encoding/decoding and CRUD operations.\
     The default handler is `blancks\JsonPatch\json\handlers\BasicJsonHandler` and decodes json objects as php \stdClass instances. This is the recommended way.\
     If you application requires working with associative arrays only, you can pass a `blancks\JsonPatch\json\handlers\ArrayJsonHandler` instance instead.
+  - `?JsonPointerHandlerInterface $JsonPointerHandler`: Instance of the object responsible to validate and parse JSON Pointers.\
+    The default handler is `blancks\JsonPatch\json\pointer\JsonPointer6901`
 - **Returns**: Instance of the `FastJsonPatch` class.
 - **Example**:
   ```php
@@ -147,7 +112,7 @@ In this example you can see that the number of "John" has not changed.
 
 ## Public Methods
 
-#### `static function fromJson(string $patch, ?JsonHandlerInterface $JsonHandler = null) : void`
+#### `static function fromJson(string $patch, ?JsonHandlerInterface $JsonHandler = null, ?JsonPointerHandlerInterface $JsonPointerHandler = null) : void`
 
 - **Description**: Returns a new instance of the `FastJsonPatch` class.
 - **Parameters**:
@@ -155,6 +120,8 @@ In this example you can see that the number of "John" has not changed.
   - `?JsonHandlerInterface $JsonHandler`: An instance of the JSON handler which will be responsible for encoding/decoding and CRUD operations.\
     The default handler is `blancks\JsonPatch\json\handlers\BasicJsonHandler` and decodes json objects as php \stdClass instances. This is the recommended way.\
     If you application requires working with associative arrays only, you can pass a `blancks\JsonPatch\json\handlers\ArrayJsonHandler` instance instead.
+  - `?JsonPointerHandlerInterface $JsonPointerHandler`: Instance of the object responsible to validate and parse JSON Pointers.\
+    The default handler is `blancks\JsonPatch\json\pointer\JsonPointer6901`
 - **Example**:
   ```php
   $FastJsonPatch = FastJsonPatch::fromJson('{"foo":"bar","baz":["qux","quux"]}');
@@ -163,7 +130,7 @@ In this example you can see that the number of "John" has not changed.
 
 #### `function apply(string $patch) : void`
 
-- **Description**: Applies a series of patch operations to the specified JSON document. Ensures atomicity by applying all operations successfully or making no changes at all if any operation fails.
+- **Description**: Applies a series of patch operations to the specified JSON document. Ensures atomicity by applying all operations successfully or restoring the original document if any operation fails.
 - **Parameters**:
   - `string $patch`: A json-encoded array of patch operations.
 - **Exceptions**:
@@ -311,7 +278,14 @@ Test cases comes from [json-patch/json-patch-tests](https://github.com/json-patc
 Contributions are welcome! 🎉\
 Feel free to fork the repository if you'd like to contribute to this project!
 
-Please ensure your contributions align with the project's goals and code style. If you have any questions or need guidance, feel free to open an issue or start a discussion.
+Please ensure your contributions align with the project's goals and code style:
+* Use `composer run static-analyse` for static analysis
+* Use `composer run pretty-php` to reformat your code before commit
+* Provide unit tests for the code you wrote, this project targets 100% coverage
+* It is ok to write alternative handlers to address slower operations, such as working with huge json files 
+* Any changes that hurts the package performance in its default configuration must be motivated with a good reason
+
+If you have any questions, need guidance, reporting a bug or suggesting an improvement feel free to open an issue. Every bit helps!
 
 Thank you for helping to improve this project!
 
