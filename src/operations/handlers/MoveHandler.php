@@ -4,6 +4,9 @@ namespace blancks\JsonPatch\operations\handlers;
 
 use blancks\JsonPatch\operations\PatchOperation;
 
+/**
+ * @internal
+ */
 final class MoveHandler extends PatchOperation
 {
     /**

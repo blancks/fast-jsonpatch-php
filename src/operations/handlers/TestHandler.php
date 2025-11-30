@@ -5,6 +5,9 @@ namespace blancks\JsonPatch\operations\handlers;
 use blancks\JsonPatch\exceptions\FailedTestException;
 use blancks\JsonPatch\operations\PatchOperation;
 
+/**
+ * @internal
+ */
 final class TestHandler extends PatchOperation
 {
     /**
