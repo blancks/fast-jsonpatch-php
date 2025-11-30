@@ -2,17 +2,16 @@
 
 namespace blancks\JsonPatch\operations\handlers;
 
+use blancks\JsonPatch\operations\Move;
+
 /**
  * @internal
+ * @phpstan-import-type TMoveOperationObject from Move
  */
 final class MoveHandler extends PatchOperationHandler
 {
     /**
-     * @param object{
-     *     op:string,
-     *     path: string,
-     *     from: string,
-     * } $patch
+     * @param object&TMoveOperationObject $patch
      * @return void
      */
     public function validate(object $patch): void
@@ -24,11 +23,7 @@ final class MoveHandler extends PatchOperationHandler
 
     /**
      * @param mixed $document
-     * @param object{
-     *     op:string,
-     *     path: string,
-     *     from: string,
-     * } $patch
+     * @param object&TMoveOperationObject $patch
      * @return void
      */
     public function apply(mixed &$document, object $patch): void
@@ -38,11 +33,7 @@ final class MoveHandler extends PatchOperationHandler
     }
 
     /**
-     * @param object{
-     *     op:string,
-     *     path: string,
-     *     from: string,
-     * } $patch
+     * @param object&TMoveOperationObject $patch
      * @return null|array{
      *     op:string,
      *     path: string,

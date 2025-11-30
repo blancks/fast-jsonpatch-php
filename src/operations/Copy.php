@@ -2,6 +2,13 @@
 
 namespace blancks\JsonPatch\operations;
 
+/**
+ * @phpstan-type TCopyOperationObject object{
+ *     op:string,
+ *     path: string,
+ *     from: string,
+ * }
+ */
 final class Copy extends PatchOperation
 {
     public function __construct(

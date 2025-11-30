@@ -2,18 +2,18 @@
 
 namespace blancks\JsonPatch\operations\handlers;
 
+use blancks\JsonPatch\operations\Remove;
+
 /**
  * @internal
+ * @phpstan-import-type TRemoveOperationObject from Remove
  */
 final class RemoveHandler extends PatchOperationHandler
 {
     private mixed $previous;
 
     /**
-     * @param object{
-     *     op:string,
-     *     path: string,
-     * } $patch
+     * @param object&TRemoveOperationObject $patch
      * @return void
      */
     public function validate(object $patch): void
@@ -24,10 +24,7 @@ final class RemoveHandler extends PatchOperationHandler
 
     /**
      * @param mixed $document
-     * @param object{
-     *     op:string,
-     *     path: string,
-     * } $patch
+     * @param object&TRemoveOperationObject $patch
      * @return void
      */
     public function apply(mixed &$document, object $patch): void
@@ -36,10 +33,7 @@ final class RemoveHandler extends PatchOperationHandler
     }
 
     /**
-     * @param object{
-     *     op:string,
-     *     path: string,
-     * } $patch
+     * @param object&TRemoveOperationObject $patch
      * @return null|array{
      *     op:string,
      *     path: string,

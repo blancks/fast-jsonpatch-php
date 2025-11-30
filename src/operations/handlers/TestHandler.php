@@ -3,18 +3,16 @@
 namespace blancks\JsonPatch\operations\handlers;
 
 use blancks\JsonPatch\exceptions\FailedTestException;
+use blancks\JsonPatch\operations\Test;
 
 /**
  * @internal
+ * @phpstan-import-type TTestOperationObject from Test
  */
 final class TestHandler extends PatchOperationHandler
 {
     /**
-     * @param object{
-     *     op:string,
-     *     path: string,
-     *     value: mixed,
-     * } $patch
+     * @param object&TTestOperationObject $patch
      * @return void
      */
     public function validate(object $patch): void
@@ -26,11 +24,7 @@ final class TestHandler extends PatchOperationHandler
 
     /**
      * @param mixed $document
-     * @param object{
-     *     op:string,
-     *     path: string,
-     *     value: mixed,
-     * } $patch
+     * @param object&TTestOperationObject $patch
      * @return void
      */
     public function apply(mixed &$document, object $patch): void
@@ -50,11 +44,7 @@ final class TestHandler extends PatchOperationHandler
     }
 
     /**
-     * @param object{
-     *     op:string,
-     *     path: string,
-     *     value: mixed,
-     * } $patch
+     * @param object&TTestOperationObject $patch
      * @return null|array{
      *     op:string,
      *     path: string,

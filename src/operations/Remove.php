@@ -2,6 +2,12 @@
 
 namespace blancks\JsonPatch\operations;
 
+/**
+ * @phpstan-type TRemoveOperationObject object{
+ *     op:string,
+ *     path: string,
+ * }
+ */
 final class Remove extends PatchOperation
 {
     public function __construct(

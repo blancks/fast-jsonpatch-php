@@ -2,6 +2,13 @@
 
 namespace blancks\JsonPatch\operations;
 
+/**
+ * @phpstan-type TReplaceOperationObject object{
+ *     op:string,
+ *     path: string,
+ *     value: mixed,
+ * }
+ */
 final class Replace extends PatchOperation
 {
     public function __construct(

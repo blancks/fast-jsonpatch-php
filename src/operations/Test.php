@@ -2,6 +2,13 @@
 
 namespace blancks\JsonPatch\operations;
 
+/**
+ * @phpstan-type TTestOperationObject object{
+ *     op:string,
+ *     path: string,
+ *     value: mixed,
+ * }
+ */
 final class Test extends PatchOperation
 {
     public function __construct(

@@ -2,6 +2,13 @@
 
 namespace blancks\JsonPatch\operations;
 
+/**
+ * @phpstan-type TAddOperationObject object{
+ *     op:string,
+ *     path: string,
+ *     value: mixed,
+ * }
+ */
 final class Add extends PatchOperation
 {
     public function __construct(

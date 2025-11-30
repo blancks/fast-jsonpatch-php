@@ -2,6 +2,13 @@
 
 namespace blancks\JsonPatch\operations;
 
+/**
+ * @phpstan-type TMoveOperationObject object{
+ *     op:string,
+ *     path: string,
+ *     from: string,
+ * }
+ */
 final class Move extends PatchOperation
 {
     public function __construct(
