@@ -21,9 +21,6 @@ use blancks\JsonPatch\json\pointer\{
     JsonPointerHandlerAwareTrait,
     JsonPointerHandlerInterface
 };
-use blancks\JsonPatch\operations\{
-    PatchValidationTrait
-};
 use blancks\JsonPatch\operations\handlers\{
     AddHandler,
     CopyHandler,
@@ -32,6 +29,10 @@ use blancks\JsonPatch\operations\handlers\{
     RemoveHandler,
     ReplaceHandler,
     TestHandler
+};
+use blancks\JsonPatch\operations\{
+    PatchOperationList,
+    PatchValidationTrait
 };
 
 /**
@@ -123,11 +124,11 @@ final class FastJsonPatch implements JsonHandlerAwareInterface, JsonPointerHandl
     /**
      * Applies the patch to the referenced document.
      * The operation is atomic, if the patch cannot be applied the original document is restored
-     * @param string $patch
+     * @param string|PatchOperationList $patch
      * @return void
      * @throws FastJsonPatchException
      */
-    public function apply(string $patch): void
+    public function apply(string|PatchOperationList $patch): void
     {
         try {
             $revertPatch = [];
@@ -204,18 +205,22 @@ final class FastJsonPatch implements JsonHandlerAwareInterface, JsonPointerHandl
     }
 
     /**
-     * @param string $patch
+     * @param string|PatchOperationList $patch
      * @return \Generator & iterable<string, object{op: string, path: string, value?: mixed, from?: string}>
      */
-    private function patchIterator(string $patch): \Generator
+    private function patchIterator(string|PatchOperationList $patch): \Generator
     {
-        $decodedPatch = $this->JsonHandler->decode($patch);
+        if (is_string($patch)) {
+            $patchOperations = $this->JsonHandler->decode($patch);
 
-        if (!is_array($decodedPatch)) {
-            throw new InvalidPatchException('Invalid patch structure');
+            if (!is_array($patchOperations)) {
+                throw new InvalidPatchException('Invalid patch structure');
+            }
+        } else {
+            $patchOperations = $patch->operations;
         }
 
-        foreach ($decodedPatch as $p) {
+        foreach ($patchOperations as $p) {
             $p = (object) $p;
             $this->assertValidOp($p);
             $this->assertValidPath($p);

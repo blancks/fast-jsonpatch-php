@@ -21,13 +21,21 @@ use blancks\JsonPatch\json\{
     pointer\JsonPointer6901
 };
 use blancks\JsonPatch\operations\{
+    Add,
+    Copy,
     handlers\PatchOperationHandler,
     handlers\AddHandler,
     handlers\CopyHandler,
     handlers\MoveHandler,
     handlers\RemoveHandler,
     handlers\ReplaceHandler,
-    handlers\TestHandler
+    handlers\TestHandler,
+    Move,
+    PatchOperation,
+    PatchOperationList,
+    Remove,
+    Replace,
+    Test
 };
 use blancks\JsonPatch\FastJsonPatch;
 use PHPUnit\Framework\Attributes\{
@@ -58,6 +66,14 @@ use PHPUnit\Framework\Attributes\{
 #[UsesClass(RemoveHandler::class)]
 #[UsesClass(ReplaceHandler::class)]
 #[UsesClass(TestHandler::class)]
+#[UsesClass(PatchOperationList::class)]
+#[UsesClass(PatchOperation::class)]
+#[UsesClass(Add::class)]
+#[UsesClass(Copy::class)]
+#[UsesClass(Move::class)]
+#[UsesClass(Remove::class)]
+#[UsesClass(Replace::class)]
+#[UsesClass(Test::class)]
 final class FastJsonPatchTest extends JsonPatchCompliance
 {
     public function testValidPatch(): void
@@ -170,6 +186,43 @@ final class FastJsonPatchTest extends JsonPatchCompliance
     {
         $FastJsonPatch = FastJsonPatch::fromJson($json);
         $FastJsonPatch->apply($patches);
+
+        $this->assertSame(
+            $this->normalizeJson($expected),
+            $this->normalizeJson($this->jsonEncode($FastJsonPatch->getDocument()))
+        );
+    }
+
+    /**
+     * @return array<string, string[]>
+     */
+    public static function validOperationsForDTOsProvider(): iterable
+    {
+        foreach (self::validOperationsProvider() as $name => $values) {
+            if ($name === 'Test with optional patch properties') {
+                // DTOs do not support arbitrary constructor parameters
+                continue;
+            }
+
+            yield $name => $values;
+        }
+    }
+
+    /**
+     * @param string $json
+     * @param string $patches
+     * @param string $expected
+     * @return void
+     * @throws \JsonException
+     * @throws FastJsonPatchException
+     */
+    #[DataProvider('validOperationsForDTOsProvider')]
+    public function testValidJsonPatchesAsDTOs(string $json, string $patches, string $expected): void
+    {
+        $patch = PatchOperationList::fromJson($patches);
+
+        $FastJsonPatch = FastJsonPatch::fromJson($json);
+        $FastJsonPatch->apply($patch);
 
         $this->assertSame(
             $this->normalizeJson($expected),
