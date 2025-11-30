@@ -12,8 +12,8 @@ use blancks\JsonPatch\json\accessors\ValueAccessorAwareTrait;
 use blancks\JsonPatch\json\crud\CrudTrait;
 use blancks\JsonPatch\json\handlers\BasicJsonHandler;
 use blancks\JsonPatch\json\pointer\JsonPointer6901;
+use blancks\JsonPatch\operations\handlers\TestHandler;
 use blancks\JsonPatch\operations\PatchOperation;
-use blancks\JsonPatch\operations\Test;
 use blancks\JsonPatch\FastJsonPatch;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -32,7 +32,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(BasicJsonHandler::class)]
 #[UsesClass(JsonPointer6901::class)]
 #[UsesClass(PatchOperation::class)]
-#[UsesClass(Test::class)]
+#[UsesClass(TestHandler::class)]
 final class FailedTestExceptionTest extends TestCase
 {
     /**

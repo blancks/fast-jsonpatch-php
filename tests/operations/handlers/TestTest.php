@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace blancks\JsonPatchTest\operations;
+namespace blancks\JsonPatchTest\operations\handlers;
 
 use blancks\JsonPatch\exceptions\FailedTestException;
 use blancks\JsonPatch\exceptions\InvalidPatchFromException;
@@ -17,14 +17,14 @@ use blancks\JsonPatch\json\crud\CrudTrait;
 use blancks\JsonPatch\json\handlers\BasicJsonHandler;
 use blancks\JsonPatch\json\handlers\JsonHandlerAwareTrait;
 use blancks\JsonPatch\json\pointer\JsonPointer6901;
+use blancks\JsonPatch\operations\handlers\TestHandler;
 use blancks\JsonPatch\operations\PatchOperation;
 use blancks\JsonPatch\operations\PatchValidationTrait;
-use blancks\JsonPatch\operations\Test;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(Test::class)]
+#[CoversClass(TestHandler::class)]
 #[CoversClass(PatchOperation::class)]
 #[UsesClass(PatchValidationTrait::class)]
 #[UsesClass(CrudTrait::class)]
@@ -45,7 +45,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(FailedTestException::class)]
 class TestTest extends TestCase
 {
-    private Test $Operation;
+    private TestHandler $Operation;
 
     protected function setUp(): void
     {
@@ -53,7 +53,7 @@ class TestTest extends TestCase
         $JsonPointerHandler = new JsonPointer6901;
         $JsonHandler->setJsonPointerHandler($JsonPointerHandler);
 
-        $this->Operation = new Test();
+        $this->Operation = new TestHandler();
         $this->Operation->setJsonHandler($JsonHandler);
         $this->Operation->setJsonPointerHandler($JsonPointerHandler);
     }

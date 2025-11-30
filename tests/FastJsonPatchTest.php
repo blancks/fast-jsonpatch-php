@@ -22,12 +22,12 @@ use blancks\JsonPatch\json\{
 };
 use blancks\JsonPatch\operations\{
     PatchOperation,
-    Add,
-    Copy,
-    Move,
-    Remove,
-    Replace,
-    Test
+    handlers\AddHandler,
+    handlers\CopyHandler,
+    handlers\MoveHandler,
+    handlers\RemoveHandler,
+    handlers\ReplaceHandler,
+    handlers\TestHandler
 };
 use blancks\JsonPatch\FastJsonPatch;
 use PHPUnit\Framework\Attributes\{
@@ -52,12 +52,12 @@ use PHPUnit\Framework\Attributes\{
 #[UsesClass(BasicJsonHandler::class)]
 #[UsesClass(JsonPointer6901::class)]
 #[UsesClass(PatchOperation::class)]
-#[UsesClass(Add::class)]
-#[UsesClass(Copy::class)]
-#[UsesClass(Move::class)]
-#[UsesClass(Remove::class)]
-#[UsesClass(Replace::class)]
-#[UsesClass(Test::class)]
+#[UsesClass(AddHandler::class)]
+#[UsesClass(CopyHandler::class)]
+#[UsesClass(MoveHandler::class)]
+#[UsesClass(RemoveHandler::class)]
+#[UsesClass(ReplaceHandler::class)]
+#[UsesClass(TestHandler::class)]
 final class FastJsonPatchTest extends JsonPatchCompliance
 {
     public function testValidPatch(): void

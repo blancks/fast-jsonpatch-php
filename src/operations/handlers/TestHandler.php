@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace blancks\JsonPatch\operations;
+namespace blancks\JsonPatch\operations\handlers;
 
 use blancks\JsonPatch\exceptions\FailedTestException;
+use blancks\JsonPatch\operations\PatchOperation;
 
-final class Test extends PatchOperation
+final class TestHandler extends PatchOperation
 {
     /**
      * @param object{
@@ -37,7 +38,7 @@ final class Test extends PatchOperation
         if (!$this->isJsonEquals($item, $patch->value)) {
             throw new FailedTestException(
                 sprintf(
-                    'Test operation failed asserting that "%s" equals "%s"',
+                    'TestHandler operation failed asserting that "%s" equals "%s"',
                     $this->JsonHandler->encode($item),
                     $this->JsonHandler->encode($patch->value)
                 ),

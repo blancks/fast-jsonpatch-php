@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace blancks\JsonPatchTest\operations;
+namespace blancks\JsonPatchTest\operations\handlers;
 
 use blancks\JsonPatch\exceptions\FastJsonPatchExceptionTrait;
 use blancks\JsonPatch\exceptions\InvalidPatchFromException;
@@ -16,14 +16,14 @@ use blancks\JsonPatch\json\crud\CrudTrait;
 use blancks\JsonPatch\json\handlers\BasicJsonHandler;
 use blancks\JsonPatch\json\handlers\JsonHandlerAwareTrait;
 use blancks\JsonPatch\json\pointer\JsonPointer6901;
+use blancks\JsonPatch\operations\handlers\RemoveHandler;
 use blancks\JsonPatch\operations\PatchOperation;
 use blancks\JsonPatch\operations\PatchValidationTrait;
-use blancks\JsonPatch\operations\Remove;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(Remove::class)]
+#[CoversClass(RemoveHandler::class)]
 #[CoversClass(PatchOperation::class)]
 #[UsesClass(PatchValidationTrait::class)]
 #[UsesClass(CrudTrait::class)]
@@ -42,7 +42,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(UnknownPathException::class)]
 class RemoveTest extends TestCase
 {
-    private Remove $Operation;
+    private RemoveHandler $Operation;
 
     protected function setUp(): void
     {
@@ -50,7 +50,7 @@ class RemoveTest extends TestCase
         $JsonPointerHandler = new JsonPointer6901;
         $JsonHandler->setJsonPointerHandler($JsonPointerHandler);
 
-        $this->Operation = new Remove();
+        $this->Operation = new RemoveHandler();
         $this->Operation->setJsonHandler($JsonHandler);
         $this->Operation->setJsonPointerHandler($JsonPointerHandler);
     }

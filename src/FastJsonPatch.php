@@ -23,13 +23,15 @@ use blancks\JsonPatch\json\pointer\{
 };
 use blancks\JsonPatch\operations\{
     PatchOperationInterface,
-    PatchValidationTrait,
-    Add,
-    Copy,
-    Move,
-    Remove,
-    Replace,
-    Test
+    PatchValidationTrait
+};
+use blancks\JsonPatch\operations\handlers\{
+    AddHandler,
+    CopyHandler,
+    MoveHandler,
+    RemoveHandler,
+    ReplaceHandler,
+    TestHandler
 };
 
 /**
@@ -91,12 +93,12 @@ final class FastJsonPatch implements JsonHandlerAwareInterface, JsonPointerHandl
 
         $this->setJsonPointerHandler($JsonPointerHandler);
         $this->setJsonHandler($JsonHandler);
-        $this->registerOperation(new Add);
-        $this->registerOperation(new Copy);
-        $this->registerOperation(new Move);
-        $this->registerOperation(new Remove);
-        $this->registerOperation(new Replace);
-        $this->registerOperation(new Test);
+        $this->registerOperation(new AddHandler);
+        $this->registerOperation(new CopyHandler);
+        $this->registerOperation(new MoveHandler);
+        $this->registerOperation(new RemoveHandler);
+        $this->registerOperation(new ReplaceHandler);
+        $this->registerOperation(new TestHandler);
     }
 
     /**

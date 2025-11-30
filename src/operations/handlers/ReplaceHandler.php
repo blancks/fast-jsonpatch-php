@@ -1,8 +1,10 @@
 <?php declare(strict_types=1);
 
-namespace blancks\JsonPatch\operations;
+namespace blancks\JsonPatch\operations\handlers;
 
-final class Replace extends PatchOperation
+use blancks\JsonPatch\operations\PatchOperation;
+
+final class ReplaceHandler extends PatchOperation
 {
     private mixed $previous;
 

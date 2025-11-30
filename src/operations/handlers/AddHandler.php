@@ -1,10 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace blancks\JsonPatch\operations;
+namespace blancks\JsonPatch\operations\handlers;
 
 use blancks\JsonPatch\json\accessors\UndefinedValue;
+use blancks\JsonPatch\operations\PatchOperation;
 
-final class Add extends PatchOperation
+final class AddHandler extends PatchOperation
 {
     private mixed $previous;
 

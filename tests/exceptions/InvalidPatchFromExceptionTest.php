@@ -13,10 +13,10 @@ use blancks\JsonPatch\json\accessors\ValueAccessorAwareTrait;
 use blancks\JsonPatch\json\crud\CrudTrait;
 use blancks\JsonPatch\json\handlers\BasicJsonHandler;
 use blancks\JsonPatch\json\pointer\JsonPointer6901;
-use blancks\JsonPatch\operations\Add;
-use blancks\JsonPatch\operations\Copy;
+use blancks\JsonPatch\operations\handlers\AddHandler;
+use blancks\JsonPatch\operations\handlers\CopyHandler;
+use blancks\JsonPatch\operations\handlers\RemoveHandler;
 use blancks\JsonPatch\operations\PatchOperation;
-use blancks\JsonPatch\operations\Remove;
 use blancks\JsonPatch\FastJsonPatch;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -35,9 +35,9 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(BasicJsonHandler::class)]
 #[UsesClass(JsonPointer6901::class)]
 #[UsesClass(PatchOperation::class)]
-#[UsesClass(Add::class)]
-#[UsesClass(Copy::class)]
-#[UsesClass(Remove::class)]
+#[UsesClass(AddHandler::class)]
+#[UsesClass(CopyHandler::class)]
+#[UsesClass(RemoveHandler::class)]
 final class InvalidPatchFromExceptionTest extends TestCase
 {
     /**
