@@ -21,7 +21,7 @@ use blancks\JsonPatch\json\{
     pointer\JsonPointer6901
 };
 use blancks\JsonPatch\operations\{
-    PatchOperation,
+    handlers\PatchOperationHandler,
     handlers\AddHandler,
     handlers\CopyHandler,
     handlers\MoveHandler,
@@ -51,7 +51,7 @@ use PHPUnit\Framework\Attributes\{
 #[UsesClass(CrudTrait::class)]
 #[UsesClass(BasicJsonHandler::class)]
 #[UsesClass(JsonPointer6901::class)]
-#[UsesClass(PatchOperation::class)]
+#[UsesClass(PatchOperationHandler::class)]
 #[UsesClass(AddHandler::class)]
 #[UsesClass(CopyHandler::class)]
 #[UsesClass(MoveHandler::class)]
@@ -126,7 +126,7 @@ final class FastJsonPatchTest extends JsonPatchCompliance
     public function testCustomOperationHandler(): void
     {
         $FastJsonPatch = FastJsonPatch::fromJson('{}');
-        $FastJsonPatch->registerOperation(new class() extends PatchOperation {
+        $FastJsonPatch->registerOperationHandler(new class() extends PatchOperationHandler {
             public function getOperation(): string
             {
                 return 'addexclamation';

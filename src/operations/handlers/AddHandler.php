@@ -3,12 +3,11 @@
 namespace blancks\JsonPatch\operations\handlers;
 
 use blancks\JsonPatch\json\accessors\UndefinedValue;
-use blancks\JsonPatch\operations\PatchOperation;
 
 /**
  * @internal
  */
-final class AddHandler extends PatchOperation
+final class AddHandler extends PatchOperationHandler
 {
     private mixed $previous;
 

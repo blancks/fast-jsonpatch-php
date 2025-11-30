@@ -15,8 +15,8 @@ use blancks\JsonPatch\json\handlers\BasicJsonHandler;
 use blancks\JsonPatch\json\pointer\JsonPointer6901;
 use blancks\JsonPatch\operations\handlers\AddHandler;
 use blancks\JsonPatch\operations\handlers\CopyHandler;
+use blancks\JsonPatch\operations\handlers\PatchOperationHandler;
 use blancks\JsonPatch\operations\handlers\RemoveHandler;
-use blancks\JsonPatch\operations\PatchOperation;
 use blancks\JsonPatch\FastJsonPatch;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
@@ -34,7 +34,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(CrudTrait::class)]
 #[UsesClass(BasicJsonHandler::class)]
 #[UsesClass(JsonPointer6901::class)]
-#[UsesClass(PatchOperation::class)]
+#[UsesClass(PatchOperationHandler::class)]
 #[UsesClass(AddHandler::class)]
 #[UsesClass(CopyHandler::class)]
 #[UsesClass(RemoveHandler::class)]

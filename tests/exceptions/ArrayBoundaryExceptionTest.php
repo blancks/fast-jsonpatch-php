@@ -13,7 +13,7 @@ use blancks\JsonPatch\json\crud\CrudTrait;
 use blancks\JsonPatch\json\handlers\BasicJsonHandler;
 use blancks\JsonPatch\json\pointer\JsonPointer6901;
 use blancks\JsonPatch\operations\handlers\AddHandler;
-use blancks\JsonPatch\operations\PatchOperation;
+use blancks\JsonPatch\operations\handlers\PatchOperationHandler;
 use blancks\JsonPatch\FastJsonPatch;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -31,7 +31,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(CrudTrait::class)]
 #[UsesClass(BasicJsonHandler::class)]
 #[UsesClass(JsonPointer6901::class)]
-#[UsesClass(PatchOperation::class)]
+#[UsesClass(PatchOperationHandler::class)]
 #[UsesClass(AddHandler::class)]
 final class ArrayBoundaryExceptionTest extends TestCase
 {

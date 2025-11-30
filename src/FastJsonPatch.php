@@ -22,13 +22,13 @@ use blancks\JsonPatch\json\pointer\{
     JsonPointerHandlerInterface
 };
 use blancks\JsonPatch\operations\{
-    PatchOperationInterface,
     PatchValidationTrait
 };
 use blancks\JsonPatch\operations\handlers\{
     AddHandler,
     CopyHandler,
     MoveHandler,
+    PatchOperationHandlerInterface,
     RemoveHandler,
     ReplaceHandler,
     TestHandler
@@ -50,9 +50,9 @@ final class FastJsonPatch implements JsonHandlerAwareInterface, JsonPointerHandl
     private mixed $document;
 
     /**
-     * @var array<string, PatchOperationInterface> registered classes for handling patch operations
+     * @var array<string, PatchOperationHandlerInterface> registered classes for handling patch operations
      */
-    private array $operations = [];
+    private array $operationHandlers = [];
 
     /**
      * Creates a FastJsonPatch instance from a json string document
@@ -93,21 +93,21 @@ final class FastJsonPatch implements JsonHandlerAwareInterface, JsonPointerHandl
 
         $this->setJsonPointerHandler($JsonPointerHandler);
         $this->setJsonHandler($JsonHandler);
-        $this->registerOperation(new AddHandler);
-        $this->registerOperation(new CopyHandler);
-        $this->registerOperation(new MoveHandler);
-        $this->registerOperation(new RemoveHandler);
-        $this->registerOperation(new ReplaceHandler);
-        $this->registerOperation(new TestHandler);
+        $this->registerOperationHandler(new AddHandler);
+        $this->registerOperationHandler(new CopyHandler);
+        $this->registerOperationHandler(new MoveHandler);
+        $this->registerOperationHandler(new RemoveHandler);
+        $this->registerOperationHandler(new ReplaceHandler);
+        $this->registerOperationHandler(new TestHandler);
     }
 
     /**
      * Allows to register a class that will be responsible to handle a specific patch operation.
      * You can replace a handler class for a given operation or register handlers for custom patch operations
-     * @param PatchOperationInterface $PatchOperation
+     * @param PatchOperationHandlerInterface $PatchOperation
      * @return void
      */
-    public function registerOperation(PatchOperationInterface $PatchOperation): void
+    public function registerOperationHandler(PatchOperationHandlerInterface $PatchOperation): void
     {
         if ($PatchOperation instanceof JsonHandlerAwareInterface) {
             $PatchOperation->setJsonHandler($this->JsonHandler);
@@ -117,7 +117,7 @@ final class FastJsonPatch implements JsonHandlerAwareInterface, JsonPointerHandl
             $PatchOperation->setJsonPointerHandler($this->JsonPointerHandler);
         }
 
-        $this->operations[$PatchOperation->getOperation()] = $PatchOperation;
+        $this->operationHandlers[$PatchOperation->getOperation()] = $PatchOperation;
     }
 
     /**
@@ -134,10 +134,10 @@ final class FastJsonPatch implements JsonHandlerAwareInterface, JsonPointerHandl
             $document = &$this->document;
 
             foreach ($this->patchIterator($patch) as $op => $p) {
-                if (!isset($this->operations[$op])) {
+                if (!isset($this->operationHandlers[$op])) {
                     throw new InvalidPatchOperationException(sprintf('Unknown operation "%s"', $op));
                 }
-                $Operation = $this->operations[$op];
+                $Operation = $this->operationHandlers[$op];
                 $Operation->validate($p);
                 $Operation->apply($document, $p);
                 $revertPatch[] = $Operation->getRevertPatch($p);
@@ -146,7 +146,7 @@ final class FastJsonPatch implements JsonHandlerAwareInterface, JsonPointerHandl
             foreach (array_reverse($revertPatch) as $p) {
                 if (!is_null($p)) {
                     $p = (object) $p;
-                    $this->operations[$p->op]->apply($this->document, $p);
+                    $this->operationHandlers[$p->op]->apply($this->document, $p);
                 }
             }
 
@@ -172,10 +172,10 @@ final class FastJsonPatch implements JsonHandlerAwareInterface, JsonPointerHandl
     {
         try {
             foreach ($this->patchIterator($patch) as $op => $p) {
-                if (!isset($this->operations[$op])) {
+                if (!isset($this->operationHandlers[$op])) {
                     return false;
                 }
-                $this->operations[$op]->validate($p);
+                $this->operationHandlers[$op]->validate($p);
             }
             return true;
         } catch (FastJsonPatchException) {

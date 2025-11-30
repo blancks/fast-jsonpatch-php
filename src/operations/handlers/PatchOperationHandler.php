@@ -1,14 +1,16 @@
 <?php declare(strict_types=1);
 
-namespace blancks\JsonPatch\operations;
+namespace blancks\JsonPatch\operations\handlers;
 
 use blancks\JsonPatch\json\handlers\JsonHandlerAwareInterface;
 use blancks\JsonPatch\json\handlers\JsonHandlerAwareTrait;
 use blancks\JsonPatch\json\pointer\JsonPointerHandlerAwareInterface;
 use blancks\JsonPatch\json\pointer\JsonPointerHandlerAwareTrait;
+use blancks\JsonPatch\operations\handlers\PatchOperationHandlerInterface;
+use blancks\JsonPatch\operations\PatchValidationTrait;
 
-abstract class PatchOperation implements
-    PatchOperationInterface,
+abstract class PatchOperationHandler implements
+    PatchOperationHandlerInterface,
     JsonHandlerAwareInterface,
     JsonPointerHandlerAwareInterface
 {

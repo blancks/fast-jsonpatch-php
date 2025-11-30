@@ -15,14 +15,14 @@ use blancks\JsonPatch\json\handlers\BasicJsonHandler;
 use blancks\JsonPatch\json\handlers\JsonHandlerAwareTrait;
 use blancks\JsonPatch\json\pointer\JsonPointer6901;
 use blancks\JsonPatch\operations\handlers\AddHandler;
-use blancks\JsonPatch\operations\PatchOperation;
+use blancks\JsonPatch\operations\handlers\PatchOperationHandler;
 use blancks\JsonPatch\operations\PatchValidationTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
 #[CoversClass(AddHandler::class)]
-#[CoversClass(PatchOperation::class)]
+#[CoversClass(PatchOperationHandler::class)]
 #[UsesClass(PatchValidationTrait::class)]
 #[UsesClass(CrudTrait::class)]
 #[UsesClass(BasicJsonHandler::class)]

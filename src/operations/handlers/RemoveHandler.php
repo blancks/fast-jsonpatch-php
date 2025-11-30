@@ -2,12 +2,10 @@
 
 namespace blancks\JsonPatch\operations\handlers;
 
-use blancks\JsonPatch\operations\PatchOperation;
-
 /**
  * @internal
  */
-final class RemoveHandler extends PatchOperation
+final class RemoveHandler extends PatchOperationHandler
 {
     private mixed $previous;
 

@@ -2,12 +2,10 @@
 
 namespace blancks\JsonPatch\operations\handlers;
 
-use blancks\JsonPatch\operations\PatchOperation;
-
 /**
  * @internal
  */
-final class MoveHandler extends PatchOperation
+final class MoveHandler extends PatchOperationHandler
 {
     /**
      * @param object{
