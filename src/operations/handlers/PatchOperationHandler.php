@@ -6,7 +6,6 @@ use blancks\JsonPatch\json\handlers\JsonHandlerAwareInterface;
 use blancks\JsonPatch\json\handlers\JsonHandlerAwareTrait;
 use blancks\JsonPatch\json\pointer\JsonPointerHandlerAwareInterface;
 use blancks\JsonPatch\json\pointer\JsonPointerHandlerAwareTrait;
-use blancks\JsonPatch\operations\handlers\PatchOperationHandlerInterface;
 use blancks\JsonPatch\operations\PatchValidationTrait;
 
 abstract class PatchOperationHandler implements

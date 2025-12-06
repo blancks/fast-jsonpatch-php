@@ -40,7 +40,7 @@ final class TestHandler extends PatchOperationHandler
         if (!$this->isJsonEquals($item, $patch->value)) {
             throw new FailedTestException(
                 sprintf(
-                    'TestHandler operation failed asserting that "%s" equals "%s"',
+                    'Test operation failed asserting that "%s" equals "%s"',
                     $this->JsonHandler->encode($item),
                     $this->JsonHandler->encode($patch->value)
                 ),
