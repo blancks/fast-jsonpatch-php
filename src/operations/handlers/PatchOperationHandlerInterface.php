@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace blancks\JsonPatch\operations;
+namespace blancks\JsonPatch\operations\handlers;
 
 use blancks\JsonPatch\exceptions\FastJsonPatchException;
 
@@ -9,7 +9,7 @@ use blancks\JsonPatch\exceptions\FastJsonPatchException;
  * handle the patch application for a specific
  * operation type
  */
-interface PatchOperationInterface
+interface PatchOperationHandlerInterface
 {
     /**
      * Must return the operation name that the class will handle

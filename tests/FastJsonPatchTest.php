@@ -21,13 +21,13 @@ use blancks\JsonPatch\json\{
     pointer\JsonPointer6901
 };
 use blancks\JsonPatch\operations\{
-    PatchOperation,
-    Add,
-    Copy,
-    Move,
-    Remove,
-    Replace,
-    Test
+    handlers\PatchOperationHandler,
+    handlers\AddHandler,
+    handlers\CopyHandler,
+    handlers\MoveHandler,
+    handlers\RemoveHandler,
+    handlers\ReplaceHandler,
+    handlers\TestHandler
 };
 use blancks\JsonPatch\FastJsonPatch;
 use PHPUnit\Framework\Attributes\{
@@ -51,13 +51,13 @@ use PHPUnit\Framework\Attributes\{
 #[UsesClass(CrudTrait::class)]
 #[UsesClass(BasicJsonHandler::class)]
 #[UsesClass(JsonPointer6901::class)]
-#[UsesClass(PatchOperation::class)]
-#[UsesClass(Add::class)]
-#[UsesClass(Copy::class)]
-#[UsesClass(Move::class)]
-#[UsesClass(Remove::class)]
-#[UsesClass(Replace::class)]
-#[UsesClass(Test::class)]
+#[UsesClass(PatchOperationHandler::class)]
+#[UsesClass(AddHandler::class)]
+#[UsesClass(CopyHandler::class)]
+#[UsesClass(MoveHandler::class)]
+#[UsesClass(RemoveHandler::class)]
+#[UsesClass(ReplaceHandler::class)]
+#[UsesClass(TestHandler::class)]
 final class FastJsonPatchTest extends JsonPatchCompliance
 {
     public function testValidPatch(): void
@@ -126,7 +126,7 @@ final class FastJsonPatchTest extends JsonPatchCompliance
     public function testCustomOperationHandler(): void
     {
         $FastJsonPatch = FastJsonPatch::fromJson('{}');
-        $FastJsonPatch->registerOperation(new class() extends PatchOperation {
+        $FastJsonPatch->registerOperationHandler(new class() extends PatchOperationHandler {
             public function getOperation(): string
             {
                 return 'addexclamation';

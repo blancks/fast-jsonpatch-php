@@ -1,8 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace blancks\JsonPatch\operations;
+namespace blancks\JsonPatch\operations\handlers;
 
-final class Move extends PatchOperation
+/**
+ * @internal
+ */
+final class MoveHandler extends PatchOperationHandler
 {
     /**
      * @param object{

@@ -1,10 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace blancks\JsonPatch\operations;
+namespace blancks\JsonPatch\operations\handlers;
 
 use blancks\JsonPatch\exceptions\FailedTestException;
 
-final class Test extends PatchOperation
+/**
+ * @internal
+ */
+final class TestHandler extends PatchOperationHandler
 {
     /**
      * @param object{

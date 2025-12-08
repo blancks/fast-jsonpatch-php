@@ -1,10 +1,13 @@
 <?php declare(strict_types=1);
 
-namespace blancks\JsonPatch\operations;
+namespace blancks\JsonPatch\operations\handlers;
 
 use blancks\JsonPatch\json\accessors\UndefinedValue;
 
-final class Copy extends PatchOperation
+/**
+ * @internal
+ */
+final class AddHandler extends PatchOperationHandler
 {
     private mixed $previous;
 
@@ -12,7 +15,7 @@ final class Copy extends PatchOperation
      * @param object{
      *     op:string,
      *     path: string,
-     *     from: string,
+     *     value: mixed,
      * } $patch
      * @return void
      */
@@ -20,7 +23,7 @@ final class Copy extends PatchOperation
     {
         // op and path are already guaranteed to be part of the patch
         // we only need to validate the additional properties needed for this operation
-        $this->assertValidFrom($patch);
+        $this->assertValidValue($patch);
     }
 
     /**
@@ -28,21 +31,20 @@ final class Copy extends PatchOperation
      * @param object{
      *     op:string,
      *     path: string,
-     *     from: string,
+     *     value: mixed,
      * } $patch
      * @return void
      */
     public function apply(mixed &$document, object $patch): void
     {
-        $value = $this->JsonHandler->read($document, $patch->from);
-        $this->previous = $this->JsonHandler->write($document, $patch->path, $value);
+        $this->previous = $this->JsonHandler->write($document, $patch->path, $patch->value);
     }
 
     /**
      * @param object{
      *     op:string,
      *     path: string,
-     *     from: string,
+     *     value: mixed,
      * } $patch
      * @return null|array{
      *     op:string,
@@ -67,10 +69,9 @@ final class Copy extends PatchOperation
                     )
                 );
             }
-
             return [
                 'op' => 'remove',
-                'path' => substr_replace($patch->path, (string) $this->previous, -1)
+                'path' => substr_replace((string) $patch->path, (string) $this->previous, -1)
             ];
         }
 

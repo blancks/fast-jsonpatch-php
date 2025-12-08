@@ -13,13 +13,13 @@ use blancks\JsonPatch\json\accessors\ValueAccessorAwareTrait;
 use blancks\JsonPatch\json\crud\CrudTrait;
 use blancks\JsonPatch\json\handlers\BasicJsonHandler;
 use blancks\JsonPatch\json\pointer\JsonPointer6901;
-use blancks\JsonPatch\operations\Add;
-use blancks\JsonPatch\operations\Copy;
-use blancks\JsonPatch\operations\Move;
-use blancks\JsonPatch\operations\PatchOperation;
-use blancks\JsonPatch\operations\Remove;
-use blancks\JsonPatch\operations\Replace;
-use blancks\JsonPatch\operations\Test;
+use blancks\JsonPatch\operations\handlers\AddHandler;
+use blancks\JsonPatch\operations\handlers\CopyHandler;
+use blancks\JsonPatch\operations\handlers\MoveHandler;
+use blancks\JsonPatch\operations\handlers\PatchOperationHandler;
+use blancks\JsonPatch\operations\handlers\RemoveHandler;
+use blancks\JsonPatch\operations\handlers\ReplaceHandler;
+use blancks\JsonPatch\operations\handlers\TestHandler;
 use blancks\JsonPatch\FastJsonPatch;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -38,13 +38,13 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(CrudTrait::class)]
 #[UsesClass(BasicJsonHandler::class)]
 #[UsesClass(JsonPointer6901::class)]
-#[UsesClass(PatchOperation::class)]
-#[UsesClass(Add::class)]
-#[UsesClass(Copy::class)]
-#[UsesClass(Move::class)]
-#[UsesClass(Remove::class)]
-#[UsesClass(Replace::class)]
-#[UsesClass(Test::class)]
+#[UsesClass(PatchOperationHandler::class)]
+#[UsesClass(AddHandler::class)]
+#[UsesClass(CopyHandler::class)]
+#[UsesClass(MoveHandler::class)]
+#[UsesClass(RemoveHandler::class)]
+#[UsesClass(ReplaceHandler::class)]
+#[UsesClass(TestHandler::class)]
 final class UnknownPathExceptionTest extends TestCase
 {
     /**

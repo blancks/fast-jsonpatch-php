@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace blancks\JsonPatchTest\operations;
+namespace blancks\JsonPatchTest\operations\handlers;
 
 use blancks\JsonPatch\exceptions\FastJsonPatchExceptionTrait;
 use blancks\JsonPatch\exceptions\InvalidPatchFromException;
@@ -16,15 +16,15 @@ use blancks\JsonPatch\json\crud\CrudTrait;
 use blancks\JsonPatch\json\handlers\BasicJsonHandler;
 use blancks\JsonPatch\json\handlers\JsonHandlerAwareTrait;
 use blancks\JsonPatch\json\pointer\JsonPointer6901;
-use blancks\JsonPatch\operations\Move;
-use blancks\JsonPatch\operations\PatchOperation;
+use blancks\JsonPatch\operations\handlers\MoveHandler;
+use blancks\JsonPatch\operations\handlers\PatchOperationHandler;
 use blancks\JsonPatch\operations\PatchValidationTrait;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\TestCase;
 
-#[CoversClass(Move::class)]
-#[CoversClass(PatchOperation::class)]
+#[CoversClass(MoveHandler::class)]
+#[CoversClass(PatchOperationHandler::class)]
 #[UsesClass(PatchValidationTrait::class)]
 #[UsesClass(CrudTrait::class)]
 #[UsesClass(BasicJsonHandler::class)]
@@ -42,7 +42,7 @@ use PHPUnit\Framework\TestCase;
 #[UsesClass(UnknownPathException::class)]
 class MoveTest extends TestCase
 {
-    private Move $Operation;
+    private MoveHandler $Operation;
 
     protected function setUp(): void
     {
@@ -50,7 +50,7 @@ class MoveTest extends TestCase
         $JsonPointerHandler = new JsonPointer6901;
         $JsonHandler->setJsonPointerHandler($JsonPointerHandler);
 
-        $this->Operation = new Move();
+        $this->Operation = new MoveHandler();
         $this->Operation->setJsonHandler($JsonHandler);
         $this->Operation->setJsonPointerHandler($JsonPointerHandler);
     }

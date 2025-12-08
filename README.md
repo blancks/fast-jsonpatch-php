@@ -185,14 +185,14 @@ Patch application is designed to be atomic. If any operation of a given patch fa
   ```
 
 
-#### `function registerOperation(PatchOperationInterface $PatchOperation): void`
+#### `function registerOperationHandler(PatchOperationHandlerInterface $PatchOperation): void`
 
 - **Description**: Allows to register new patch operation handlers or to override existing ones.
 - **Parameters**:
-  - `PatchOperationInterface $PatchOperation`: The handler class for handling the operation.
+  - `PatchOperationHandlerInterface $PatchOperation`: The handler class for handling the operation.
 - **Example**:
   ```php
-  $FastJsonPatch->registerOperation(new Add);
+  $FastJsonPatch->registerOperationHandler(new Add);
   ```
 
 

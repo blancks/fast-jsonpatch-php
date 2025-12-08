@@ -1,8 +1,11 @@
 <?php declare(strict_types=1);
 
-namespace blancks\JsonPatch\operations;
+namespace blancks\JsonPatch\operations\handlers;
 
-final class Remove extends PatchOperation
+/**
+ * @internal
+ */
+final class RemoveHandler extends PatchOperationHandler
 {
     private mixed $previous;
 
