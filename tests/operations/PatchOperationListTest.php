@@ -25,6 +25,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\Attributes\UsesClass;
+use stdClass;
 use Throwable;
 
 #[CoversClass(PatchOperationList::class)]
@@ -51,6 +52,10 @@ class PatchOperationListTest extends JsonPatchCompliance
      */
     public static function validEncodeDecodeProvider(): array
     {
+        $objValue = new stdClass();
+        $objValue->type = 'foo';
+        $objValue->list = ['bar', 'baz'];
+
         return [
             'empty list' => [
                 [],
@@ -82,6 +87,20 @@ class PatchOperationListTest extends JsonPatchCompliance
                 ]
                 JSON,
             ],
+            'operations with object values' => [
+                [
+                    new Add(path: '/bar', value: $objValue),
+                    new Replace(path: '/bar', value: $objValue),
+                    new Test(path: '/bar', value: $objValue),
+                ],
+                <<<'JSON'
+                [
+                  {"op":"add","path":"/bar","value":{"type":"foo","list":["bar","baz"]}},
+                  {"op":"replace","path":"/bar","value":{"type":"foo","list":["bar","baz"]}},
+                  {"op":"test","path":"/bar","value":{"type":"foo","list":["bar","baz"]}}
+                ]
+                JSON,
+            ]
         ];
     }
 
@@ -150,13 +169,13 @@ class PatchOperationListTest extends JsonPatchCompliance
                     Assert::assertSame(
                         [
                             'json' => '[fake]',
-                            'options' => ['associative' => true],
+                            'options' => [],
                         ],
                         get_defined_vars(),
                         'JSONHandler should have been called with expected args',
                     );
                     return [
-                        ['op' => 'remove', 'path' => '/some/path'],
+                        (object) ['op' => 'remove', 'path' => '/some/path'],
                     ];
                 }
             },
@@ -170,23 +189,6 @@ class PatchOperationListTest extends JsonPatchCompliance
 
     public function testItCanDecodeWithCustomOperationClasses(): void
     {
-        $appendOperation = new class('/greeting', ' World') extends PatchOperation {
-            public function __construct(
-                public readonly string $path,
-                public readonly string $suffix,
-            ) {
-                parent::__construct('append');
-            }
-        };
-        $customAddOperation = new class('/greeting', 'Hello') extends PatchOperation {
-            public function __construct(
-                public readonly string $path,
-                public readonly mixed $value,
-            ) {
-                parent::__construct('add');
-            }
-        };
-
         $result = PatchOperationList::fromJson(
             <<<'JSON'
             [
@@ -196,15 +198,15 @@ class PatchOperationListTest extends JsonPatchCompliance
             ]
             JSON,
             customClasses: [
-                'add' => $customAddOperation::class,
-                'append' => $appendOperation::class,
+                'add' => CustomAdd::class,
+                'append' => Append::class,
             ],
         );
 
         $this->assertEquals(
             new PatchOperationList(
-                $customAddOperation,
-                $appendOperation,
+                new CustomAdd('/greeting', 'Hello'),
+                new Append('/greeting', ' World'),
                 new Copy(path: '/whatever', from: '/greeting'),
             ),
             $result,
@@ -220,12 +222,17 @@ class PatchOperationListTest extends JsonPatchCompliance
             'json is not a list (example 1)' => [
                 '{"some": "field"}',
                 InvalidPatchException::class,
-                'Invalid patch structure (expected list, got array)',
+                'Invalid patch structure (expected list, got stdClass)',
             ],
             'json is not a list (example 2)' => [
                 'true',
                 InvalidPatchException::class,
                 'Invalid patch structure (expected list, got bool)',
+            ],
+            'json is not a list (example 3)' => [
+                '{"2": {"op": "add", "path": "/some/path", "value": "World"}}',
+                InvalidPatchException::class,
+                'Invalid patch structure (expected list, got stdClass)',
             ],
             'unknown operation' => [
                 '[{"op": "scramble", "path": "/anywhere"}]',

@@ -6,6 +6,7 @@ use blancks\JsonPatch\exceptions\InvalidPatchException;
 use blancks\JsonPatch\exceptions\InvalidPatchOperationException;
 use blancks\JsonPatch\json\handlers\BasicJsonHandler;
 use blancks\JsonPatch\json\handlers\JsonHandlerInterface;
+use stdClass;
 
 final class PatchOperationList implements \JsonSerializable
 {
@@ -25,7 +26,7 @@ final class PatchOperationList implements \JsonSerializable
         JsonHandlerInterface $jsonHandler = new BasicJsonHandler(),
         array $customClasses = [],
     ): self {
-        $patches = $jsonHandler->decode($jsonOperations, ['associative' => true]);
+        $patches = $jsonHandler->decode($jsonOperations);
         if (!(is_array($patches) && array_is_list($patches))) {
             throw new InvalidPatchException(
                 sprintf('Invalid patch structure (expected list, got %s)', get_debug_type($patches)),
@@ -44,7 +45,10 @@ final class PatchOperationList implements \JsonSerializable
 
         return new PatchOperationList(
             ...array_map(
-                function (array $patch) use ($classes) {
+                function (stdClass $patch) use ($classes) {
+                    // The top-level patch entries should be identical as objects or arrays, cast to array to allow
+                    // spreading the properties into the DTO constructors (which are assumed to match the JSON objects)
+                    $patch = (array) $patch;
                     $op = $patch['op'];
                     unset($patch['op']);
                     if (!isset($classes[$op])) {
