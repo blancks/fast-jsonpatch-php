@@ -23,8 +23,8 @@ use blancks\JsonPatch\operations\Test;
 use blancks\JsonPatchTest\JsonPatchCompliance;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
-use PHPUnit\Framework\Assert;
 use PHPUnit\Framework\Attributes\UsesClass;
+use PHPUnit\Framework\Assert;
 use stdClass;
 use Throwable;
 
@@ -254,5 +254,25 @@ class PatchOperationListTest extends JsonPatchCompliance
         $this->expectException($expect_exception);
         $this->expectExceptionMessage($expect_msg);
         PatchOperationList::fromJson($json);
+    }
+}
+
+readonly class Append extends PatchOperation
+{
+    public function __construct(
+        public string $path,
+        public string $suffix,
+    ) {
+        parent::__construct('append');
+    }
+}
+
+readonly class CustomAdd extends PatchOperation
+{
+    public function __construct(
+        public string $path,
+        public mixed $value,
+    ) {
+        parent::__construct('add');
     }
 }

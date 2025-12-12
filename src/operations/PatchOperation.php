@@ -2,9 +2,9 @@
 
 namespace blancks\JsonPatch\operations;
 
-abstract class PatchOperation
+abstract readonly class PatchOperation
 {
     public function __construct(
-        public readonly string $op,
+        public string $op,
     ) {}
 }

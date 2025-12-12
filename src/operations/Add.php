@@ -9,11 +9,11 @@ namespace blancks\JsonPatch\operations;
  *     value: mixed,
  * }
  */
-final class Add extends PatchOperation
+final readonly class Add extends PatchOperation
 {
     public function __construct(
-        public readonly string $path,
-        public readonly mixed $value,
+        public string $path,
+        public mixed $value,
     ) {
         parent::__construct('add');
     }

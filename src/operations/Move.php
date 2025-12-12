@@ -9,11 +9,11 @@ namespace blancks\JsonPatch\operations;
  *     from: string,
  * }
  */
-final class Move extends PatchOperation
+final readonly class Move extends PatchOperation
 {
     public function __construct(
-        public readonly string $path,
-        public readonly string $from,
+        public string $path,
+        public string $from,
     ) {
         parent::__construct('move');
     }

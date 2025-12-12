@@ -8,12 +8,12 @@ use blancks\JsonPatch\json\handlers\BasicJsonHandler;
 use blancks\JsonPatch\json\handlers\JsonHandlerInterface;
 use stdClass;
 
-final class PatchOperationList implements \JsonSerializable
+final readonly class PatchOperationList implements \JsonSerializable
 {
     /**
      * @phpstan-var list<PatchOperation>
      */
-    public readonly array $operations;
+    public array $operations;
 
     /**
      * @param string $jsonOperations

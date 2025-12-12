@@ -8,10 +8,10 @@ namespace blancks\JsonPatch\operations;
  *     path: string,
  * }
  */
-final class Remove extends PatchOperation
+final readonly class Remove extends PatchOperation
 {
     public function __construct(
-        public readonly string $path,
+        public string $path,
     ) {
         parent::__construct('remove');
     }
