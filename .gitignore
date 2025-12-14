@@ -3,3 +3,5 @@ vendor
 .phpunit.cache
 php_errors.log
 composer.lock
+.DS_Store
+coverage-report
