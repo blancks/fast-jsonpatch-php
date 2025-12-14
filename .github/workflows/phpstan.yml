@@ -9,7 +9,7 @@ jobs:
 
     strategy:
       matrix:
-        php-versions: ["8.1"]
+        php-versions: ["8.2"]
 
     steps:
       - name: Checkout Code
