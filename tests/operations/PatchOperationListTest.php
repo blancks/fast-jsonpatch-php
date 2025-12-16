@@ -29,13 +29,13 @@ use stdClass;
 use Throwable;
 
 #[CoversClass(PatchOperationList::class)]
-#[UsesClass(Add::class)]
-#[UsesClass(Copy::class)]
-#[UsesClass(Move::class)]
-#[UsesClass(Remove::class)]
-#[UsesClass(Replace::class)]
-#[UsesClass(Test::class)]
-#[UsesClass(PatchOperation::class)]
+#[CoversClass(Add::class)]
+#[CoversClass(Copy::class)]
+#[CoversClass(Move::class)]
+#[CoversClass(Remove::class)]
+#[CoversClass(Replace::class)]
+#[CoversClass(Test::class)]
+#[CoversClass(PatchOperation::class)]
 #[UsesClass(FastJsonPatchExceptionTrait::class)]
 #[UsesClass(InvalidPatchException::class)]
 #[UsesClass(InvalidPatchOperationException::class)]
@@ -192,7 +192,7 @@ class PatchOperationListTest extends JsonPatchCompliance
         $result = PatchOperationList::fromJson(
             <<<'JSON'
             [
-              {"op":  "add", "path": "/greeting", "value": "Hello" },
+              {"op":  "add", "path": "/greeting", "value": "Hello", "custom": "my own var" },
               {"op":  "append", "path": "/greeting", "suffix": " World" },
               {"op":  "copy", "path": "/whatever", "from": "/greeting"}
             ]
@@ -205,7 +205,7 @@ class PatchOperationListTest extends JsonPatchCompliance
 
         $this->assertEquals(
             new PatchOperationList(
-                new CustomAdd('/greeting', 'Hello'),
+                new CustomAdd('/greeting', 'Hello', 'my own var'),
                 new Append('/greeting', ' World'),
                 new Copy(path: '/whatever', from: '/greeting'),
             ),
@@ -234,11 +234,75 @@ class PatchOperationListTest extends JsonPatchCompliance
                 InvalidPatchException::class,
                 'Invalid patch structure (expected list, got stdClass)',
             ],
+            'patch item is not an object (example 1)' => [
+                '[["foo"]]',
+                InvalidPatchOperationException::class,
+                'Each patch item must be an object, got array',
+            ],
+            'patch item is not an object (example 2)' => [
+                '[{"op": "remove", "path": "/some/path"}, true]',
+                InvalidPatchOperationException::class,
+                'Each patch item must be an object, got bool',
+            ],
+            'patch without op property' => [
+                '[{"path": "/some/path", "value": "anything"}]',
+                InvalidPatchOperationException::class,
+                'Each patch item must specify "op"',
+            ],
+            'op is invalid type' => [
+                '[{"op": true}]',
+                InvalidPatchOperationException::class,
+                'Patch "op" must be a string, got bool',
+            ],
             'unknown operation' => [
                 '[{"op": "scramble", "path": "/anywhere"}]',
                 InvalidPatchOperationException::class,
                 'Unknown operation "scramble"',
             ],
+            'unexpected extra operation property' => [
+                '[{"op":"add", "path": "/foo", "value": "bar", "custom": "things"}]',
+                InvalidPatchOperationException::class,
+                // The message also contains the original PHP message but this varies between versions so we do not
+                // include it in the assertion.
+                sprintf(
+                    'Unexpected param(s) for add operation as %s',
+                    Add::class,
+                ),
+            ],
+            'missing operation property' => [
+                '[{"op":"add", "path": "/foo"}]',
+                InvalidPatchOperationException::class,
+                // The message also contains the original PHP message but this varies between versions so we do not
+                // include it in the assertion.
+                sprintf(
+                    'Missing required param(s) for add operation as %s',
+                    Add::class,
+                ),
+            ],
+            'operation property has incorrect type' => [
+                '[{"op":"add", "path": true, "value": "bar"}]',
+                InvalidPatchOperationException::class,
+                // The message also contains the original PHP message but this varies between versions so we do not
+                // include it in the assertion.
+                sprintf(
+                    'Invalid param(s) for add operation as %s',
+                    Add::class,
+                ),
+            ],
+            'operation with mixed string and int keys (example 1)' => [
+                // PHP would internally convert this into positional args and accept it even though there's no guarantee
+                // we have the right keys in the right sequence / have no extra properties.
+                '[{"op":"add", "0": "bar", "1": "/from"}]',
+                InvalidPatchOperationException::class,
+                'All patch operation properties must have string names'
+            ],
+            'operation with mixed string and int keys (example 2)' => [
+                // PHP would internally convert this into positional args and accept it even though there's no guarantee
+                // we have the right keys in the right sequence / have no extra properties.
+                '[{"op":"add", "1": "bar", "2": "/from"}]',
+                InvalidPatchOperationException::class,
+                'All patch operation properties must have string names'
+            ]
         ];
     }
 
@@ -272,6 +336,7 @@ readonly class CustomAdd extends PatchOperation
     public function __construct(
         public string $path,
         public mixed $value,
+        public mixed $custom,
     ) {
         parent::__construct('add');
     }
