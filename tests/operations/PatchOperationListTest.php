@@ -25,6 +25,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\UsesClass;
 use PHPUnit\Framework\Assert;
+use DivisionByZeroError;
 use stdClass;
 use Throwable;
 
@@ -100,7 +101,7 @@ class PatchOperationListTest extends JsonPatchCompliance
                   {"op":"test","path":"/bar","value":{"type":"foo","list":["bar","baz"]}}
                 ]
                 JSON,
-            ]
+            ],
         ];
     }
 
@@ -294,15 +295,15 @@ class PatchOperationListTest extends JsonPatchCompliance
                 // we have the right keys in the right sequence / have no extra properties.
                 '[{"op":"add", "0": "bar", "1": "/from"}]',
                 InvalidPatchOperationException::class,
-                'All patch operation properties must have string names'
+                'All patch operation properties must have string names',
             ],
             'operation with mixed string and int keys (example 2)' => [
                 // PHP would internally convert this into positional args and accept it even though there's no guarantee
                 // we have the right keys in the right sequence / have no extra properties.
                 '[{"op":"add", "1": "bar", "2": "/from"}]',
                 InvalidPatchOperationException::class,
-                'All patch operation properties must have string names'
-            ]
+                'All patch operation properties must have string names',
+            ],
         ];
     }
 
@@ -318,6 +319,18 @@ class PatchOperationListTest extends JsonPatchCompliance
         $this->expectException($expect_exception);
         $this->expectExceptionMessage($expect_msg);
         PatchOperationList::fromJson($json);
+    }
+
+    public function testItsFromJsonBubblesGenericPhpErrors(): void
+    {
+        // Very contrived example to prove that our code rethrows any unexpected PHP errors during DTO creation
+        $this->expectException(DivisionByZeroError::class);
+        PatchOperationList::fromJson(
+            <<<'JSON'
+            [{"op": "fraction", "numerator": 1, "denominator": 0}]
+            JSON,
+            customClasses: ['fraction' => Fraction::class]
+        );
     }
 }
 
@@ -339,5 +352,18 @@ readonly class CustomAdd extends PatchOperation
         public mixed $custom,
     ) {
         parent::__construct('add');
+    }
+}
+
+readonly class Fraction extends PatchOperation
+{
+    public float $fraction;
+
+    public function __construct(
+        public int $numerator,
+        public int $denominator,
+    ) {
+        parent::__construct('fraction');
+        $this->fraction = $this->numerator / $this->denominator;
     }
 }
