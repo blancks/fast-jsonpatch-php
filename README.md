@@ -90,6 +90,64 @@ The expected workflow is that once you got a `FastJsonPatch` instance you can ca
 
 Patch application is designed to be atomic. If any operation of a given patch fails the original document is restored, ensuring a consistent state of the document.
 
+If you are building patches within your application, rather than receiving them from an external source, you may wish
+to build them as native PHP objects. This provides strict typing of the available parameters for each operation.
+
+The above example could also be represented as:
+
+```php
+use blancks\JsonPatch\FastJsonPatch;
+use blancks\JsonPatch\exceptions\FastJsonPatchException;
+use blancks\JsonPatch\operations\PatchOperationList;
+use blancks\JsonPatch\operations\Add;
+use blancks\JsonPatch\operations\Replace;
+use blancks\JsonPatch\operations\Remove;
+
+$document = '{
+    "contacts":[
+        {"name":"John","number":"-"},
+        {"name":"Dave","number":"+1 222 333 4444"}
+    ]
+}';
+
+$patch = new PatchOperationList(
+    new Add(path: '/contacts/-', value: ['name' => 'Jane', 'number' => '+1 353 644 2121']),
+    new Replace(path: '/contacts/0/number', value: '+1 212 555 1212'),
+    new Remove(path: '/contacts/1'),
+);
+
+$FastJsonPatch = FastJsonPatch::fromJson($document);
+
+try {
+
+    $FastJsonPatch->apply($patch);
+    
+} catch (FastJsonPatchException $e) {
+
+    // here if patch cannot be applied for some reason
+    echo $e->getMessage(), "\n";
+    
+}
+
+var_dump($FastJsonPatch->getDocument());
+```
+
+### Should I use DTOs or JSON strings for patches?
+
+The exact answer will depend on your usecase, but broadly speaking:
+
+* If your patches are coming from an external or serialized source, keep them as JSON strings. This provides a clearer
+  and more forgiving validation process (for example, if the patch has missing or additional properties). It also avoids
+  any (limited) performance overhead to build the patch as typed objects.
+* If you are building patches at runtime in your own application, consider using DTOs. This provides additional 
+  type-safety within your code, and may be more efficient than serialising a patch to JSON and back.
+
+When working with DTOs, the `PatchOperationList` can be serialized to JSON using the native `json_encode` (or any method
+that supports the `JsonSerializable` interface). It can also be unserialized from JSON - and you can optionally provide
+a JSON handler and a mapping of `PatchOperation` classes to customise the parsing.
+
+Note that - unlike the JSON format - the core operation DTOs do not accept any additional parameters. If you need to 
+include additional parameters in your patch you can provide your own `PatchOperation` implementation(s).
 
 ## Constructor
 

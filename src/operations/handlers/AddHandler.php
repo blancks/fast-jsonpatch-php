@@ -3,20 +3,18 @@
 namespace blancks\JsonPatch\operations\handlers;
 
 use blancks\JsonPatch\json\accessors\UndefinedValue;
+use blancks\JsonPatch\operations\Add;
 
 /**
  * @internal
+ * @phpstan-import-type TAddOperationObject from Add
  */
 final class AddHandler extends PatchOperationHandler
 {
     private mixed $previous;
 
     /**
-     * @param object{
-     *     op:string,
-     *     path: string,
-     *     value: mixed,
-     * } $patch
+     * @param object&TAddOperationObject $patch
      * @return void
      */
     public function validate(object $patch): void
@@ -28,11 +26,7 @@ final class AddHandler extends PatchOperationHandler
 
     /**
      * @param mixed $document
-     * @param object{
-     *     op:string,
-     *     path: string,
-     *     value: mixed,
-     * } $patch
+     * @param object&TAddOperationObject $patch
      * @return void
      */
     public function apply(mixed &$document, object $patch): void
@@ -41,11 +35,7 @@ final class AddHandler extends PatchOperationHandler
     }
 
     /**
-     * @param object{
-     *     op:string,
-     *     path: string,
-     *     value: mixed,
-     * } $patch
+     * @param object&TAddOperationObject $patch
      * @return null|array{
      *     op:string,
      *     path: string,

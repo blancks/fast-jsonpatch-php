@@ -2,19 +2,18 @@
 
 namespace blancks\JsonPatch\operations\handlers;
 
+use blancks\JsonPatch\operations\Replace;
+
 /**
  * @internal
+ * @phpstan-import-type TReplaceOperationObject from Replace
  */
 final class ReplaceHandler extends PatchOperationHandler
 {
     private mixed $previous;
 
     /**
-     * @param object{
-     *     op:string,
-     *     path: string,
-     *     value: mixed,
-     * } $patch
+     * @param object&TReplaceOperationObject $patch
      * @return void
      */
     public function validate(object $patch): void
@@ -26,11 +25,7 @@ final class ReplaceHandler extends PatchOperationHandler
 
     /**
      * @param mixed $document
-     * @param object{
-     *     op:string,
-     *     path: string,
-     *     value: mixed,
-     * } $patch
+     * @param object&TReplaceOperationObject $patch
      * @return void
      */
     public function apply(mixed &$document, object $patch): void
@@ -39,11 +34,7 @@ final class ReplaceHandler extends PatchOperationHandler
     }
 
     /**
-     * @param object{
-     *     op:string,
-     *     path: string,
-     *     value: mixed,
-     * } $patch
+     * @param object&TReplaceOperationObject $patch
      * @return null|array{
      *     op:string,
      *     path: string,

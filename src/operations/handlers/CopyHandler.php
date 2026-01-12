@@ -3,20 +3,18 @@
 namespace blancks\JsonPatch\operations\handlers;
 
 use blancks\JsonPatch\json\accessors\UndefinedValue;
+use blancks\JsonPatch\operations\Copy;
 
 /**
  * @internal
+ * @phpstan-import-type TCopyOperationObject from Copy
  */
 final class CopyHandler extends PatchOperationHandler
 {
     private mixed $previous;
 
     /**
-     * @param object{
-     *     op:string,
-     *     path: string,
-     *     from: string,
-     * } $patch
+     * @param object&TCopyOperationObject $patch
      * @return void
      */
     public function validate(object $patch): void
@@ -28,11 +26,7 @@ final class CopyHandler extends PatchOperationHandler
 
     /**
      * @param mixed $document
-     * @param object{
-     *     op:string,
-     *     path: string,
-     *     from: string,
-     * } $patch
+     * @param object&TCopyOperationObject $patch
      * @return void
      */
     public function apply(mixed &$document, object $patch): void
@@ -42,11 +36,7 @@ final class CopyHandler extends PatchOperationHandler
     }
 
     /**
-     * @param object{
-     *     op:string,
-     *     path: string,
-     *     from: string,
-     * } $patch
+     * @param object&TCopyOperationObject $patch
      * @return null|array{
      *     op:string,
      *     path: string,
