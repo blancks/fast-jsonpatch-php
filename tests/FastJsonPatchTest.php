@@ -2,13 +2,12 @@
 
 namespace blancks\JsonPatchTest;
 
-use blancks\JsonPatch\exceptions\{
-    FastJsonPatchException,
+use blancks\JsonPatch\exceptions\{FastJsonPatchException,
     InvalidPatchException,
     InvalidPatchOperationException,
     InvalidPatchPathException,
-    UnknownPathException
-};
+    MalformedPathException,
+    UnknownPathException};
 use blancks\JsonPatch\json\{
     accessors\ArrayAccessor,
     accessors\ArrayAccessorAwareTrait,
@@ -47,6 +46,7 @@ use PHPUnit\Framework\Attributes\{
 #[CoversClass(FastJsonPatch::class)]
 #[CoversClass(FastJsonPatchException::class)]
 #[UsesClass(InvalidPatchException::class)]
+#[UsesClass(MalformedPathException::class)]
 #[UsesClass(UnknownPathException::class)]
 #[UsesClass(InvalidPatchOperationException::class)]
 #[UsesClass(InvalidPatchPathException::class)]
@@ -76,23 +76,64 @@ use PHPUnit\Framework\Attributes\{
 #[UsesClass(Test::class)]
 final class FastJsonPatchTest extends JsonPatchCompliance
 {
-    public function testValidPatch(): void
+    /**
+     * @return array<string, array{string|PatchOperationList, bool}>
+     */
+    public static function isValidPatchProvider(): array
     {
-        $FastJsonPatch = FastJsonPatch::fromJson('{"foo":"bar"}');
-        $this->assertTrue($FastJsonPatch->isValidPatch('[{"op":"test","path":"/foo","value":"bar"}]'));
+        return [
+            'string patch - valid' => [
+                '[{"op":"test","path":"/foo","value":"bar"}]',
+                true,
+            ],
+            'string patch - valid (despite test not matching)' => [
+                '[{"op":"test","path":"/foo","value":"not this"}]',
+                true,
+            ],
+            'string patch - valid (despite unknown path)' => [
+                '[{"op":"test","path":"/nonexistent-path","value":"any"}]',
+                true,
+            ],
+            'string patch - invalid (is not list)' => [
+                '{"op":"test","path":"/foo","value":"bar"}',
+                false,
+            ],
+            'string patch - invalid (missing parameter for op)' => [
+                '[{"op":"add"}]',
+                false,
+            ],
+            'string patch - invalid (unknown op)' => [
+                '[{"op":"unknown","path":"/foo","value":"bar"}]',
+                false,
+            ],
+            'string patch - invalid (invalid path)' => [
+                '[{"op":"remove","path":"not a path"}]',
+                false,
+            ],
+            'DTO patch - valid' => [
+                new PatchOperationList(new Test(path: '/foo', value: 'bar')),
+                true,
+            ],
+            'DTO patch - valid (despite test not matching)' => [
+                new PatchOperationList(new Test(path: '/foo', value: 'not this')),
+                true,
+            ],
+            'DTO patch - valid (despite unknown path)' => [
+                new PatchOperationList(new Test(path: '/nonexistent-path', value: 'any')),
+                true,
+            ],
+            'DTO patch - invalid (invalid path)' => [
+                new PatchOperationList(new Remove(path: 'not a path')),
+                false,
+            ],
+        ];
     }
 
-    public function testInvalidPatch(): void
+    #[DataProvider('isValidPatchProvider')]
+    public function testIsValidPatch(string|PatchOperationList $patch, bool $expect): void
     {
         $FastJsonPatch = FastJsonPatch::fromJson('{"foo":"bar"}');
-        $this->assertFalse($FastJsonPatch->isValidPatch('{"op":"test","path":"/foo","value":"bar"}'));
-        $this->assertFalse($FastJsonPatch->isValidPatch('[{"op":"add"}]'));
-    }
-
-    public function testUnknownPatchOperation(): void
-    {
-        $FastJsonPatch = FastJsonPatch::fromJson('{"foo":"bar"}');
-        $this->assertFalse($FastJsonPatch->isValidPatch('[{"op":"unknown","path":"/foo","value":"bar"}]'));
+        $this->assertSame($expect, $FastJsonPatch->isValidPatch($patch));
     }
 
     /**

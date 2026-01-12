@@ -166,10 +166,10 @@ final class FastJsonPatch implements JsonHandlerAwareInterface, JsonPointerHandl
 
     /**
      * Tells if the json patch is syntactically valid
-     * @param string $patch
+     * @param string|PatchOperationList $patch
      * @return bool
      */
-    public function isValidPatch(string $patch): bool
+    public function isValidPatch(string|PatchOperationList $patch): bool
     {
         try {
             foreach ($this->patchIterator($patch) as $op => $p) {
